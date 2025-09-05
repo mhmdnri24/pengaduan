@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="gcm_defaultSenderId" translatable="false">43690937490</string>
-    <string name="google_api_key" translatable="false">AIzaSyDIlzA5GA7Chnz1eX4lh8C_aLJocN0poO8</string>
-    <string name="google_app_id" translatable="false">1:43690937490:android:51499583487932bf7e2a4b</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDIlzA5GA7Chnz1eX4lh8C_aLJocN0poO8</string>
-    <string name="google_storage_bucket" translatable="false">statefulclickcounter-fd0d8.firebasestorage.app</string>
-    <string name="project_id" translatable="false">statefulclickcounter-fd0d8</string>
-</resources>
