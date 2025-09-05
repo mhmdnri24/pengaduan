@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "43690937490",
+    "project_id": "statefulclickcounter-fd0d8",
+    "storage_bucket": "statefulclickcounter-fd0d8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43690937490:android:51499583487932bf7e2a4b",
+        "android_client_info": {
+          "package_name": "com.example.statefulclickcounter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIlzA5GA7Chnz1eX4lh8C_aLJocN0poO8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,1 @@
+ D:\\dart\\pengaduan\\.dart_tool\\flutter_build\\7d15d304bf08ccc0a6be13470e1498f3\\native_assets.yaml: 
