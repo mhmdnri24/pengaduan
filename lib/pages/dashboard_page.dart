@@ -1,5 +1,6 @@
 // removed unused imports after slider extraction
 import 'package:flutter/material.dart';
+import 'package:pengaduan/components/pengaduan_list.dart';
 import '../components/sidebar.dart';
 import '../components/navbar.dart';
 // removed unused component imports
@@ -85,7 +86,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   SizedBox(
                     width: double.infinity,
                     child: DecoratedBox(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           colors: [DashboardConstants.primaryColor, DashboardConstants.secondaryColor],
                           begin: Alignment.topLeft,
@@ -97,7 +98,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                       child: Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -127,8 +128,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   const SizedBox(height: 24),
 
                   // Purple info card replaced by reusable PurpleSlider component
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: PurpleSlider(itemCount: 3),
                   ),
 
@@ -137,7 +138,28 @@ class _DashboardPageState extends State<DashboardPage> {
                   // Grid icons (extracted to IconGrid)
                   IconGrid(isDesktop: isDesktop),
 
-                  const SizedBox(height: 80),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                        children: [
+                            SizedBox(height: 10),
+                            HeaderPengaduan(title: "Pengaduan Terbaru",subtitle: "Pantau aduan masyarakat terbaru",),
+                            SizedBox(height: 10),
+                            PengaduanList(),
+                        ],
+                    )
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                        children: [
+                            SizedBox(height: 10),
+                            HeaderPengaduan(title: "Berita Terbaru",subtitle: "Informasi dan berita terkini dari pemerintah",),
+                            SizedBox(height: 10),
+                            PengaduanList(),
+                        ],
+                    )
+                  ),
                 ],
               ),
             ),
