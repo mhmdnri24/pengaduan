@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>statefulclickcounter</string>
+	<string>pengaduan</string>
 <key>CFBundleDisplayName</key>
-<string>statefulclickcounter</string>
+<string>pengaduan</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

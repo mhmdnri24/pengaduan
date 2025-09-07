@@ -6,7 +6,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'services/complaint_service.dart';
 import 'services/bubble_overlay_service.dart';
 import 'screens/complaints_list_screen.dart';
-import 'pages/dashboard_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -100,15 +99,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: _title,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        scaffoldBackgroundColor: const Color(0xFFF6F8FB),
+        primarySwatch: Colors.blue,
         useMaterial3: true,
-        textTheme: Typography.blackMountainView,
       ),
-      home: const DashboardPage(),
+      home: const MyHomePage(),
       routes: {
         '/complaints': (context) => const ComplaintsListScreen(),
-        '/dashboard': (context) => const DashboardPage(),
       },
     );
   }

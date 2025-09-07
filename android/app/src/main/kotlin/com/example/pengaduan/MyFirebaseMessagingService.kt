@@ -1,4 +1,4 @@
-package com.example.statefulclickcounter
+package com.example.pengaduan
 
 import android.content.Context
 import android.content.Intent
@@ -10,8 +10,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     private val TAG = "MyFirebaseMsgService"
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-    Log.d(TAG, "From: ${remoteMessage.from}")
-    Log.d(TAG, "onMessageReceived data=${remoteMessage.data}")
+        Log.d(TAG, "From: ${remoteMessage.from}")
+        Log.d(TAG, "onMessageReceived data=${remoteMessage.data}")
 
         // Start the BubbleOverlayService when a message is received
         // Try to extract a count from the data payload (if supplied)
@@ -38,4 +38,3 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // You might want to send the token to your server here
     }
 }
-

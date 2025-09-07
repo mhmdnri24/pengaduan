@@ -1,4 +1,4 @@
-package com.example.statefulclickcounter
+package com.example.pengaduan
 
 import android.app.*
 import android.content.Context
@@ -29,10 +29,10 @@ class BubbleOverlayService : Service() {
         private const val NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "bubble_overlay_channel"
         private const val METHOD_CHANNEL = "bubble_overlay"
-    const val ACTION_SHOW = "com.example.statefulclickcounter.action.SHOW_BUBBLE"
-    const val ACTION_HIDE = "com.example.statefulclickcounter.action.HIDE_BUBBLE"
-    const val ACTION_UPDATE = "com.example.statefulclickcounter.action.UPDATE_BUBBLE"
-    const val EXTRA_COUNT = "extra_count"
+        const val ACTION_SHOW = "com.example.pengaduan.action.SHOW_BUBBLE"
+        const val ACTION_HIDE = "com.example.pengaduan.action.HIDE_BUBBLE"
+        const val ACTION_UPDATE = "com.example.pengaduan.action.UPDATE_BUBBLE"
+        const val EXTRA_COUNT = "extra_count"
         
         fun startService(context: Context) {
             val intent = Intent(context, BubbleOverlayService::class.java)
@@ -298,4 +298,3 @@ class BubbleOverlayService : Service() {
         flutterEngine?.destroy()
     }
 }
-
