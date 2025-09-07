@@ -4,7 +4,8 @@ import '../components/navbar.dart';
 import '../components/dashboard_card.dart';
 import '../components/stat_card.dart';
 import '../components/chart_widget.dart';
-import 'package:fl_chart/fl_chart.dart';
+import '../components/icon_tile.dart';
+import '../components/banner.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -23,96 +24,208 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: Navbar(
-        title: 'Dashboard',
-        onMenuPressed: () {
-          // use scaffold key to open drawer safely from AppBar
-          if (!isDesktop) _scaffoldKey.currentState?.openDrawer();
-        },
-      ),
-      drawer: isDesktop ? null : Sidebar(onItemSelected: (i) => setState(() => selectedIndex = i), selectedIndex: selectedIndex),
+      appBar:   Navbar(
+  notificationCount: 3, // contoh badge notifikasi
+  avatarUrl: "assets/images/profile.jpeg", // ganti sesuai path gambar
+),
+      drawer: isDesktop
+          ? null
+          : Sidebar(
+              onItemSelected: (i) => setState(() => selectedIndex = i),
+              selectedIndex: selectedIndex),
       body: Row(
         children: [
           if (isDesktop)
             SizedBox(
               width: 250,
-              child: Sidebar(onItemSelected: (i) => setState(() => selectedIndex = i), selectedIndex: selectedIndex),
+              child: Sidebar(
+                  onItemSelected: (i) => setState(() => selectedIndex = i),
+                  selectedIndex: selectedIndex),
             ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: const [
-                        SizedBox(width: 220, child: StatCard(title: 'Total Reports', value: '124', icon: Icons.report)),
-                        SizedBox(width: 220, child: StatCard(title: 'Open', value: '12', icon: Icons.warning, color: Colors.orange)),
-                        SizedBox(width: 220, child: StatCard(title: 'Resolved', value: '98', icon: Icons.check_circle, color: Colors.green)),
-                        SizedBox(width: 220, child: StatCard(title: 'Users', value: '42', icon: Icons.person, color: Colors.blue)),
-                      ],
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 🔵 Header biru sampai search bar
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF1C3FAA), Color(0xFF2D62F2)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(6),
+                        bottomRight: Radius.circular(6),
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    Row(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          flex: 2,
-                          child: DashboardCard(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Reports Over Time', style: Theme.of(context).textTheme.titleMedium),
-                                const SizedBox(height: 12),
-                                ChartWidget(spots: [
-                                  FlSpot(0, 3),
-                                  FlSpot(1, 4),
-                                  FlSpot(2, 2),
-                                  FlSpot(3, 5),
-                                  FlSpot(4, 3.5),
-                                ]),
-                              ],
+                        BannerCard(name: "Edy Tama Kusumajaya"),
+                        const SizedBox(height: 16),
+                        TextField(
+                          decoration: InputDecoration(
+                            hintText: "Cari layanan atau informasi...",
+                            prefixIcon: const Icon(Icons.search),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          flex: 1,
-                          child: DashboardCard(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text('Recent Reports', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                                SizedBox(height: 12),
-                                ListTile(title: Text('Report #124'), subtitle: Text('Open')),
-                                ListTile(title: Text('Report #123'), subtitle: Text('Resolved')),
-                                ListTile(title: Text('Report #122'), subtitle: Text('Open')),
-                              ],
-                            ),
+                            filled: true,
+                            fillColor: Colors.white,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    DashboardCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text('Activity Log', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                          SizedBox(height: 12),
-                          Text('No recent activity'),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Purple info card
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF6A11CB), Color(0xFF9546FF)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              )
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Layanan Online 24/7',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 8),
+                              const Text(
+                                  'Akses semua layanan kapan saja, dimana saja',
+                                  style: TextStyle(color: Colors.white70)),
+                              const SizedBox(height: 12),
+                              Row(children: const [
+                                Icon(Icons.circle,
+                                    size: 10, color: Colors.lightBlue),
+                                SizedBox(width: 8),
+                                Text('ONLINE',
+                                    style: TextStyle(color: Colors.white))
+                              ]),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle)),
+                            const SizedBox(width: 8),
+                            Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.5),
+                                    shape: BoxShape.circle)),
+                            const SizedBox(width: 8),
+                            Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.5),
+                                    shape: BoxShape.circle)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Grid icons
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: GridView.count(
+                      crossAxisCount: isDesktop ? 6 : 4,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: const [
+                        IconTile(
+                            icon: Icons.report_problem,
+                            label: 'Darurat',
+                            color: Color(0xFFE86A6A)),
+                        IconTile(
+                            icon: Icons.note_add,
+                            label: 'Pengaduan',
+                            color: Color(0xFF5EA3FF)),
+                        IconTile(
+                            icon: Icons.article,
+                            label: 'Berita',
+                            color: Color(0xFF6EE7B7)),
+                        IconTile(
+                            icon: Icons.qr_code_scanner,
+                            label: 'Scan JSS',
+                            color: Color(0xFFF7A94B)),
+                        IconTile(
+                            icon: Icons.group,
+                            label: 'Layanan',
+                            color: Color(0xFF9B8CFF)),
+                        IconTile(
+                            icon: Icons.person,
+                            label: 'Profile',
+                            color: Color(0xFF66C5FF)),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 80),
+                ],
               ),
             ),
           )
         ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        child: SizedBox(
+          height: 64,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: const [
+              Icon(Icons.home),
+              Icon(Icons.history),
+              SizedBox(width: 48),
+              Icon(Icons.grid_view),
+              Icon(Icons.person),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.add),
       ),
     );
   }
