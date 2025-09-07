@@ -1,11 +1,28 @@
+// removed unused imports after slider extraction
 import 'package:flutter/material.dart';
 import '../components/sidebar.dart';
 import '../components/navbar.dart';
-import '../components/dashboard_card.dart';
-import '../components/stat_card.dart';
-import '../components/chart_widget.dart';
-import '../components/icon_tile.dart';
+// removed unused component imports
+import '../components/icon_grid.dart';
 import '../components/banner.dart';
+import '../components/purple_slider.dart';
+
+// Constants for better maintainability
+class DashboardConstants {
+  static const Color primaryColor = Color(0xFF1C3FAA);
+  static const Color secondaryColor = Color(0xFF2D62F2);
+  static const double desktopBreakpoint = 800.0;
+  static const double sidebarWidth = 250.0;
+  static const double bottomNavHeight = 64.0;
+  static const double fabSize = 32.0;
+  static const double borderRadius = 6.0;
+  static const double searchBorderRadius = 12.0;
+  static const int fabIndex = 4;
+  static const int notificationCount = 3;
+  static const String avatarUrl = "assets/images/profile.jpeg";
+  static const String userName = "Edy Tama Kusumajaya";
+  static const String searchHint = "Cari layanan atau informasi...";
+}
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -15,32 +32,49 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  int selectedIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.of(context).size.width >= 800;
+    final isDesktop = MediaQuery.of(context).size.width >= DashboardConstants.desktopBreakpoint;
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar:   const Navbar(
-  notificationCount: 3, // contoh badge notifikasi
-  avatarUrl: "assets/images/profile.jpeg", // ganti sesuai path gambar
-),
+      appBar: const Navbar(
+        notificationCount: DashboardConstants.notificationCount,
+        avatarUrl: DashboardConstants.avatarUrl,
+      ),
       drawer: isDesktop
           ? null
           : Sidebar(
-              onItemSelected: (i) => setState(() => selectedIndex = i),
-              selectedIndex: selectedIndex),
+              onItemSelected: (i) => setState(() => _selectedIndex = i),
+              selectedIndex: _selectedIndex),
       body: Row(
         children: [
           if (isDesktop)
             SizedBox(
-              width: 250,
+              width: DashboardConstants.sidebarWidth,
               child: Sidebar(
-                  onItemSelected: (i) => setState(() => selectedIndex = i),
-                  selectedIndex: selectedIndex),
+                onItemSelected: (i) => setState(() => _selectedIndex = i),
+                selectedIndex: _selectedIndex,
+              ),
             ),
           Expanded(
             child: SingleChildScrollView(
@@ -48,156 +82,60 @@ class _DashboardPageState extends State<DashboardPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // 🔵 Header biru sampai search bar
-                  Container(
+                  SizedBox(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF1C3FAA), Color(0xFF2D62F2)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(6),
-                        bottomRight: Radius.circular(6),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const BannerCard(name: "Edy Tama Kusumajaya"),
-                        const SizedBox(height: 16),
-                        TextField(
-                          decoration: InputDecoration(
-                            hintText: "Cari layanan atau informasi...",
-                            prefixIcon: const Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                          ),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [DashboardConstants.primaryColor, DashboardConstants.secondaryColor],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                      ],
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(DashboardConstants.borderRadius),
+                          bottomRight: Radius.circular(DashboardConstants.borderRadius),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10),
+                            const BannerCard(name: DashboardConstants.userName),
+                            const SizedBox(height: 25),
+                            TextField(
+                              decoration: InputDecoration(
+                                hintText: DashboardConstants.searchHint,
+                                prefixIcon: const Icon(Icons.search),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(DashboardConstants.searchBorderRadius),
+                                  borderSide: BorderSide.none,
+                                ),
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
 
                   const SizedBox(height: 24),
 
-                  // Purple info card
+                  // Purple info card replaced by reusable PurpleSlider component
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF6A11CB), Color(0xFF9546FF)],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.08),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              )
-                            ],
-                          ),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Layanan Online 24/7',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold)),
-                              SizedBox(height: 8),
-                              Text(
-                                  'Akses semua layanan kapan saja, dimana saja',
-                                  style: TextStyle(color: Colors.white70)),
-                              SizedBox(height: 12),
-                              Row(children: [
-                                Icon(Icons.circle,
-                                    size: 10, color: Colors.lightBlue),
-                                SizedBox(width: 8),
-                                Text('ONLINE',
-                                    style: TextStyle(color: Colors.white))
-                              ]),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle)),
-                            const SizedBox(width: 8),
-                            Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.5),
-                                    shape: BoxShape.circle)),
-                            const SizedBox(width: 8),
-                            Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.5),
-                                    shape: BoxShape.circle)),
-                          ],
-                        ),
-                      ],
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: PurpleSlider(itemCount: 3),
                   ),
 
                   const SizedBox(height: 12),
 
-                  // Grid icons
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: GridView.count(
-                      crossAxisCount: isDesktop ? 6 : 4,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: const [
-                        IconTile(
-                            icon: Icons.report_problem,
-                            label: 'Darurat',
-                            color: Color(0xFFE86A6A)),
-                        IconTile(
-                            icon: Icons.note_add,
-                            label: 'Pengaduan',
-                            color: Color(0xFF5EA3FF)),
-                        IconTile(
-                            icon: Icons.article,
-                            label: 'Berita',
-                            color: Color(0xFF6EE7B7)),
-                        IconTile(
-                            icon: Icons.qr_code_scanner,
-                            label: 'Scan JSS',
-                            color: Color(0xFFF7A94B)),
-                        IconTile(
-                            icon: Icons.group,
-                            label: 'Layanan',
-                            color: Color(0xFF9B8CFF)),
-                        IconTile(
-                            icon: Icons.person,
-                            label: 'Profile',
-                            color: Color(0xFF66C5FF)),
-                      ],
-                    ),
-                  ),
+                  // Grid icons (extracted to IconGrid)
+                  IconGrid(isDesktop: isDesktop),
 
                   const SizedBox(height: 80),
                 ],
@@ -206,26 +144,54 @@ class _DashboardPageState extends State<DashboardPage> {
           )
         ],
       ),
-      bottomNavigationBar: const BottomAppBar(
-        shape: CircularNotchedRectangle(),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: DashboardConstants.borderRadius,
         child: SizedBox(
-          height: 64,
+          height: DashboardConstants.bottomNavHeight,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Icon(Icons.home),
-              Icon(Icons.history),
-              SizedBox(width: 48),
-              Icon(Icons.grid_view),
-              Icon(Icons.person),
+              _buildTabItem(Icons.home, "Home", 0),
+              _buildTabItem(Icons.history, "Histori", 1),
+              const SizedBox(width: 48), // ruang untuk FAB
+              _buildTabItem(Icons.grid_view, "Layanan", 2),
+              _buildTabItem(Icons.person, "Profile", 3),
             ],
           ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.add),
+        onPressed: () => _onItemTapped(DashboardConstants.fabIndex),
+        backgroundColor: DashboardConstants.primaryColor,
+        child: Icon(Icons.add, size: DashboardConstants.fabSize, color: Colors.white),
+      ),
+    );
+  }
+
+
+  
+  Widget _buildTabItem(IconData icon, String label, int index) {
+    final isSelected = _selectedIndex == index;
+    final color = isSelected ? DashboardConstants.primaryColor : Colors.grey;
+
+    return InkWell(
+      onTap: () => _onItemTapped(index),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: color,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ],
       ),
     );
   }
