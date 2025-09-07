@@ -22,8 +22,8 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       // ❌ leading dihapus, jadi icon garis 3 tidak muncul
       automaticallyImplyLeading: false,
 
-      title: Row(
-        children: const [
+      title: const Row(
+        children: [
           Icon(Icons.account_balance, color: Colors.white),
           SizedBox(width: 8),
           Text(

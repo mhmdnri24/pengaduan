@@ -23,8 +23,8 @@ class Sidebar extends StatelessWidget {
               _buildItem(context, Icons.report, 'Pengaduan', 1),
               _buildItem(context, Icons.settings, 'Settings', 2),
               const Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
+              const Padding(
+                padding: EdgeInsets.all(16.0),
                 child: Text('v1.0', style: TextStyle(color: Colors.white70)),
               )
             ],

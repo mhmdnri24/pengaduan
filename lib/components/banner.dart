@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class BannerCard extends StatelessWidget {
   final String name;
 
-  const BannerCard({Key? key, required this.name}) : super(key: key);
+  const BannerCard({super.key, required this.name});
 
   @override
   Widget build(BuildContext context) {

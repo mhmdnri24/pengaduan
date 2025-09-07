@@ -41,8 +41,11 @@ class _LineChartPainter extends CustomPainter {
       final dx = (i / (values.length - 1)) * size.width;
       final normalized = (values[i] - min) / range;
       final dy = size.height - normalized * size.height;
-      if (i == 0) path.moveTo(dx, dy);
-      else path.lineTo(dx, dy);
+      if (i == 0) {
+        path.moveTo(dx, dy);
+      } else {
+        path.lineTo(dx, dy);
+      }
     }
 
     canvas.drawPath(path, paint);

@@ -24,7 +24,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar:   Navbar(
+      appBar:   const Navbar(
   notificationCount: 3, // contoh badge notifikasi
   avatarUrl: "assets/images/profile.jpeg", // ganti sesuai path gambar
 ),
@@ -65,7 +65,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        BannerCard(name: "Edy Tama Kusumajaya"),
+                        const BannerCard(name: "Edy Tama Kusumajaya"),
                         const SizedBox(height: 16),
                         TextField(
                           decoration: InputDecoration(
@@ -100,26 +100,26 @@ class _DashboardPageState extends State<DashboardPage> {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
+                                color: Colors.black.withValues(alpha: 0.08),
                                 blurRadius: 8,
                                 offset: const Offset(0, 4),
                               )
                             ],
                           ),
-                          child: Column(
+                          child: const Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Layanan Online 24/7',
+                              Text('Layanan Online 24/7',
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 8),
-                              const Text(
+                              SizedBox(height: 8),
+                              Text(
                                   'Akses semua layanan kapan saja, dimana saja',
                                   style: TextStyle(color: Colors.white70)),
-                              const SizedBox(height: 12),
-                              Row(children: const [
+                              SizedBox(height: 12),
+                              Row(children: [
                                 Icon(Icons.circle,
                                     size: 10, color: Colors.lightBlue),
                                 SizedBox(width: 8),
@@ -144,14 +144,14 @@ class _DashboardPageState extends State<DashboardPage> {
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.5),
+                                    color: Colors.white.withValues(alpha: 0.5),
                                     shape: BoxShape.circle)),
                             const SizedBox(width: 8),
                             Container(
                                 width: 8,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.5),
+                                    color: Colors.white.withValues(alpha: 0.5),
                                     shape: BoxShape.circle)),
                           ],
                         ),
@@ -206,13 +206,13 @@ class _DashboardPageState extends State<DashboardPage> {
           )
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
+      bottomNavigationBar: const BottomAppBar(
+        shape: CircularNotchedRectangle(),
         child: SizedBox(
           height: 64,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: const [
+            children: [
               Icon(Icons.home),
               Icon(Icons.history),
               SizedBox(width: 48),
