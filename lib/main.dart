@@ -6,6 +6,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'services/complaint_service.dart';
 import 'services/bubble_overlay_service.dart';
 import 'screens/complaints_list_screen.dart';
+import 'screens/splash_screen.dart';
 import 'pages/dashboard_page.dart';
 
 void main() async {
@@ -105,144 +106,13 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: Typography.blackMountainView,
       ),
-      home: const DashboardPage(),
+      home: const SplashScreen(),
       routes: {
-        '/complaints': (context) => const ComplaintsListScreen(),
-        '/dashboard': (context) => const DashboardPage(),
+        // '/complaints': (context) => const ComplaintsListScreen(),
+        // '/dashboard': (context) => const DashboardPage(),
       },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-  // This class is the configuration for the state.
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  final ComplaintService _complaintService = ComplaintService.instance;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Complaint Management'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Icon(
-                Icons.warning_amber_rounded,
-                size: 80,
-                color: Colors.blue,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Complaint Management System 2',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Monitor and manage complaints with floating bubble notifications',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              StreamBuilder<List<dynamic>>(
-                stream: _complaintService.complaintsStream,
-                builder: (context, snapshot) {
-                  final pendingCount = _complaintService.pendingComplaintsCount;
-                  return Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Current Status',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Pending Complaints: $pendingCount',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Total Complaints: ${snapshot.data?.length ?? 0}',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/complaints');
-                  },
-                  icon: const Icon(Icons.list),
-                  label: const Text('View All Complaints'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    final messenger = ScaffoldMessenger.of(context);
-                      await _printFcmToken();
-                      debugPrint('Simulating new complaint...');
-                    await _complaintService.simulateNewComplaint();
-                    if (!mounted) return;
-                    messenger.showSnackBar(
-                      const SnackBar(
-                        content: Text('New complaint simulated! Check the bubble overlay.'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add_alert),
-                  label: const Text('Simulate New Complaint'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+ 

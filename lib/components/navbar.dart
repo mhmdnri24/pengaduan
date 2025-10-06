@@ -3,12 +3,16 @@ import 'package:flutter/material.dart';
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final int notificationCount;
   final String avatarUrl;
+  final String title;
+  final IconData iconic;
 
   const Navbar({
     super.key,
     this.notificationCount = 0,
     this.avatarUrl = "assets/images/profile.jpeg",
-  });
+    this.title = "Lapor Pak Wali",
+    this.iconic = Icons.account_balance,
+  }); 
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -22,13 +26,13 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       // ❌ leading dihapus, jadi icon garis 3 tidak muncul
       automaticallyImplyLeading: false,
 
-      title: const Row(
+      title: Row(
         children: [
-          Icon(Icons.account_balance, color: Colors.white),
-          SizedBox(width: 8),
+          Icon(iconic, color: Colors.white),
+          const SizedBox(width: 8),
           Text(
-            "Lapor Pak Wali",
-            style: TextStyle(
+            title,
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),

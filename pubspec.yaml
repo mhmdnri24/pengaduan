@@ -27,6 +27,7 @@ flutter:
   assets:
     - assets/sound/urgent.wav
     - assets/images/profile.jpeg
+    - assets/images/back-arrow.png
   # fonts:
   #   - family: Schyler
   #     fonts:
