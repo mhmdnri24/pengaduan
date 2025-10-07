@@ -5,11 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'services/complaint_service.dart';
 import 'services/bubble_overlay_service.dart';
+import 'screens/complaints_list_screen.dart';
 import 'screens/splash_screen.dart';
 import 'pages/dashboard_page.dart';
-import 'pages/landing_page.dart';
-import 'pages/login_page.dart';
-import 'pages/register_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -110,10 +108,8 @@ class MyApp extends StatelessWidget {
       ),
       home: const SplashScreen(),
       routes: {
-        '/landing': (context) => const LandingPage(),
-        '/login': (context) => const LoginPage(),
-        '/register': (context) => const RegisterPage(),
-        '/dashboard': (context) => const DashboardPage(),
+        // '/complaints': (context) => const ComplaintsListScreen(),
+        // '/dashboard': (context) => const DashboardPage(),
       },
     );
   }

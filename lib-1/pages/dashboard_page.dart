@@ -1,6 +1,6 @@
 // removed unused imports after slider extraction
 import 'package:flutter/material.dart';
-import 'package:pengaduan/components/pengaduan_list.dart';
+import '../components/pengaduan_list.dart';
 import '../components/sidebar.dart';
 import '../components/navbar.dart';
 // removed unused component imports
@@ -9,6 +9,9 @@ import '../components/banner.dart';
 import '../components/purple_slider.dart';
 import '../services/complaint_service.dart';
 import 'history_page.dart';
+import 'services_page.dart';
+import 'profile_page.dart';
+import 'add_complaint_page.dart';
 
 // Constants for better maintainability
 class DashboardConstants {
