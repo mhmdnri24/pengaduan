@@ -1,6 +1,7 @@
 // lib/views/landing_page.dart
 import 'package:flutter/material.dart';
 import '../controllers/landing_controller.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -23,7 +24,8 @@ class _LandingPageState extends State<LandingPage> {
             Expanded(
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                 decoration: const BoxDecoration(color: blue),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -35,7 +37,8 @@ class _LandingPageState extends State<LandingPage> {
                         CircleAvatar(
                           radius: 16,
                           backgroundColor: Colors.white24,
-                          child: Icon(Icons.account_balance, color: Colors.white, size: 18),
+                          child: Icon(Icons.account_balance,
+                              color: Colors.white, size: 18),
                         ),
                         Icon(Icons.menu, color: Colors.white, size: 24),
                       ],
@@ -45,7 +48,8 @@ class _LandingPageState extends State<LandingPage> {
                     const CircleAvatar(
                       radius: 36,
                       backgroundColor: Colors.white24,
-                      child: Icon(Icons.account_balance, size: 40, color: Colors.white),
+                      child: Icon(Icons.account_balance,
+                          size: 40, color: Colors.white),
                     ),
                     const SizedBox(height: 46),
 
@@ -82,11 +86,26 @@ class _LandingPageState extends State<LandingPage> {
                         onPressed: controller.isSending
                             ? null
                             : () async {
-                                await controller.sendOtp(
-                                  context,
-                                  () => setState(() => controller.isSending = true),
-                                  () => setState(() => controller.isSending = false),
+                                // capture builder context before async gap
+                                final localCtx = context;
+
+                                final result = await controller.sendOtp(
+                                  () => setState(
+                                      () => controller.isSending = true),
+                                  () => setState(
+                                      () => controller.isSending = false),
                                 );
+
+                                if (!mounted) return;
+
+                                ScaffoldMessenger.of(localCtx).showSnackBar(
+                                  SnackBar(content: Text(result.message)),
+                                );
+
+                                if (result.success) {
+                                  // show OTP entry dialog
+                                  _showOtpDialog(localCtx);
+                                }
                               },
                         icon: const Icon(Icons.send, size: 18),
                         label: Padding(
@@ -95,7 +114,8 @@ class _LandingPageState extends State<LandingPage> {
                               ? const SizedBox(
                                   height: 16,
                                   width: 16,
-                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 2),
                                 )
                               : const Text('Kirim OTP'),
                         ),
@@ -114,12 +134,15 @@ class _LandingPageState extends State<LandingPage> {
                         icon: const Icon(Icons.login, size: 20),
                         label: const Text(
                           'Masuk',
-                          style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              fontSize: 15.5, fontWeight: FontWeight.w600),
                         ),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white, width: 1.3),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          side:
+                              const BorderSide(color: Colors.white, width: 1.3),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                       ),
                     ),
@@ -135,128 +158,263 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   void _showLoginDialog(BuildContext context) {
-    String countryCode = '+62';
-    final phoneController = TextEditingController();
+    // No country code anymore — using NIK
+    final phoneController = controller.nikController;
 
     showDialog(
       context: context,
       builder: (context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: AnimatedPadding(
+            // animate dialog movement when keyboard appears
+            padding:
+                MediaQuery.of(context).viewInsets + const EdgeInsets.all(18.0),
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  // limit dialog height so keyboard doesn't force overflow
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [blue.withOpacity(0.9), blue],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: const Icon(Icons.smartphone,
+                          color: Colors.white, size: 32),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text('Login dengan NIK',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Masukkan NIK untuk menerima kode OTP',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: const [
+                        Icon(Icons.badge, color: Colors.black54, size: 18),
+                        SizedBox(width: 8),
+                        Text('NIK',
+                            style: TextStyle(fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: phoneController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: '1234567890123456',
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 14),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12.0),
+                              child: Text('Batal'),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: controller.isSending
+                                ? null
+                                : () async {
+                                    final localCtx = context;
+
+                                    final result = await controller.sendOtp(
+                                      () => setState(
+                                          () => controller.isSending = true),
+                                      () => setState(
+                                          () => controller.isSending = false),
+                                    );
+
+                                    if (!mounted) return;
+
+                                    ScaffoldMessenger.of(localCtx).showSnackBar(
+                                      SnackBar(content: Text(result.message)),
+                                    );
+
+                                    if (result.success) {
+                                      Navigator.of(localCtx).pop();
+                                      _showOtpDialog(localCtx);
+                                    }
+                                  },
+                            icon: const Icon(Icons.send,
+                                size: 18, color: Colors.white),
+                            label: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12.0),
+                              child: Text('Kirim',
+                                  style: TextStyle(color: Colors.white)),
+                            ),
+                            style:
+                                ElevatedButton.styleFrom(backgroundColor: blue),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showOtpDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Padding(
             padding: const EdgeInsets.all(18.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 6),
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [blue.withOpacity(0.9), blue],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: const Icon(Icons.smartphone, color: Colors.white, size: 32),
-                ),
-                const SizedBox(height: 12),
-                const Text('Verifikasi WhatsApp',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 6),
-                const Text(
-                  'Masukkan nomor WhatsApp untuk menerima kode OTP',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.black54),
-                ),
-                const SizedBox(height: 14),
-
-                Row(
-                  children: const [
-                    Icon(Icons.phone_iphone, color: Colors.black54, size: 18),
-                    SizedBox(width: 8),
-                    Text('Nomor WhatsApp', style: TextStyle(fontWeight: FontWeight.w600)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                Row(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.6,
+                minWidth: 280,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    DropdownButton<String>(
-                      value: countryCode,
-                      underline: const SizedBox.shrink(),
-                      items: const [
-                        DropdownMenuItem(value: '+62', child: Text('+62')),
-                        DropdownMenuItem(value: '+1', child: Text('+1')),
-                        DropdownMenuItem(value: '+44', child: Text('+44')),
+                    const SizedBox(height: 6),
+                    const Text('Masukkan kode OTP',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Kode OTP telah dikirim. Masukkan 6 digit kode untuk melanjutkan.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                    const SizedBox(height: 18),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: LayoutBuilder(builder: (pinCtx, constraints) {
+                        // Compute field width so the total width (fields + gaps)
+                        // fits into the available constraints.maxWidth.
+                        const int length = 6;
+                        const double gap = 8.0; // space between fields
+                        final double available = constraints.maxWidth;
+                        final double totalGaps = (length - 1) * gap;
+                        // Reserve minimal width per field and cap maximum width
+                        final double rawField =
+                            (available - totalGaps) / length;
+                        final double fieldWidth = rawField.clamp(28.0, 48.0);
+
+                        // track local verifying state inside the dialog
+                        bool verifying = false;
+
+                        return StatefulBuilder(builder: (ctx, setState) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              PinCodeTextField(
+                                appContext: pinCtx,
+                                length: length,
+                                keyboardType: TextInputType.number,
+                                onChanged: (v) {},
+                                onCompleted: (code) async {
+                                  if (verifying) return;
+                                  setState(() => verifying = true);
+
+                                  final result = await controller.verifyOtp(
+                                      code, () {}, () {});
+
+                                  if (!mounted) return;
+
+                                  setState(() => verifying = false);
+
+                                  ScaffoldMessenger.of(ctx).showSnackBar(
+                                    SnackBar(content: Text(result.message)),
+                                  );
+
+                                  if (result.success) {
+                                    // close OTP dialog
+                                    Navigator.of(ctx).pop();
+                                    // GOTO: Dashboard page
+                                    Navigator.of(ctx)
+                                        .pushReplacementNamed('/dashboard');
+                                    // TODO: navigate to authenticated area or persist token
+                                  }
+                                },
+                                pinTheme: PinTheme(
+                                  shape: PinCodeFieldShape.box,
+                                  borderRadius: BorderRadius.circular(8),
+                                  fieldHeight: fieldWidth,
+                                  fieldWidth: fieldWidth,
+                                ),
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                              ),
+                              const SizedBox(height: 12),
+                              if (verifying)
+                                const Center(
+                                  child: SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  ),
+                                ),
+                            ],
+                          );
+                        });
+                      }),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12.0),
+                              child: Text('Batal'),
+                            ),
+                          ),
+                        ),
                       ],
-                      onChanged: (v) => setState(() => countryCode = v ?? '+62'),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: phoneController,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          hintText: '812345678901',
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                      ),
-                    ),
+                    )
                   ],
                 ),
-                const SizedBox(height: 18),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.0),
-                          child: Text('Batal'),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: controller.isSending
-                            ? null
-                            : () async {
-                                await controller.sendOtp(
-                                  context,
-                                  () => setState(() => controller.isSending = true),
-                                  () => setState(() => controller.isSending = false),
-                                );
-                              },
-                        
-                        // () {
-                        //   if (phoneController.text.trim().isEmpty) {
-                        //     ScaffoldMessenger.of(context).showSnackBar(
-                        //       const SnackBar(content: Text('Masukkan nomor terlebih dahulu')),
-                        //     );
-                        //     return;
-                        //   }
-                        //   Navigator.of(context).pop();
-                        //   ScaffoldMessenger.of(context).showSnackBar(
-                        //     SnackBar(content: Text('Mengirim OTP ke $countryCode ${phoneController.text}')),
-                        //   );
-                        // },
-                        icon: const Icon(Icons.send, size: 18, color: Colors.white),
-                        label: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.0),
-                          child: Text('Kirim', style: TextStyle(color: Colors.white)),
-                        ),
-                        style: ElevatedButton.styleFrom(backgroundColor: blue),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         );

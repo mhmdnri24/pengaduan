@@ -1,6 +1,7 @@
 // removed unused imports after slider extraction
 import 'package:flutter/material.dart';
 import 'package:pengaduan/components/pengaduan_list.dart';
+import 'package:pengaduan/pages/profile_page.dart';
 import '../components/sidebar.dart';
 import '../components/navbar.dart';
 // removed unused component imports
@@ -72,7 +73,7 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-    IconData _getIcon() {
+  IconData _getIcon() {
     switch (_selectedIndex) {
       case 0:
         return Icons.account_balance;
@@ -91,7 +92,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.of(context).size.width >= DashboardConstants.desktopBreakpoint;
+    final isDesktop = MediaQuery.of(context).size.width >=
+        DashboardConstants.desktopBreakpoint;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -142,11 +144,11 @@ class _DashboardPageState extends State<DashboardPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _onItemTapped(DashboardConstants.fabIndex),
         backgroundColor: DashboardConstants.primaryColor,
-        child: Icon(Icons.add, size: DashboardConstants.fabSize, color: Colors.white),
+        child: Icon(Icons.add,
+            size: DashboardConstants.fabSize, color: Colors.white),
       ),
     );
   }
-
 
   Widget _buildTabItem(IconData icon, String label, int index) {
     final isSelected = _selectedIndex == index;
@@ -200,7 +202,10 @@ class _DashboardPageState extends State<DashboardPage> {
             child: DecoratedBox(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [DashboardConstants.primaryColor, DashboardConstants.secondaryColor],
+                  colors: [
+                    DashboardConstants.primaryColor,
+                    DashboardConstants.secondaryColor
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -222,12 +227,14 @@ class _DashboardPageState extends State<DashboardPage> {
                         hintText: DashboardConstants.searchHint,
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(DashboardConstants.searchBorderRadius),
+                          borderRadius: BorderRadius.circular(
+                              DashboardConstants.searchBorderRadius),
                           borderSide: BorderSide.none,
                         ),
                         filled: true,
                         fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 12),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -251,27 +258,31 @@ class _DashboardPageState extends State<DashboardPage> {
           IconGrid(isDesktop: isDesktop),
 
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
                 children: [
-                    SizedBox(height: 10),
-                    HeaderPengaduan(title: "Pengaduan Terbaru",subtitle: "Pantau aduan masyarakat terbaru",),
-                    SizedBox(height: 10),
-                    PengaduanList(),
+                  SizedBox(height: 10),
+                  HeaderPengaduan(
+                    title: "Pengaduan Terbaru",
+                    subtitle: "Pantau aduan masyarakat terbaru",
+                  ),
+                  SizedBox(height: 10),
+                  PengaduanList(),
                 ],
-            )
-          ),
+              )),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
                 children: [
-                    SizedBox(height: 10),
-                    HeaderPengaduan(title: "Berita Terbaru",subtitle: "Informasi dan berita terkini dari pemerintah",),
-                    SizedBox(height: 10),
-                    PengaduanList(),
+                  SizedBox(height: 10),
+                  HeaderPengaduan(
+                    title: "Berita Terbaru",
+                    subtitle: "Informasi dan berita terkini dari pemerintah",
+                  ),
+                  SizedBox(height: 10),
+                  PengaduanList(),
                 ],
-            )
-          ),
+              )),
         ],
       ),
     );
@@ -301,33 +312,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildProfileContent() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircleAvatar(
-            radius: 50,
-            backgroundImage: AssetImage('assets/images/profile.jpeg'),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Edy Tama Kusumajaya',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'User',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    );
+    return Center(child: ProfilePage());
   }
 
   Widget _buildAddComplaintContent() {
@@ -338,7 +323,8 @@ class _DashboardPageState extends State<DashboardPage> {
           await ComplaintService.instance.simulateNewComplaint();
           messenger.showSnackBar(
             const SnackBar(
-              content: Text('Pengaduan baru disimulasikan! Periksa bubble overlay.'),
+              content:
+                  Text('Pengaduan baru disimulasikan! Periksa bubble overlay.'),
               duration: Duration(seconds: 2),
             ),
           );
@@ -354,4 +340,3 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 }
-
