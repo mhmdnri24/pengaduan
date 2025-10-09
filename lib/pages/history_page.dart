@@ -100,7 +100,9 @@ class _HistoryPageState extends State<HistoryPage> {
       ),
       child: Column(
         children: [
-          Text(count, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+          Text(count,
+              style: TextStyle(
+                  fontSize: 22, fontWeight: FontWeight.bold, color: color)),
           const SizedBox(height: 4),
           Text(label, style: TextStyle(color: color)),
         ],
@@ -117,6 +119,7 @@ class _HistoryPageState extends State<HistoryPage> {
           child: GestureDetector(
             onTap: () => setState(() => selectedTab = index),
             child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 6),
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
                 color: isSelected ? const Color(0xFF1C3FAA) : Colors.white,
@@ -149,7 +152,8 @@ class _HistoryPageState extends State<HistoryPage> {
       ),
       child: Text(
         label,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
+        style:
+            TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
       ),
     );
   }
@@ -179,19 +183,29 @@ class _HistoryPageState extends State<HistoryPage> {
                 children: [
                   Row(children: statusChips),
                   const SizedBox(height: 4),
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 2),
-                  Text(description, style: const TextStyle(fontSize: 13, color: Colors.black87)),
+                  Text(description,
+                      style:
+                          const TextStyle(fontSize: 13, color: Colors.black87)),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 14, color: Colors.grey),
+                      const Icon(Icons.location_on,
+                          size: 14, color: Colors.grey),
                       const SizedBox(width: 2),
-                      Text(location, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(location,
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.grey)),
                       const SizedBox(width: 12),
-                      const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                      const Icon(Icons.access_time,
+                          size: 14, color: Colors.grey),
                       const SizedBox(width: 2),
-                      Text(time, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      Text(time,
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.grey)),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -201,12 +215,18 @@ class _HistoryPageState extends State<HistoryPage> {
                       const SizedBox(width: 4),
                       Text(
                         verification,
-                        style: TextStyle(color: verificationColor, fontSize: 13, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            color: verificationColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600),
                       ),
                       const Spacer(),
                       GestureDetector(
                         onTap: detailAction,
-                        child: const Text('Detail', style: TextStyle(color: Color(0xFF1C3FAA), fontWeight: FontWeight.bold)),
+                        child: const Text('Detail',
+                            style: TextStyle(
+                                color: Color(0xFF1C3FAA),
+                                fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -225,7 +245,9 @@ class _HistoryPageState extends State<HistoryPage> {
                   width: 60,
                   height: 60,
                   color: Colors.grey[200],
-                  child: const Center(child: Text('Foto laporan', style: TextStyle(fontSize: 10))),
+                  child: const Center(
+                      child:
+                          Text('Foto laporan', style: TextStyle(fontSize: 10))),
                 ),
               ),
             ),
