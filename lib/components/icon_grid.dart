@@ -59,7 +59,7 @@ class IconGrid extends StatelessWidget {
           ),
           IconTile(
             icon: Icons.qr_code,
-            label: 'Scan JSS',
+            label: 'H.Komoditas',
             gradient: LinearGradient(
               colors: [Color(0xFFFFA726), Color(0xFFFB8C00)],
               begin: Alignment.topLeft,
@@ -69,43 +69,13 @@ class IconGrid extends StatelessWidget {
           ),
           IconTile(
             icon: Icons.group,
-            label: 'Umum',
+            label: 'Fas.Umum',
             gradient: LinearGradient(
               colors: [Color(0xFF66BB6A), Color(0xFF43A047)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             accentColor: Colors.green,
-          ),
-          IconTile(
-            icon: Icons.credit_card,
-            label: 'Dukcapil',
-            gradient: LinearGradient(
-              colors: [Color(0xFF26A69A), Color(0xFF00897B)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            accentColor: Colors.teal,
-          ),
-          IconTile(
-            icon: Icons.people,
-            label: 'Kependudukan',
-            gradient: LinearGradient(
-              colors: [Color(0xFFAB47BC), Color(0xFF8E24AA)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            accentColor: Colors.purple,
-          ),
-          IconTile(
-            icon: Icons.apps,
-            label: 'Lainnya',
-            gradient: LinearGradient(
-              colors: [Color(0xFF5C6BC0), Color(0xFF3949AB)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            accentColor: Colors.indigo,
           ),
         ],
       ),

@@ -18,25 +18,33 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   String? selectedKecamatan;
   String? selectedKelurahan;
+  String? selectedKecamatanId;
+  String? selectedKelurahanId;
   final TextEditingController alamatController = TextEditingController();
   final TextEditingController namaController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController tempatController = TextEditingController();
-  final TextEditingController tanggalController = TextEditingController();
+  DateTime? selectedDate;
 
   final _secureStorage = const FlutterSecureStorage();
   bool isSaving = false;
+  bool isLoadingProfile = false;
 
-  final List<String> kecamatanList = [
-    'Cimahi Selatan',
-    'Cimahi Tengah',
-    'Cimahi Utara'
+  // store kecamatan as list of maps with id + name to preserve API ids
+  List<Map<String, String>> kecamatanList = [
+    {'id': '16.73.01', 'name': 'Cimahi Selatan'},
+    {'id': '16.73.02', 'name': 'Cimahi Tengah'},
+    {'id': '16.73.03', 'name': 'Cimahi Utara'},
   ];
   final Map<String, List<String>> kelurahanList = {
     'Cimahi Selatan': ['Cibeber', 'Leuwigajah', 'Melong'],
     'Cimahi Tengah': ['Baros', 'Padasuka', 'Cigugur Tengah'],
     'Cimahi Utara': ['Cipageran', 'Cibabat'],
   };
+  // dynamic kelurahan map keyed by kecamatan id -> list of {id,name}
+  final Map<String, List<Map<String, String>>> kelurahanMap = {};
+  bool isLoadingKelurahan = false;
+  bool isLoadingKecamatan = false;
 
   @override
   void dispose() {
@@ -44,8 +52,178 @@ class _EditProfilePageState extends State<EditProfilePage> {
     namaController.dispose();
     phoneController.dispose();
     tempatController.dispose();
-    tanggalController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchKecamatan();
+    _fetchProfile();
+  }
+
+  Future<void> _fetchKelurahan(String kecamatanId) async {
+    if (kecamatanId.isEmpty) return;
+    setState(() => isLoadingKelurahan = true);
+    try {
+      final uri =
+          Uri.parse('${ApiConfig.baseUrl}/masyarakat/kelurahan/$kecamatanId');
+      final resp = await http.get(uri, headers: {
+        'X-API-Key': ApiConfig.apiKey,
+        'Origin': 'https://dashboard.nusakoding.com',
+      });
+
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        final Map<String, dynamic> jsonResp = jsonDecode(resp.body);
+        if (jsonResp['status'] == 'success') {
+          final kelArr = (jsonResp['data'] is Map)
+              ? (jsonResp['data']['kelurahan'] as List<dynamic>?)
+              : null;
+          if (kelArr != null) {
+            final List<Map<String, String>> items = [];
+            for (final item in kelArr) {
+              if (item is Map<String, dynamic>) {
+                final id = item['id_kelurahan']?.toString() ?? '';
+                final name = item['nama_kelurahan']?.toString() ?? '';
+                if (name.isNotEmpty) items.add({'id': id, 'name': name});
+              }
+            }
+            if (items.isNotEmpty) {
+              kelurahanMap[kecamatanId] = items;
+              // if profile had a selected kelurahan id, ensure it's selected
+              if (selectedKelurahanId != null) {
+                final found = items.firstWhere(
+                    (e) => e['id'] == selectedKelurahanId,
+                    orElse: () => <String, String>{});
+                if (found.isNotEmpty) selectedKelurahan = found['name'];
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // ignore
+    } finally {
+      if (mounted) setState(() => isLoadingKelurahan = false);
+    }
+  }
+
+  Future<void> _fetchKecamatan() async {
+    setState(() => isLoadingKecamatan = true);
+    try {
+      final uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/kecamatan');
+      final resp = await http.get(uri, headers: {
+        'X-API-Key': ApiConfig.apiKey,
+        'Origin': 'https://dashboard.nusakoding.com',
+      });
+
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        final Map<String, dynamic> jsonResp = jsonDecode(resp.body);
+        if (jsonResp['status'] == 'success') {
+          // response shape: { data: { kecamatan: [ ... ] } }
+          final kecArr = (jsonResp['data'] is Map)
+              ? (jsonResp['data']['kecamatan'] as List<dynamic>?)
+              : null;
+          if (kecArr != null) {
+            final List<Map<String, String>> items = [];
+            for (final item in kecArr) {
+              if (item is Map<String, dynamic>) {
+                final id = item['id_kecamatan']?.toString() ?? '';
+                final name = item['nama_kecamatan']?.toString() ?? '';
+                if (name.isNotEmpty) items.add({'id': id, 'name': name});
+              }
+            }
+            if (items.isNotEmpty) {
+              // replace kecamatanList but keep any selected value at top
+              final prevSelectedId = selectedKecamatanId;
+              kecamatanList = items;
+              if (prevSelectedId != null) {
+                Map<String, String>? found = kecamatanList.firstWhere(
+                    (e) => e['id'] == prevSelectedId,
+                    orElse: () => <String, String>{});
+                if (found.isNotEmpty) {
+                  selectedKecamatan = found['name'];
+                  selectedKecamatanId = found['id'];
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // ignore fetch errors; fall back to defaults
+    } finally {
+      if (mounted) setState(() => isLoadingKecamatan = false);
+    }
+  }
+
+  Future<void> _fetchProfile() async {
+    setState(() => isLoadingProfile = true);
+    final token = await _getAuthToken();
+    if (token == null || token.isEmpty) {
+      setState(() => isLoadingProfile = false);
+      return;
+    }
+
+    try {
+      final uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/profile');
+      final resp = await http.get(uri, headers: {
+        'Authorization': token,
+        'X-API-Key': ApiConfig.apiKey,
+        'Origin': 'https://dashboard.nusakoding.com',
+      });
+
+      if (resp.statusCode == 200 || resp.statusCode == 201) {
+        final Map<String, dynamic> jsonResp = jsonDecode(resp.body);
+        if (jsonResp['status'] == 'success') {
+          final data = jsonResp['data'] as Map<String, dynamic>?;
+          if (data != null) {
+            // populate fields
+            namaController.text = data['nama_lengkap']?.toString() ?? '';
+            phoneController.text = data['no_telpon']?.toString() ?? '';
+            tempatController.text = data['tempat_lahir']?.toString() ?? '';
+            selectedDate =
+                DateTime.tryParse(data['tanggal_lahir']?.toString() ?? '');
+            alamatController.text = data['alamat']?.toString() ?? '';
+
+            // kecamatan/kelurahan
+            final kec = data['kecamatan'] as Map<String, dynamic>?;
+            final kel = data['kelurahan'] as Map<String, dynamic>?;
+            if (kec != null) {
+              selectedKecamatanId = kec['id_kecamatan']?.toString();
+              selectedKecamatan = kec['nama_kecamatan']?.toString();
+              // add to local list if missing
+              if (selectedKecamatan != null) {
+                final exists =
+                    kecamatanList.any((e) => e['name'] == selectedKecamatan);
+                if (!exists) {
+                  kecamatanList.insert(0, {
+                    'id': selectedKecamatanId ?? '',
+                    'name': selectedKecamatan!
+                  });
+                }
+              }
+            }
+            if (kel != null) {
+              selectedKelurahanId = kel['id_kelurahan']?.toString();
+              selectedKelurahan = kel['nama_kelurahan']?.toString();
+              if (selectedKecamatan != null) {
+                final key = selectedKecamatan!;
+                final list = kelurahanList[key] ?? <String>[];
+                if (selectedKelurahan != null &&
+                    !list.contains(selectedKelurahan)) {
+                  kelurahanList[key] = [...list, selectedKelurahan!];
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // ignore errors here, user can still edit manually
+    } finally {
+      if (mounted) setState(() => isLoadingProfile = false);
+    }
   }
 
   Future<String?> _getAuthToken() async {
@@ -64,10 +242,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final nama = namaController.text.trim();
     final noTelp = phoneController.text.trim();
     final tempat = tempatController.text.trim();
-    final tanggal = tanggalController.text.trim();
+    final tanggal = selectedDate != null
+        ? '${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}'
+        : '';
     final alamat = alamatController.text.trim();
-    final idKec = selectedKecamatan ?? '';
-    final idKel = selectedKelurahan ?? '';
+    // prefer API ids when available, fallback to previously-selected names or a sensible default
+    final idKec = selectedKecamatanId ?? selectedKecamatan ?? '16.73.01';
+    final idKel = selectedKelurahanId ?? selectedKelurahan ?? '16.73.01.1001';
 
     if (nama.isEmpty || noTelp.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -238,6 +419,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
           // === Card Informasi Alamat ===
           Card(
+            color: Colors.white,
             elevation: 2,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -313,16 +495,31 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Tanggal Lahir (YYYY-MM-DD)',
+                  const Text('Tanggal Lahir',
                       style: TextStyle(fontWeight: FontWeight.w500)),
                   const SizedBox(height: 6),
-                  TextField(
-                    controller: tanggalController,
-                    decoration: InputDecoration(
-                      hintText: '1990-05-15',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.all(12),
+                  InkWell(
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate ?? DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) {
+                        setState(() => selectedDate = picked);
+                      }
+                    },
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        hintText: 'Pilih tanggal lahir',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.all(12),
+                      ),
+                      child: Text(selectedDate != null
+                          ? '${selectedDate!.year}-${selectedDate!.month.toString().padLeft(2, '0')}-${selectedDate!.day.toString().padLeft(2, '0')}'
+                          : 'Pilih tanggal'),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -333,12 +530,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     value: selectedKecamatan,
                     hint: const Text('Pilih Kecamatan'),
                     items: kecamatanList
-                        .map((k) =>
-                            DropdownMenuItem<String>(value: k, child: Text(k)))
+                        .map((k) => DropdownMenuItem<String>(
+                            value: k['name'], child: Text(k['name'] ?? '')))
                         .toList(),
                     onChanged: (val) => setState(() {
                       selectedKecamatan = val;
                       selectedKelurahan = null;
+                      // find the id for the selected name
+                      final found = kecamatanList.firstWhere(
+                          (e) => e['name'] == val,
+                          orElse: () => <String, String>{});
+                      selectedKecamatanId =
+                          (found.isNotEmpty) ? found['id'] : null;
+                      // fetch kelurahan for selected kecamatan id
+                      if (selectedKecamatanId != null &&
+                          selectedKecamatanId!.isNotEmpty) {
+                        _fetchKelurahan(selectedKecamatanId!);
+                      }
                     }),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -353,15 +561,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   DropdownButtonFormField<String>(
                     value: selectedKelurahan,
                     hint: const Text('Pilih Kelurahan'),
-                    items: (selectedKecamatan != null
-                            ? kelurahanList[selectedKecamatan] ?? []
-                            : [])
-                        .map((kel) => DropdownMenuItem<String>(
-                            value: kel, child: Text(kel)))
-                        .toList(),
-                    onChanged: selectedKecamatan == null
+                    items: (selectedKecamatanId != null &&
+                            kelurahanMap.containsKey(selectedKecamatanId))
+                        ? kelurahanMap[selectedKecamatanId]!
+                            .map((k) => DropdownMenuItem<String>(
+                                value: k['name'], child: Text(k['name'] ?? '')))
+                            .toList()
+                        : (selectedKecamatan != null
+                            ? (kelurahanList[selectedKecamatan] ?? [])
+                                .map((kel) => DropdownMenuItem<String>(
+                                    value: kel, child: Text(kel)))
+                                .toList()
+                            : []),
+                    onChanged: (selectedKecamatan == null)
                         ? null
-                        : (val) => setState(() => selectedKelurahan = val),
+                        : (val) => setState(() {
+                              selectedKelurahan = val;
+                              // also try to resolve selectedKelurahanId if possible
+                              if (selectedKecamatanId != null &&
+                                  kelurahanMap
+                                      .containsKey(selectedKecamatanId)) {
+                                final found = kelurahanMap[selectedKecamatanId]!
+                                    .firstWhere((e) => e['name'] == val,
+                                        orElse: () => <String, String>{});
+                                selectedKelurahanId =
+                                    (found.isNotEmpty) ? found['id'] : null;
+                              }
+                            }),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12)),
@@ -385,6 +611,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
           // === Card Foto Profil ===
           Card(
+            color: Colors.white,
             elevation: 2,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -491,7 +718,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               'Lewati untuk Sekarang',
               style: TextStyle(color: Colors.black),
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context);
+            },
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(

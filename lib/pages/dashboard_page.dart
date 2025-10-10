@@ -1,6 +1,7 @@
 // removed unused imports after slider extraction
 import 'package:flutter/material.dart';
 import 'package:pengaduan/components/pengaduan_list.dart';
+import 'package:pengaduan/pages/add_complaint_page.dart';
 import 'package:pengaduan/pages/profile_page.dart';
 import '../components/sidebar.dart';
 import '../components/navbar.dart';
@@ -67,7 +68,7 @@ class _DashboardPageState extends State<DashboardPage> {
       case 3:
         return "Profile";
       case 4:
-        return "Tambah Pengaduan";
+        return "Pengaduan";
       default:
         return "Lapor Pak Wali";
     }
@@ -317,26 +318,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildAddComplaintContent() {
     return Center(
-      child: ElevatedButton.icon(
-        onPressed: () async {
-          final messenger = ScaffoldMessenger.of(context);
-          await ComplaintService.instance.simulateNewComplaint();
-          messenger.showSnackBar(
-            const SnackBar(
-              content:
-                  Text('Pengaduan baru disimulasikan! Periksa bubble overlay.'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Simulasi Pengaduan Baru'),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: DashboardConstants.primaryColor,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        ),
-      ),
+      child: AddComplaintPage(),
     );
   }
 }

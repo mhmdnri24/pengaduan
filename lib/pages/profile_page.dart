@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../components/edit_profile_page.dart';
+import 'landing_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -39,8 +41,11 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    const FlutterSecureStorage secureStorage = FlutterSecureStorage();
+    await secureStorage.deleteAll();
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/login');
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const LandingPage()));
   }
 
   @override
@@ -92,7 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       userPhotoUrl!.isNotEmpty
                                   ? NetworkImage(userPhotoUrl!)
                                   : const AssetImage(
-                                          'assets/images/default_profile.png')
+                                          'assets/images/profile.jpeg')
                                       as ImageProvider,
                             ),
                           ),
@@ -149,7 +154,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       Expanded(
                         child: Card(
-                          elevation: 0,
+                          elevation: 1,
+                          shadowColor: Colors.black12,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                           child: InkWell(
@@ -172,7 +178,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Card(
-                          elevation: 0,
+                          elevation: 1,
+                          shadowColor: Colors.black12,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                           child: InkWell(

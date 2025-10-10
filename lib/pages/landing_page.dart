@@ -15,6 +15,23 @@ class _LandingPageState extends State<LandingPage> {
   static const blue = Color(0xFF2D62F2);
 
   @override
+  void initState() {
+    super.initState();
+    _checkSession();
+  }
+
+  Future<void> _checkSession() async {
+    try {
+      final session = await controller.getSession();
+      if (session != null && mounted) {
+        Navigator.of(context).pushReplacementNamed('/dashboard');
+      }
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -161,23 +178,21 @@ class _LandingPageState extends State<LandingPage> {
     // No country code anymore — using NIK
     final phoneController = controller.nikController;
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       builder: (context) {
-        return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: AnimatedPadding(
-            // animate dialog movement when keyboard appears
-            padding:
-                MediaQuery.of(context).viewInsets + const EdgeInsets.all(18.0),
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOut,
-            child: SingleChildScrollView(
+        return Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(18.0),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  // limit dialog height so keyboard doesn't force overflow
-                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                  maxHeight: MediaQuery.of(context).size.height * 0.85,
+                  minWidth: 280,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -202,11 +217,9 @@ class _LandingPageState extends State<LandingPage> {
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Masukkan NIK untuk menerima kode OTP',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.black54),
-                    ),
+                    const Text('Masukkan NIK untuk menerima kode OTP',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.black54)),
                     const SizedBox(height: 14),
                     Row(
                       children: const [
@@ -234,7 +247,7 @@ class _LandingPageState extends State<LandingPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
@@ -264,8 +277,8 @@ class _LandingPageState extends State<LandingPage> {
                                     if (!mounted) return;
 
                                     ScaffoldMessenger.of(localCtx).showSnackBar(
-                                      SnackBar(content: Text(result.message)),
-                                    );
+                                        SnackBar(
+                                            content: Text(result.message)));
 
                                     if (result.success) {
                                       Navigator.of(localCtx).pop();
@@ -275,10 +288,9 @@ class _LandingPageState extends State<LandingPage> {
                             icon: const Icon(Icons.send,
                                 size: 18, color: Colors.white),
                             label: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text('Kirim',
-                                  style: TextStyle(color: Colors.white)),
-                            ),
+                                padding: EdgeInsets.symmetric(vertical: 12.0),
+                                child: Text('Kirim',
+                                    style: TextStyle(color: Colors.white))),
                             style:
                                 ElevatedButton.styleFrom(backgroundColor: blue),
                           ),
@@ -296,20 +308,22 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   void _showOtpDialog(BuildContext context) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       builder: (context) {
-        return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.6,
-                minWidth: 280,
-              ),
-              child: SingleChildScrollView(
+        return Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  minWidth: 280,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -319,26 +333,21 @@ class _LandingPageState extends State<LandingPage> {
                             fontSize: 18, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 12),
                     const Text(
-                      'Kode OTP telah dikirim. Masukkan 6 digit kode untuk melanjutkan.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.black54),
-                    ),
+                        'Kode OTP telah dikirim. Masukkan 6 digit kode untuk melanjutkan.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.black54)),
                     const SizedBox(height: 18),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
                       child: LayoutBuilder(builder: (pinCtx, constraints) {
-                        // Compute field width so the total width (fields + gaps)
-                        // fits into the available constraints.maxWidth.
                         const int length = 6;
-                        const double gap = 8.0; // space between fields
+                        const double gap = 8.0;
                         final double available = constraints.maxWidth;
                         final double totalGaps = (length - 1) * gap;
-                        // Reserve minimal width per field and cap maximum width
                         final double rawField =
                             (available - totalGaps) / length;
                         final double fieldWidth = rawField.clamp(28.0, 48.0);
 
-                        // track local verifying state inside the dialog
                         bool verifying = false;
 
                         return StatefulBuilder(builder: (ctx, setState) {
@@ -362,16 +371,12 @@ class _LandingPageState extends State<LandingPage> {
                                   setState(() => verifying = false);
 
                                   ScaffoldMessenger.of(ctx).showSnackBar(
-                                    SnackBar(content: Text(result.message)),
-                                  );
+                                      SnackBar(content: Text(result.message)));
 
                                   if (result.success) {
-                                    // close OTP dialog
                                     Navigator.of(ctx).pop();
-                                    // GOTO: Dashboard page
                                     Navigator.of(ctx)
                                         .pushReplacementNamed('/dashboard');
-                                    // TODO: navigate to authenticated area or persist token
                                   }
                                 },
                                 pinTheme: PinTheme(
@@ -387,11 +392,10 @@ class _LandingPageState extends State<LandingPage> {
                               if (verifying)
                                 const Center(
                                   child: SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2),
-                                  ),
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2)),
                                 ),
                             ],
                           );

@@ -5,4 +5,6 @@ class ApiConfig {
 
   // API key used in requests
   static const String apiKey = 'API_HIJ973D4Nmgdbhy42';
+
+  static const String origin = 'https://dashboard.nusakoding.com';
 }
