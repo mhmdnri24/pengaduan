@@ -17,7 +17,8 @@ class _LoginPageState extends State<LoginPage> {
       _formKey.currentState?.save();
       // For now just navigate to dashboard and show a small confirmation
       final masked = '*' * (_password.length.clamp(0, 6));
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Masuk sebagai $_email (pwd: $masked)')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Masuk sebagai $_email (pwd: $masked)')));
       Navigator.of(context).pushReplacementNamed('/dashboard');
     }
   }
@@ -39,16 +40,34 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 children: [
                   TextFormField(
-                    decoration: const InputDecoration(labelText: 'Email'),
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD0D0D0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD0D0D0)),
+                      ),
+                    ),
                     keyboardType: TextInputType.emailAddress,
-                    validator: (v) => (v == null || v.isEmpty) ? 'Masukkan email' : null,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Masukkan email' : null,
                     onSaved: (v) => _email = v ?? '',
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
-                    decoration: const InputDecoration(labelText: 'Password'),
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD0D0D0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD0D0D0)),
+                      ),
+                    ),
                     obscureText: true,
-                    validator: (v) => (v == null || v.isEmpty) ? 'Masukkan password' : null,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Masukkan password' : null,
                     onSaved: (v) => _password = v ?? '',
                   ),
                   const SizedBox(height: 20),
@@ -65,7 +84,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 8),
                   TextButton(
-                    onPressed: () => Navigator.of(context).pushNamed('/register'),
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed('/register'),
                     child: const Text('Belum punya akun? Daftar'),
                   ),
                 ],

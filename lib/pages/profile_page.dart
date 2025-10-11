@@ -124,10 +124,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   Transform.translate(
                     offset: const Offset(0, -40),
                     child: Card(
+                      color: Colors.white,
                       margin: const EdgeInsets.only(bottom: 8),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16)),
-                      elevation: 1,
+                      elevation: 0.5,
                       shadowColor: Colors.black12,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -154,7 +155,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       Expanded(
                         child: Card(
-                          elevation: 1,
+                          color: Colors.white,
+                          elevation: 0.5,
                           shadowColor: Colors.black12,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
@@ -178,7 +180,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Card(
-                          elevation: 1,
+                          color: Colors.white,
+                          elevation: 0.5,
                           shadowColor: Colors.black12,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),

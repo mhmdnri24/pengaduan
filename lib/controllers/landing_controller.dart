@@ -121,7 +121,7 @@ class LandingController {
       VoidCallback onStart, VoidCallback onDone) async {
     final nik = nikController.text.trim();
     if (nik.isEmpty) {
-      // return SendOtpResult(false, 'Masukkan NIK terlebih dahulu');
+      return SendOtpResult(false, 'Masukkan NIK terlebih dahulu');
     }
     if (kDebugMode) {
       debugPrint('debug: masuk verifyOtp $nik');

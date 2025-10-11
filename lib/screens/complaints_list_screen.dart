@@ -28,7 +28,8 @@ class _ComplaintsListScreenState extends State<ComplaintsListScreen> {
               if (pendingCount > 0) {
                 return Container(
                   margin: const EdgeInsets.only(right: 16),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(12),
@@ -95,7 +96,8 @@ class _ComplaintsListScreenState extends State<ComplaintsListScreen> {
           await _complaintService.simulateNewComplaint();
           messenger.showSnackBar(
             const SnackBar(
-              content: Text('New complaint simulated! Check the bubble overlay.'),
+              content:
+                  Text('New complaint simulated! Check the bubble overlay.'),
               duration: Duration(seconds: 2),
             ),
           );
@@ -108,6 +110,7 @@ class _ComplaintsListScreenState extends State<ComplaintsListScreen> {
 
   Widget _buildComplaintCard(Complaint complaint) {
     return Card(
+      color: Colors.white,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         leading: CircleAvatar(
@@ -129,7 +132,8 @@ class _ComplaintsListScreenState extends State<ComplaintsListScreen> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: _getStatusColor(complaint.status),
                     borderRadius: BorderRadius.circular(8),
@@ -143,24 +147,23 @@ class _ComplaintsListScreenState extends State<ComplaintsListScreen> {
                     ),
                   ),
                 ),
-                if (complaint.priority != null) ...[
-                  const SizedBox(width: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: _getPriorityColor(complaint.priority!),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      complaint.priority!.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
+                const SizedBox(width: 4),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: _getPriorityColor(complaint.prioritas),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    complaint.prioritas.toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
+                ),
               ],
             ),
           ],

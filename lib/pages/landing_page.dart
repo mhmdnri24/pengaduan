@@ -1,10 +1,9 @@
-// lib/views/landing_page.dart
 import 'package:flutter/material.dart';
 import '../controllers/landing_controller.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 class LandingPage extends StatefulWidget {
-  const LandingPage({super.key});
+  const LandingPage({Key? key}) : super(key: key);
 
   @override
   State<LandingPage> createState() => _LandingPageState();
@@ -31,150 +30,13 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                decoration: const BoxDecoration(color: blue),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // HEADER BAR
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
-                        CircleAvatar(
-                          radius: 16,
-                          backgroundColor: Colors.white24,
-                          child: Icon(Icons.account_balance,
-                              color: Colors.white, size: 18),
-                        ),
-                        Icon(Icons.menu, color: Colors.white, size: 24),
-                      ],
-                    ),
-
-                    const SizedBox(height: 40),
-                    const CircleAvatar(
-                      radius: 36,
-                      backgroundColor: Colors.white24,
-                      child: Icon(Icons.account_balance,
-                          size: 40, color: Colors.white),
-                    ),
-                    const SizedBox(height: 46),
-
-                    const Text(
-                      'Lapor Pak Wali',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        height: 1.3,
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        'Platform Digital Pemerintah Daerah untuk Melayani Aspirasi dan Keluhan Masyarakat. Transparansi, Responsif, dan Terpercaya.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13.5,
-                          height: 1.5,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 60),
-
-                    // Tombol Kirim OTP
-                    StatefulBuilder(builder: (context, setState) {
-                      return ElevatedButton.icon(
-                        onPressed: controller.isSending
-                            ? null
-                            : () async {
-                                // capture builder context before async gap
-                                final localCtx = context;
-
-                                final result = await controller.sendOtp(
-                                  () => setState(
-                                      () => controller.isSending = true),
-                                  () => setState(
-                                      () => controller.isSending = false),
-                                );
-
-                                if (!mounted) return;
-
-                                ScaffoldMessenger.of(localCtx).showSnackBar(
-                                  SnackBar(content: Text(result.message)),
-                                );
-
-                                if (result.success) {
-                                  // show OTP entry dialog
-                                  _showOtpDialog(localCtx);
-                                }
-                              },
-                        icon: const Icon(Icons.send, size: 18),
-                        label: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12.0),
-                          child: controller.isSending
-                              ? const SizedBox(
-                                  height: 16,
-                                  width: 16,
-                                  child: CircularProgressIndicator(
-                                      color: Colors.white, strokeWidth: 2),
-                                )
-                              : const Text('Kirim OTP'),
-                        ),
-                        style: ElevatedButton.styleFrom(backgroundColor: blue),
-                      );
-                    }),
-
-                    const SizedBox(height: 14),
-
-                    // Tombol Masuk
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showLoginDialog(context),
-                        icon: const Icon(Icons.login, size: 20),
-                        label: const Text(
-                          'Masuk',
-                          style: TextStyle(
-                              fontSize: 15.5, fontWeight: FontWeight.w600),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side:
-                              const BorderSide(color: Colors.white, width: 1.3),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 40),
-          ],
-        ),
-      ),
-    );
+  // TODO: Logic lama tetap ada di sini
+  // Misalnya: controller, fungsi navigasi ke login/daftar dll
+  void _goToRegister() {
+    // logika lama ke halaman register
   }
 
-  void _showLoginDialog(BuildContext context) {
+  void _goToLogin(BuildContext context) {
     // No country code anymore — using NIK
     final phoneController = controller.nikController;
 
@@ -241,7 +103,13 @@ class _LandingPageState extends State<LandingPage> {
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 14),
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8)),
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: Color(0xFFD0D0D0))),
+                              enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: const BorderSide(
+                                      color: Color(0xFFD0D0D0))),
                             ),
                           ),
                         ),
@@ -276,21 +144,36 @@ class _LandingPageState extends State<LandingPage> {
 
                                     if (!mounted) return;
 
-                                    ScaffoldMessenger.of(localCtx).showSnackBar(
-                                        SnackBar(
-                                            content: Text(result.message)));
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content: Text(result.message)));
+                                    }
 
                                     if (result.success) {
                                       Navigator.of(localCtx).pop();
                                       _showOtpDialog(localCtx);
                                     }
                                   },
-                            icon: const Icon(Icons.send,
-                                size: 18, color: Colors.white),
-                            label: const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 12.0),
-                                child: Text('Kirim',
-                                    style: TextStyle(color: Colors.white))),
+                            icon: controller.isSending
+                                ? Container(
+                                    width: 18,
+                                    height: 18,
+                                    child: const CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Icon(Icons.send,
+                                    size: 18, color: Colors.white),
+                            label: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12.0),
+                                child: controller.isSending
+                                    ? const Text('Mengirim...',
+                                        style: TextStyle(color: Colors.white))
+                                    : const Text('Kirim',
+                                        style: TextStyle(color: Colors.white))),
                             style:
                                 ElevatedButton.styleFrom(backgroundColor: blue),
                           ),
@@ -370,20 +253,28 @@ class _LandingPageState extends State<LandingPage> {
 
                                   setState(() => verifying = false);
 
-                                  ScaffoldMessenger.of(ctx).showSnackBar(
-                                      SnackBar(content: Text(result.message)));
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                            content: Text(result.message)));
+                                  }
 
                                   if (result.success) {
-                                    Navigator.of(ctx).pop();
-                                    Navigator.of(ctx)
+                                    Navigator.of(context).pop();
+                                    Navigator.of(context)
                                         .pushReplacementNamed('/dashboard');
                                   }
                                 },
                                 pinTheme: PinTheme(
-                                  shape: PinCodeFieldShape.box,
                                   borderRadius: BorderRadius.circular(8),
                                   fieldHeight: fieldWidth,
                                   fieldWidth: fieldWidth,
+                                  activeFillColor: blue.withOpacity(0.1),
+                                  inactiveFillColor: Colors.grey.shade100,
+                                  selectedFillColor: blue.withOpacity(0.2),
+                                  activeColor: blue,
+                                  inactiveColor: Colors.grey.shade400,
+                                  selectedColor: blue,
                                 ),
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -423,6 +314,144 @@ class _LandingPageState extends State<LandingPage> {
           ),
         );
       },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.all(6),
+            child: const Icon(Icons.account_balance, color: Colors.white),
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
+            onPressed: () {
+              // logika lama menu atau drawer
+            },
+          ),
+        ],
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF2F80ED), Color(0xFF56CCF2)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 40),
+
+              // Ikon gedung di tengah
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withOpacity(0.5)),
+                ),
+                padding: const EdgeInsets.all(24),
+                child: const Icon(
+                  Icons.account_balance,
+                  size: 50,
+                  color: Colors.white,
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Judul
+              const Text(
+                'Lapor Pak Wali',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 16),
+
+              // Deskripsi
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Platform Digital Pemerintah Daerah untuk Melayani Aspirasi dan Keluhan Masyarakat. Transparansi, Responsif, dan Terpercaya.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              // Tombol Daftar
+              SizedBox(
+                width: 250,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: _goToRegister,
+                  icon: const Icon(Icons.person_add_alt, color: Colors.white),
+                  label: const Text(
+                    'Daftar Sekarang',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white.withOpacity(0.15),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Tombol Masuk (border putih)
+              SizedBox(
+                width: 250,
+                height: 48,
+                child: OutlinedButton.icon(
+                  onPressed: () => _goToLogin(context),
+                  icon: const Icon(Icons.login, color: Colors.white),
+                  label: const Text(
+                    'Masuk',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.white),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

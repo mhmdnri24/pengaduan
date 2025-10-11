@@ -25,7 +25,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController tempatController = TextEditingController();
   DateTime? selectedDate;
-
+  String? userNik;
   final _secureStorage = const FlutterSecureStorage();
   bool isSaving = false;
   bool isLoadingProfile = false;
@@ -46,6 +46,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
   bool isLoadingKelurahan = false;
   bool isLoadingKecamatan = false;
 
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      userNik = prefs.getString('user_nik');
+    });
+  }
+
   @override
   void dispose() {
     alamatController.dispose();
@@ -58,6 +66,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
+    _loadUserData();
     _fetchKecamatan();
     _fetchProfile();
   }
@@ -166,7 +175,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
 
     try {
-      final uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/profile');
+      final uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/$userNik');
       final resp = await http.get(uri, headers: {
         'Authorization': token,
         'X-API-Key': ApiConfig.apiKey,
@@ -343,7 +352,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
@@ -371,7 +380,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
 
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         children: [
           // === Progress Header ===
           Row(
@@ -420,7 +429,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           // === Card Informasi Alamat ===
           Card(
             color: Colors.white,
-            elevation: 2,
+            elevation: 0.3,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
@@ -450,6 +459,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       hintText: 'Masukkan alamat lengkap (jalan, RT/RW, dll)',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFD0D0D0)),
                       ),
                       contentPadding: const EdgeInsets.all(12),
                     ),
@@ -463,7 +477,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     decoration: InputDecoration(
                       hintText: 'Nama lengkap',
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD0D0D0))),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD0D0D0))),
                       contentPadding: const EdgeInsets.all(12),
                     ),
                   ),
@@ -477,7 +497,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     decoration: InputDecoration(
                       hintText: '08xxxxxxxx',
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD0D0D0))),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD0D0D0))),
                       contentPadding: const EdgeInsets.all(12),
                     ),
                   ),
@@ -490,7 +516,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     decoration: InputDecoration(
                       hintText: 'Tempat lahir',
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD0D0D0))),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD0D0D0))),
                       contentPadding: const EdgeInsets.all(12),
                     ),
                   ),
@@ -514,7 +546,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       decoration: InputDecoration(
                         hintText: 'Pilih tanggal lahir',
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                const BorderSide(color: Color(0xFFD0D0D0))),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide:
+                                const BorderSide(color: Color(0xFFD0D0D0))),
                         contentPadding: const EdgeInsets.all(12),
                       ),
                       child: Text(selectedDate != null
@@ -550,7 +588,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     }),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD0D0D0))),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD0D0D0))),
                       contentPadding: const EdgeInsets.all(12),
                     ),
                   ),
@@ -590,7 +634,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             }),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD0D0D0))),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD0D0D0))),
                       contentPadding: const EdgeInsets.all(12),
                     ),
                   ),
@@ -612,7 +662,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           // === Card Foto Profil ===
           Card(
             color: Colors.white,
-            elevation: 2,
+            elevation: 0.3,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(

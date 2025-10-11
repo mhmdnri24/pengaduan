@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
- 
+
 class HeaderPengaduan extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const HeaderPengaduan({super.key, required this.title, required this.subtitle});
+  const HeaderPengaduan(
+      {super.key, required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -17,31 +18,36 @@ class HeaderPengaduan extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-        children: [
-           Expanded(
-            child: Text(
-              title,
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-          ),
-          TextButton.icon(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.blue,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18),
+                ),
               ),
-            ),
-            onPressed: () {},
-            icon: const Icon(Icons.remove_red_eye, size: 16, color: Colors.white),
-            label: const Text("Lihat semua"),
+              TextButton.icon(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blue,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {},
+                icon: const Icon(Icons.remove_red_eye,
+                    size: 16, color: Colors.white),
+                label: const Text("Lihat semua"),
+              ),
+            ],
           ),
-        ],
-      ),
-      SizedBox(height: 10),
-      Text(subtitle),
-      SizedBox(height: 10),
+          SizedBox(height: 10),
+          Text(subtitle),
+          SizedBox(height: 10),
         ],
       ),
     );
@@ -89,6 +95,7 @@ class PengaduanList extends StatelessWidget {
       itemBuilder: (context, index) {
         final item = data[index];
         return Card(
+          color: Colors.white,
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -129,7 +136,8 @@ class PengaduanList extends StatelessWidget {
                           width: 60,
                           height: 60,
                           color: Colors.grey.shade300,
-                          child: const Icon(Icons.broken_image, color: Colors.white70),
+                          child: const Icon(Icons.broken_image,
+                              color: Colors.white70),
                         );
                       },
                     ),

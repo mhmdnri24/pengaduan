@@ -222,22 +222,22 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     const SizedBox(height: 10),
                     const BannerCard(name: DashboardConstants.userName),
-                    const SizedBox(height: 25),
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: DashboardConstants.searchHint,
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                              DashboardConstants.searchBorderRadius),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 12),
-                      ),
-                    ),
+                    // const SizedBox(height: 25),
+                    // TextField(
+                    //   decoration: InputDecoration(
+                    //     hintText: DashboardConstants.searchHint,
+                    //     prefixIcon: const Icon(Icons.search),
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(
+                    //           DashboardConstants.searchBorderRadius),
+                    //       borderSide: BorderSide.none,
+                    //     ),
+                    //     filled: true,
+                    //     fillColor: Colors.white,
+                    //     contentPadding: const EdgeInsets.symmetric(
+                    //         vertical: 10, horizontal: 12),
+                    //   ),
+                    // ),
                     const SizedBox(height: 20),
                   ],
                 ),
