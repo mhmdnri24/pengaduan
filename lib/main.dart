@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'services/complaint_service.dart';
 import 'services/bubble_overlay_service.dart';
 import 'screens/splash_screen.dart';
@@ -13,7 +15,7 @@ import 'pages/register_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Firebase
   await Firebase.initializeApp();
 
@@ -26,33 +28,50 @@ void main() async {
 
   // Print FCM token and listen for refreshes
   await _printFcmToken();
-  FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+  FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
     debugPrint('FCM Token refreshed: $newToken');
+    await _saveFcmToken(newToken);
   });
 
   // Handle background messages (required top-level handler)
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // Handle messages when app is opened from a terminated state via tap
-  FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+  const platform = MethodChannel('bubble_overlay');
+  FirebaseMessaging.instance
+      .getInitialMessage()
+      .then((RemoteMessage? message) async {
     if (message != null) {
-      // Show bubble when app opened from notification
-      BubbleOverlayService.instance.showBubble(complaintCount: 1);
-      playNotificationSound();
+      // Use native service to show bubble (native will play sound)
+      try {
+        await platform.invokeMethod('showBubble', {'count': 1});
+      } catch (e) {
+        // Fallback to existing Flutter helper if native channel isn't available
+        await BubbleOverlayService.instance.showBubble(complaintCount: 1);
+      }
     }
   });
 
   // Foreground message handler: show bubble immediately
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    // You can inspect message.notification or message.data here
-    BubbleOverlayService.instance.showBubble(complaintCount: 1);
-    playNotificationSound();
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    // Use native service to show bubble and play sound
+    try {
+      await platform.invokeMethod('showBubble', {'count': 1});
+    } catch (e) {
+      await BubbleOverlayService.instance.showBubble(complaintCount: 1);
+      // optional: keep Dart audio as extra feedback when app is foreground
+      await playNotificationSound();
+    }
   });
 
   // When app in background but opened via notification tap
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    BubbleOverlayService.instance.showBubble(complaintCount: 1);
-    playNotificationSound();
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+    try {
+      await platform.invokeMethod('showBubble', {'count': 1});
+    } catch (e) {
+      await BubbleOverlayService.instance.showBubble(complaintCount: 1);
+      await playNotificationSound();
+    }
   });
 
   runApp(const MyApp());
@@ -62,8 +81,10 @@ void main() async {
 // Fungsi untuk memutar suara notifikasi
 Future<void> playNotificationSound() async {
   final player = AudioPlayer();
+  print('Playing notification sound...');
   await player.play(AssetSource('sound/urgent.wav'));
 }
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Important: initialize Firebase in background isolate
   await Firebase.initializeApp();
@@ -73,7 +94,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     final dataCount = int.tryParse(message.data['count'] ?? '') ?? 1;
     // Use MethodChannel to invoke native start/show
     const platform = MethodChannel('bubble_overlay');
-    await platform.invokeMethod('showBubble', { 'count': dataCount });
+    await platform.invokeMethod('showBubble', {'count': dataCount});
   } catch (e) {
     // Background isolate might not have platform channel bound; fall back to nothing
   }
@@ -83,21 +104,37 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> _printFcmToken() async {
   try {
     final fcm = FirebaseMessaging.instance;
-  final token = await fcm.getToken();
-  debugPrint('FCM Token: $token');
-
-    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-      debugPrint('FCM Token refreshed: $newToken');
-    });
+    final token = await fcm.getToken();
+    debugPrint('FCM Token: $token');
+    if (token != null) await _saveFcmToken(token);
   } catch (e) {
     debugPrint('Error fetching FCM token: $e');
+  }
+}
+
+/// Save FCM token to secure storage with SharedPreferences fallback.
+Future<void> _saveFcmToken(String token) async {
+  final secure = const FlutterSecureStorage();
+  try {
+    await secure.write(key: 'fcm_token', value: token);
+  } catch (e) {
+    debugPrint('Secure storage write failed, falling back to prefs: $e');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('fcm_token', token);
+  }
+  // Also write to prefs for quick access
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('fcm_token', token);
+  } catch (e) {
+    debugPrint('Failed to write fcm_token to prefs: $e');
   }
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   static const String _title = 'Complaint Management App';
-  
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -118,5 +155,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
- 

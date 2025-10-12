@@ -9,6 +9,9 @@ import android.os.IBinder
 import android.view.*
 import android.media.MediaPlayer
 import android.media.RingtoneManager
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.AudioFocusRequest
 import android.net.Uri
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -28,6 +31,8 @@ class BubbleOverlayService : Service() {
     private var flutterEngine: FlutterEngine? = null
     private var methodChannel: MethodChannel? = null
     private var mediaPlayer: MediaPlayer? = null
+    private var audioManager: AudioManager? = null
+    private var focusRequest: AudioFocusRequest? = null
 
     companion object {
         private const val NOTIFICATION_ID = 1001
@@ -58,6 +63,7 @@ class BubbleOverlayService : Service() {
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         createNotificationChannel()
         initializeFlutterEngine()
+        audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -113,6 +119,21 @@ class BubbleOverlayService : Service() {
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = "Notifications that trigger the overlay bubble"
+                // Try to set a custom sound located in res/raw/urgent.wav if present.
+                try {
+                    val resId = resources.getIdentifier("urgent", "raw", packageName)
+                    if (resId != 0) {
+                       
+                        val soundUri = Uri.parse("android.resource://$packageName/raw/urgent")
+                        val audioAttributes = AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .build()
+                        setSound(soundUri, audioAttributes)
+                    }
+                } catch (e: Exception) {
+                    // ignore - fallback will use default sound when playing manually
+                }
             }
             notificationManager.createNotificationChannel(overlayChannel)
         }
@@ -194,9 +215,11 @@ class BubbleOverlayService : Service() {
         val inflater = LayoutInflater.from(this)
         bubbleView = inflater.inflate(R.layout.bubble_overlay, null)
         
-        val bubbleContainer = bubbleView!!.findViewById<FrameLayout>(R.id.bubble_container)
-        val badgeText = bubbleView!!.findViewById<TextView>(R.id.badge_text)
-        val bubbleIcon = bubbleView!!.findViewById<ImageView>(R.id.bubble_icon)
+    val bubbleContainer = bubbleView!!.findViewById<FrameLayout>(R.id.bubble_container)
+    val badgeText = bubbleView!!.findViewById<TextView>(R.id.badge_text)
+    val bubbleIcon = bubbleView!!.findViewById<ImageView>(R.id.bubble_icon)
+    val closeButton = bubbleView!!.findViewById<ImageView>(R.id.bubble_close)
+    val openButton = bubbleView!!.findViewById<TextView>(R.id.bubble_open)
         
         // Set up badge
         badgeText.text = complaintCount.toString()
@@ -208,6 +231,27 @@ class BubbleOverlayService : Service() {
         // Set up click listener
         bubbleContainer.setOnClickListener {
             openComplaintScreen()
+        }
+
+        // Close button: hide bubble and stop the service
+        closeButton?.setOnClickListener {
+            hideBubble()
+            try { stopSelf() } catch (e: Exception) { }
+        }
+
+        // Open app button: launch MainActivity and hide bubble
+        openButton?.setOnClickListener {
+            try {
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    putExtra("route", "/complaints")
+                    putExtra("complaint_count", complaintCount)
+                }
+                startActivity(intent)
+            } catch (e: Exception) {
+                android.util.Log.e("BubbleOverlayService", "Failed to open app", e)
+            }
+            hideBubble()
         }
     }
 
@@ -321,8 +365,10 @@ class BubbleOverlayService : Service() {
 
     private fun playNotificationSound() {
         try {
-            // Use default notification sound so no extra resources are required.
-            val notification: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            android.util.Log.d("BubbleOverlayService", "playNotificationSound: start")
+            // Prefer a bundled raw resource `res/raw/urgent.wav` if available (works in background).
+            val resId = resources.getIdentifier("urgent", "raw", packageName)
+            android.util.Log.d("BubbleOverlayService", "playNotificationSound: resId=$resId")
 
             // If there's an existing player, release it first
             mediaPlayer?.let {
@@ -330,12 +376,82 @@ class BubbleOverlayService : Service() {
                 try { it.release() } catch (ignored: Exception) {}
             }
 
-            mediaPlayer = MediaPlayer.create(this, notification)
+            mediaPlayer = if (resId != 0) {
+                android.util.Log.d("BubbleOverlayService", "Creating mediaPlayer from raw resource")
+                MediaPlayer.create(this, resId)
+            } else {
+                android.util.Log.d("BubbleOverlayService", "Creating mediaPlayer from default notification sound")
+                val notification: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+                MediaPlayer.create(this, notification)
+            }
+
+            if (mediaPlayer == null) {
+                android.util.Log.e("BubbleOverlayService", "playNotificationSound: mediaPlayer creation returned null")
+            }
+
+            // Request audio focus before playback
+            var focusGranted = false
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val attr = AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                    focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                        .setAudioAttributes(attr)
+                        .setAcceptsDelayedFocusGain(false)
+                        .setOnAudioFocusChangeListener { /* no-op */ }
+                        .build()
+                    val res = audioManager?.requestAudioFocus(focusRequest!!)
+                    focusGranted = res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                } else {
+                    val res = audioManager?.requestAudioFocus(
+                        null,
+                        AudioManager.STREAM_NOTIFICATION,
+                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+                    )
+                    focusGranted = res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                }
+            } catch (e: Exception) {
+                // ignore focus errors and proceed to play
+            }
+            mediaPlayer?.setOnErrorListener { mp, what, extra ->
+                android.util.Log.e("BubbleOverlayService", "MediaPlayer error what=$what extra=$extra")
+                try { mp.release() } catch (ignored: Exception) {}
+                if (mediaPlayer === mp) mediaPlayer = null
+                // Abandon audio focus on error
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        focusRequest?.let { audioManager?.abandonAudioFocusRequest(it) }
+                    } else {
+                        audioManager?.abandonAudioFocus(null)
+                    }
+                } catch (e: Exception) {
+                    // ignore
+                }
+                true
+            }
+
             mediaPlayer?.setOnCompletionListener { mp ->
                 try { mp.release() } catch (ignored: Exception) {}
                 if (mediaPlayer === mp) mediaPlayer = null
+                // Abandon audio focus
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        focusRequest?.let { audioManager?.abandonAudioFocusRequest(it) }
+                    } else {
+                        audioManager?.abandonAudioFocus(null)
+                    }
+                } catch (e: Exception) {
+                    // ignore
+                }
             }
-            mediaPlayer?.start()
+            try {
+                mediaPlayer?.start()
+                android.util.Log.d("BubbleOverlayService", "playNotificationSound: started playback")
+            } catch (e: Exception) {
+                android.util.Log.e("BubbleOverlayService", "Failed to start mediaPlayer", e)
+            }
         } catch (e: Exception) {
             android.util.Log.e("BubbleOverlayService", "Failed to play notification sound", e)
         }
