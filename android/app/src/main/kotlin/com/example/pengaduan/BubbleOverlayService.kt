@@ -7,6 +7,9 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
 import android.view.*
+import android.media.MediaPlayer
+import android.media.RingtoneManager
+import android.net.Uri
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
@@ -24,6 +27,7 @@ class BubbleOverlayService : Service() {
     private var complaintCount = 0
     private var flutterEngine: FlutterEngine? = null
     private var methodChannel: MethodChannel? = null
+    private var mediaPlayer: MediaPlayer? = null
 
     companion object {
         private const val NOTIFICATION_ID = 1001
@@ -164,6 +168,9 @@ class BubbleOverlayService : Service() {
         createBubbleView()
         addBubbleToWindow()
         isBubbleVisible = true
+        // Play a short notification sound from the native side so it works
+        // even when the app is backgrounded.
+        playNotificationSound()
     }
 
     fun hideBubble() {
@@ -295,6 +302,42 @@ class BubbleOverlayService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         hideBubble()
+        // Ensure media player is released
+        mediaPlayer?.let {
+            try {
+                if (it.isPlaying) it.stop()
+            } catch (e: Exception) {
+                // ignore
+            }
+            try {
+                it.release()
+            } catch (e: Exception) {
+                // ignore
+            }
+            mediaPlayer = null
+        }
         flutterEngine?.destroy()
+    }
+
+    private fun playNotificationSound() {
+        try {
+            // Use default notification sound so no extra resources are required.
+            val notification: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
+            // If there's an existing player, release it first
+            mediaPlayer?.let {
+                try { if (it.isPlaying) it.stop() } catch (ignored: Exception) {}
+                try { it.release() } catch (ignored: Exception) {}
+            }
+
+            mediaPlayer = MediaPlayer.create(this, notification)
+            mediaPlayer?.setOnCompletionListener { mp ->
+                try { mp.release() } catch (ignored: Exception) {}
+                if (mediaPlayer === mp) mediaPlayer = null
+            }
+            mediaPlayer?.start()
+        } catch (e: Exception) {
+            android.util.Log.e("BubbleOverlayService", "Failed to play notification sound", e)
+        }
     }
 }

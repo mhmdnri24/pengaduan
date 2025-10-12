@@ -30,8 +30,7 @@ class ComplaintService {
   List<Complaint> get complaints => List.unmodifiable(_complaints);
 
   /// Get pending complaints count
-  int get pendingComplaintsCount =>
-      _complaints.where((c) => c.status == 'pending').length;
+  int get pendingComplaintsCount => _complaints.length;
 
   /// Initialize the service
   Future<void> initialize() async {
@@ -40,7 +39,7 @@ class ComplaintService {
 
     // Listen for new complaints and show bubble
     _newComplaintController.stream.listen((complaint) {
-      _showBubbleForNewComplaint();
+      // _showBubbleForNewComplaint();
     });
   }
 

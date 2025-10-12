@@ -9,7 +9,7 @@ import '../components/navbar.dart';
 import '../components/icon_grid.dart';
 import '../components/banner.dart';
 import '../components/purple_slider.dart';
-import '../services/complaint_service.dart';
+// import '../services/complaint_service.dart';
 import 'history_page.dart';
 
 // Constants for better maintainability
@@ -98,6 +98,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
       key: _scaffoldKey,
+      resizeToAvoidBottomInset: false,
       appBar: Navbar(
         title: _getTitle(),
         notificationCount: DashboardConstants.notificationCount,
@@ -258,32 +259,33 @@ class _DashboardPageState extends State<DashboardPage> {
           // Grid icons (extracted to IconGrid)
           IconGrid(isDesktop: isDesktop),
 
-          const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 children: [
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   HeaderPengaduan(
                     title: "Pengaduan Terbaru",
                     subtitle: "Pantau aduan masyarakat terbaru",
+                    onViewAll: () => setState(() => _selectedIndex = 1),
                   ),
-                  SizedBox(height: 10),
-                  PengaduanList(),
+                  const SizedBox(height: 10),
+                  const PengaduanList(),
                 ],
               )),
-          const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-                  SizedBox(height: 10),
-                  HeaderPengaduan(
-                    title: "Berita Terbaru",
-                    subtitle: "Informasi dan berita terkini dari pemerintah",
-                  ),
-                  SizedBox(height: 10),
-                  PengaduanList(),
-                ],
-              )),
+          // const Padding(
+          //     padding: EdgeInsets.symmetric(horizontal: 16.0),
+          //     child: Column(
+          //       children: [
+          //         SizedBox(height: 10),
+          //         HeaderPengaduan(
+          //           title: "Berita Terbaru",
+          //           subtitle: "Informasi dan berita terkini dari pemerintah",
+          //         ),
+          //         SizedBox(height: 10),
+          //         PengaduanList(),
+          //       ],
+          //     )),
         ],
       ),
     );

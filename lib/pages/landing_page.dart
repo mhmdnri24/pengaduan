@@ -146,8 +146,19 @@ class _LandingPageState extends State<LandingPage> {
 
                                     if (mounted) {
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              content: Text(result.message)));
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(result.message),
+                                          behavior: SnackBarBehavior
+                                              .floating, // 👈 penting!
+                                          margin: const EdgeInsets.only(
+                                            bottom:
+                                                10.0, // jarak dari bawah (atur sesuai tinggi FAB + BottomAppBar)
+                                            right: 16.0,
+                                            left: 16.0,
+                                          ),
+                                        ),
+                                      );
                                     }
 
                                     if (result.success) {
@@ -255,8 +266,18 @@ class _LandingPageState extends State<LandingPage> {
 
                                   if (mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text(result.message)));
+                                      SnackBar(
+                                        content: Text(result.message),
+                                        behavior: SnackBarBehavior
+                                            .floating, // 👈 penting!
+                                        margin: const EdgeInsets.only(
+                                          bottom:
+                                              80.0, // jarak dari bawah (atur sesuai tinggi FAB + BottomAppBar)
+                                          right: 16.0,
+                                          left: 16.0,
+                                        ),
+                                      ),
+                                    );
                                   }
 
                                   if (result.success) {

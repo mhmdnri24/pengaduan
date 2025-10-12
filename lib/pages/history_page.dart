@@ -356,10 +356,20 @@ class _HistoryPageState extends State<HistoryPage> {
           : null,
       detailAction: () {
         // Navigate to detail page DetailPengaduanPage
+        // Ensure we always pass a non-empty string
+        String complaintId;
+        if (complaint.id.isNotEmpty) {
+          complaintId = complaint.id;
+        } else if (complaint.kodeLaporan.isNotEmpty) {
+          complaintId = complaint.kodeLaporan;
+        } else {
+          complaintId = 'unknown';
+        }
+        print('Navigating to detail with ID: $complaintId');
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const DetailPengaduanPage(),
+            builder: (context) => DetailPengaduanPage(complaintId: complaintId),
           ),
         );
         debugPrint('Detail for complaint ${complaint.kodeLaporan}');
