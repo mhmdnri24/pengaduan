@@ -1,73 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/bubble_container"
-    android:layout_width="220dp"
-    android:layout_height="220dp"
+    android:layout_width="140dp"
+    android:layout_height="140dp"
     android:layout_gravity="center"
     android:background="@drawable/bubble_outer_blue"
     android:clipToPadding="false">
 
     <!-- Inner white circle centered inside outer blue circle -->
     <FrameLayout
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_gravity="center"
         android:background="@drawable/bubble_inner_white"
-        android:elevation="6dp">
+        android:elevation="3dp">
 
-        <!-- Close icon at top-left inside inner circle -->
-        <ImageView
-            android:id="@+id/bubble_close"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_gravity="top|start"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
-            android:contentDescription="Close bubble"
-            android:background="@drawable/close_button_background_blue"
-            android:padding="4dp" />
+            <!-- Close icon at top-left inside inner circle -->
+            <ImageView
+                android:id="@+id/bubble_close"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="top|start"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="6dp"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:contentDescription="Close bubble"
+                android:background="@drawable/close_button_background_blue"
+                android:padding="3dp" />
 
-        <!-- Badge top-right inside inner circle -->
-        <TextView
-            android:id="@+id/badge_text"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_gravity="top|end"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/badge_background_blue"
-            android:gravity="center"
-            android:textColor="@android:color/white"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            <!-- Only Open button remains -->
+            <TextView
+                android:id="@+id/bubble_open"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:background="@drawable/open_button_background_blue"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:gravity="center"
+                android:text="Open"
+                android:includeFontPadding="false"
+                android:minWidth="64dp"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
-        <!-- Center icon (optional) -->
-        <ImageView
-            android:id="@+id/bubble_icon"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_touch"
-            android:contentDescription="Tap to open app" />
-
-        <!-- Open pill centered horizontally near bottom of inner circle -->
-        <TextView
-            android:id="@+id/bubble_open"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/open_button_background_blue"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp"
-            android:gravity="center"
-            android:text="Open"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-    </FrameLayout>
-
+        </FrameLayout>
 </FrameLayout>

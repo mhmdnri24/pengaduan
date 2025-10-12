@@ -206,9 +206,14 @@ class BubbleOverlayService : Service() {
 
     private fun updateComplaintCount(count: Int) {
         complaintCount = count
-        bubbleView?.findViewById<TextView>(R.id.badge_text)?.text = count.toString()
-        bubbleView?.findViewById<TextView>(R.id.badge_text)?.visibility = 
-            if (count > 0) View.VISIBLE else View.GONE
+        // The layout may not include a badge anymore; perform a runtime lookup
+        val badgeId = resources.getIdentifier("badge_text", "id", packageName)
+        if (badgeId != 0) {
+            bubbleView?.findViewById<TextView>(badgeId)?.let { badge ->
+                badge.text = count.toString()
+                badge.visibility = if (count > 0) View.VISIBLE else View.GONE
+            }
+        }
     }
 
     private fun createBubbleView() {
@@ -216,27 +221,17 @@ class BubbleOverlayService : Service() {
         bubbleView = inflater.inflate(R.layout.bubble_overlay, null)
         
     val bubbleContainer = bubbleView!!.findViewById<FrameLayout>(R.id.bubble_container)
-    val badgeText = bubbleView!!.findViewById<TextView>(R.id.badge_text)
-    val bubbleIcon = bubbleView!!.findViewById<ImageView>(R.id.bubble_icon)
-    val closeButton = bubbleView!!.findViewById<ImageView>(R.id.bubble_close)
     val openButton = bubbleView!!.findViewById<TextView>(R.id.bubble_open)
+    // Try to find close button by id if present
+    val closeId = resources.getIdentifier("bubble_close", "id", packageName)
+    val closeButton = if (closeId != 0) bubbleView!!.findViewById<ImageView>(closeId) else null
         
-        // Set up badge
-        badgeText.text = complaintCount.toString()
-        badgeText.visibility = if (complaintCount > 0) View.VISIBLE else View.GONE
-        
-        // Set up drag functionality
+    // Set up drag functionality
         setupDragListener(bubbleContainer)
         
         // Set up click listener
         bubbleContainer.setOnClickListener {
             openComplaintScreen()
-        }
-
-        // Close button: hide bubble and stop the service
-        closeButton?.setOnClickListener {
-            hideBubble()
-            try { stopSelf() } catch (e: Exception) { }
         }
 
         // Open app button: launch MainActivity and hide bubble
@@ -252,6 +247,12 @@ class BubbleOverlayService : Service() {
                 android.util.Log.e("BubbleOverlayService", "Failed to open app", e)
             }
             hideBubble()
+        }
+
+        // Close button: hide bubble and stop the service
+        closeButton?.setOnClickListener {
+            hideBubble()
+            try { stopSelf() } catch (e: Exception) { }
         }
     }
 
