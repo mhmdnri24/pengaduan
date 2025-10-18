@@ -25,6 +25,8 @@ class ApiService {
   Map<String, String> get _headers => {
         'X-API-Key': ApiConfig.apiKey,
         'Origin': ApiConfig.origin,
+        'Referer': ApiConfig.origin,
+        'Cookie': 'krs_session=6egg5h8fo1co8b9lmoroui0pp4es97hb',
       };
 
   Future<ApiResponse<Map<String, dynamic>>> postComplaint({
@@ -201,6 +203,25 @@ class ApiService {
         } else {
           return ApiResponse(success: false, error: 'Invalid response format');
         }
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
+  Future<ApiResponse<Map<String, dynamic>>> getComplaintHistory(String complaintId) async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/pelaporan_history/$complaintId');
+      
+      var response = await http.get(uri, headers: _headers);
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+        return ApiResponse(success: true, data: responseData);
       } else {
         return ApiResponse(
             success: false,

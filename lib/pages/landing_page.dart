@@ -753,6 +753,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                 ],
               ),
             ),
+            SizedBox(height: 40),
             
             // Page content
             Expanded(

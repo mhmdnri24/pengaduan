@@ -12,6 +12,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  String? id;
   String? userName;
   String? userNik;
   String? userPhone;
@@ -30,11 +31,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
     setState(() {
       // token and userId intentionally omitted from UI for privacy
+      id = prefs.getString('user_id');
       userName = prefs.getString('user_name');
       userNik = prefs.getString('user_nik');
       userPhone = prefs.getString('user_phone');
       userPhotoUrl = prefs.getString('user_photo_url');
       isLoading = false;
+      print(id);
     });
   }
 

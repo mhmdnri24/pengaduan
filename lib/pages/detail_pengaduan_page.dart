@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:pengaduan/config/api_config.dart';
+import 'package:pengaduan/components/progress_timeline.dart';
+import 'package:pengaduan/services/api_service.dart';
 
 class DetailPengaduanPage extends StatefulWidget {
   final String complaintId;
@@ -17,11 +19,17 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
   bool _loading = true;
   String? _error;
   Map<String, dynamic>? _data;
+  
+  // Progress timeline data
+  bool _historyLoading = false;
+  String? _historyError;
+  List<Map<String, dynamic>> _history = [];
 
   @override
   void initState() {
     super.initState();
     _fetchDetail();
+    _fetchHistory();
   }
 
   Future<void> _fetchDetail() async {
@@ -64,6 +72,45 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
       setState(() {
         _error = e.toString();
         _loading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchHistory() async {
+    setState(() {
+      _historyLoading = true;
+      _historyError = null;
+    });
+
+    try {
+      final response = await ApiService.instance.getComplaintHistory(widget.complaintId);
+      
+      if (response.success && response.data != null) {
+        final data = response.data!;
+        if (data['status'] == 'success' && data['data'] != null) {
+          final historyData = data['data'] as Map<String, dynamic>;
+          final historyList = historyData['history'] as List<dynamic>? ?? [];
+          
+          setState(() {
+            _history = historyList.cast<Map<String, dynamic>>();
+            _historyLoading = false;
+          });
+        } else {
+          setState(() {
+            _historyError = data['message']?.toString() ?? 'Failed to load history';
+            _historyLoading = false;
+          });
+        }
+      } else {
+        setState(() {
+          _historyError = response.error ?? 'Failed to load history';
+          _historyLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _historyError = e.toString();
+        _historyLoading = false;
       });
     }
   }
@@ -253,16 +300,12 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
         ),
         const SizedBox(height: 20),
 
-        // Progress section (kept simple)
-        Text(
-          'Progress Penanganan',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
+        // Progress Timeline
+        ProgressTimeline(
+          history: _history,
+          isLoading: _historyLoading,
+          error: _historyError,
         ),
-        const SizedBox(height: 10),
-        // show files if any
 
         const SizedBox(height: 20),
 
