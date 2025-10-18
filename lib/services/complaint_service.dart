@@ -67,6 +67,8 @@ class ComplaintService {
         search: search,
       );
 
+     
+
       if (apiResponse.success && apiResponse.data != null) {
         return ApiResponse(success: true, data: apiResponse.data);
       } else {
@@ -90,6 +92,8 @@ class ComplaintService {
     required String pelaporAlamat,
     List<File>? foto,
   }) async {
+
+    print('Foto: 1');
     try {
       // Submit to API
       var apiResponse = await ApiService.instance.postComplaint(
@@ -103,7 +107,7 @@ class ComplaintService {
         pelaporAlamat: pelaporAlamat,
         foto: foto,
       );
-
+ print('API Response: ${apiResponse.data}');
       if (apiResponse.success && apiResponse.data != null) {
         // Create complaint object from API response
         var complaint = Complaint(
@@ -130,7 +134,7 @@ class ComplaintService {
         );
 
         // Add to local list and notify listeners
-        await addComplaint(complaint);
+        // await addComplaint(complaint);
 
         return ApiResponse(success: true, data: complaint);
       } else {

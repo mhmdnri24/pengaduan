@@ -89,7 +89,7 @@ class ProgressTimeline extends StatelessWidget {
                 isLast: isLast,
                 isCompleted: true, // All history items are completed
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

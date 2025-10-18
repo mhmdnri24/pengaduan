@@ -17,6 +17,8 @@ class _ProfilePageState extends State<ProfilePage> {
   String? userNik;
   String? userPhone;
   String? userPhotoUrl;
+  String? token;
+  String? deviceId;
 
   bool isLoading = true;
 
@@ -36,8 +38,11 @@ class _ProfilePageState extends State<ProfilePage> {
       userNik = prefs.getString('user_nik');
       userPhone = prefs.getString('user_phone');
       userPhotoUrl = prefs.getString('user_photo_url');
+      token = prefs.getString('fcm_token');
+      deviceId = prefs.getString('device_id');
       isLoading = false;
-      print(id);
+      print(token);
+      print(deviceId);
     });
   }
 

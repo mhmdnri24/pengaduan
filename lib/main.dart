@@ -5,8 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:io';
 import 'services/complaint_service.dart';
 import 'services/bubble_overlay_service.dart';
+import 'services/session_service.dart';
 import 'screens/splash_screen.dart';
 import 'pages/dashboard_page.dart';
 import 'pages/landing_page.dart';
@@ -32,6 +35,9 @@ void main() async {
     debugPrint('FCM Token refreshed: $newToken');
     await _saveFcmToken(newToken);
   });
+
+  // Get and save device ID
+  await _getDeviceId();
 
   // Handle background messages (required top-level handler)
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -112,8 +118,9 @@ Future<void> _printFcmToken() async {
   }
 }
 
-/// Save FCM token to secure storage with SharedPreferences fallback.
+/// Save FCM token to secure storage, SharedPreferences, and session.
 Future<void> _saveFcmToken(String token) async {
+  // Save to secure storage
   final secure = const FlutterSecureStorage();
   try {
     await secure.write(key: 'fcm_token', value: token);
@@ -122,12 +129,82 @@ Future<void> _saveFcmToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('fcm_token', token);
   }
+  
   // Also write to prefs for quick access
   try {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('fcm_token', token);
   } catch (e) {
     debugPrint('Failed to write fcm_token to prefs: $e');
+  }
+  
+  // Save to session storage
+  try {
+    await SessionService.instance.saveFcmToken(token);
+    debugPrint('FCM token saved to session: $token');
+  } catch (e) {
+    debugPrint('Failed to save fcm_token to session: $e');
+  }
+}
+
+Future<String?> _getDeviceId() async {
+  try {
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    
+    if (Platform.isAndroid) {
+      final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      final String deviceId = androidInfo.id;
+      debugPrint('Android Device ID: $deviceId');
+      
+      // Save device ID to secure storage
+      await _saveDeviceId(deviceId);
+      
+      return deviceId;
+    } else if (Platform.isIOS) {
+      final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      final String deviceId = iosInfo.identifierForVendor ?? 'unknown';
+      debugPrint('iOS Device ID: $deviceId');
+      
+      // Save device ID to secure storage
+      await _saveDeviceId(deviceId);
+      
+      return deviceId;
+    } else {
+      debugPrint('Unsupported platform for device ID');
+      return null;
+    }
+  } catch (e) {
+    debugPrint('Error getting device ID: $e');
+    return null;
+  }
+}
+
+/// Save device ID to secure storage, SharedPreferences, and session.
+Future<void> _saveDeviceId(String deviceId) async {
+  // Save to secure storage
+  final secure = const FlutterSecureStorage();
+  try {
+    await secure.write(key: 'device_id', value: deviceId);
+  } catch (e) {
+    debugPrint('Secure storage write failed, falling back to prefs: $e');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('device_id', deviceId);
+  }
+  
+  // Also write to prefs for quick access
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('device_id', deviceId);
+  } catch (e) {
+    debugPrint('Failed to write device_id to prefs: $e');
+  }
+  
+  // Save to session storage
+  try {
+    await SessionService.instance.saveDeviceId(deviceId);
+    debugPrint('Device ID saved to session: $deviceId');
+  } catch (e) {
+    debugPrint('Failed to save device_id to session: $e');
   }
 }
 

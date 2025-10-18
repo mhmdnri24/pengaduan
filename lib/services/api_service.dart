@@ -231,4 +231,38 @@ class ApiService {
       return ApiResponse(success: false, error: 'Network error: $e');
     }
   }
+
+  Future<ApiResponse<Map<String, dynamic>>> registerDevice({
+    required String masyarakatId,
+    required String fcmToken,
+    required String deviceId,
+  }) async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/device/insert_or_update');
+      
+      var request = http.MultipartRequest('POST', uri);
+      
+      // Add headers
+      request.headers.addAll(_headers);
+      
+      // Add form fields
+      request.fields['masyarakat_id'] = masyarakatId;
+      request.fields['fcm_token'] = fcmToken;
+      request.fields['device_id'] = deviceId;
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var responseData = json.decode(response.body);
+        return ApiResponse(success: true, data: responseData);
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
 }

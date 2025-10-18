@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -6,7 +7,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'dart:io';
 import '../services/complaint_service.dart';
-import '../services/api_service.dart';
 
 class AddComplaintPage extends StatefulWidget {
   const AddComplaintPage({Key? key}) : super(key: key);
@@ -584,6 +584,8 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FB),
+      resizeToAvoidBottomInset: true,
+      extendBody: true,
       // appBar: AppBar(
       //   elevation: 0,
       //   backgroundColor: Colors.transparent,
@@ -597,9 +599,10 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
       //     IconButton(onPressed: () {}, icon: const Icon(Icons.help_outline))
       //   ],
       // ),
-      body: ListView(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(10),
-        children: [
+        child: Column(
+          children: [
           // Error message display
           if (errorMessage != null)
             Container(
@@ -684,6 +687,17 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                     const SizedBox(height: 8),
                     TextField(
                       controller: titleController,
+                      textInputAction: TextInputAction.next,
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      textCapitalization: TextCapitalization.sentences,
+                      keyboardType: TextInputType.text,
+                      toolbarOptions: const ToolbarOptions(
+                        copy: false,
+                        cut: false,
+                        paste: false,
+                        selectAll: false,
+                      ),
                       decoration: InputDecoration(
                           hintText: 'Masukkan judul laporan yang jelas',
                           border: OutlineInputBorder(
@@ -693,7 +707,11 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide:
-                                  const BorderSide(color: Color(0xFFD0D0D0)))),
+                                  const BorderSide(color: Color(0xFFD0D0D0))),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide:
+                                  const BorderSide(color: Color(0xFF2255EE), width: 2))),
                     ),
                   ]),
             ),
@@ -717,6 +735,17 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                     TextField(
                       controller: descriptionController,
                       maxLines: 6,
+                      textInputAction: TextInputAction.done,
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      textCapitalization: TextCapitalization.sentences,
+                      keyboardType: TextInputType.multiline,
+                      toolbarOptions: const ToolbarOptions(
+                        copy: false,
+                        cut: false,
+                        paste: false,
+                        selectAll: false,
+                      ),
                       onChanged: (v) =>
                           setState(() => descriptionCount = v.length),
                       decoration: InputDecoration(
@@ -729,7 +758,11 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide:
-                                  const BorderSide(color: Color(0xFFD0D0D0)))),
+                                  const BorderSide(color: Color(0xFFD0D0D0))),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide:
+                                  const BorderSide(color: Color(0xFF2255EE), width: 2))),
                     ),
                     const SizedBox(height: 8),
                     Text('$descriptionCount/500 karakter',
@@ -756,6 +789,17 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                     const SizedBox(height: 8),
                     TextField(
                       controller: locationController,
+                      textInputAction: TextInputAction.done,
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      textCapitalization: TextCapitalization.sentences,
+                      keyboardType: TextInputType.text,
+                      toolbarOptions: const ToolbarOptions(
+                        copy: false,
+                        cut: false,
+                        paste: false,
+                        selectAll: false,
+                      ),
                       decoration: InputDecoration(
                           hintText: 'Masukkan alamat lengkap',
                           border: OutlineInputBorder(
@@ -765,7 +809,11 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide:
-                                  const BorderSide(color: Color(0xFFD0D0D0)))),
+                                  const BorderSide(color: Color(0xFFD0D0D0))),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide:
+                                  const BorderSide(color: Color(0xFF2255EE), width: 2))),
                     ),
                     const SizedBox(height: 12),
                     OutlinedButton.icon(
@@ -1048,7 +1096,8 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
               const SizedBox(height: 24),
             ]),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

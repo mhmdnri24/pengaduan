@@ -1,5 +1,6 @@
 // lib/controllers/landing_controller.dart
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -7,8 +8,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import '../config/api_config.dart';
+import '../services/api_service.dart';
+import '../services/session_service.dart';
 
 class SendOtpResult {
   final bool success;
@@ -201,6 +206,15 @@ class LandingController {
         print(data);
         if (data != null) {
           await saveSession(data);
+
+          // Get FCM token after login
+          await _getFcmTokenAfterLogin();
+
+          // Get device ID after login
+          await _getDeviceIdAfterLogin();
+
+          // Register device after successful OTP verification
+          await _registerDeviceAfterLogin();
         }
 
         return VerifyOtpResult(
@@ -215,6 +229,113 @@ class LandingController {
       return VerifyOtpResult(false, 'Terjadi kesalahan: $e');
     } finally {
       onDone();
+    }
+  }
+
+  /// Get FCM token after login
+  Future<void> _getFcmTokenAfterLogin() async {
+    try {
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      await messaging.requestPermission();
+
+      // Print FCM token and listen for refreshes
+      await _printFcmToken();
+      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+        debugPrint('FCM Token refreshed: $newToken');
+        await _saveFcmToken(newToken);
+      });
+    } catch (e) {
+      print('Error getting FCM token: $e');
+    }
+  }
+
+  /// Print FCM token
+  Future<void> _printFcmToken() async {
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      debugPrint('FCM Token: $fcmToken');
+      if (fcmToken != null) {
+        await _saveFcmToken(fcmToken);
+      }
+    } catch (e) {
+      print('Error printing FCM token: $e');
+    }
+  }
+
+  /// Save FCM token
+  Future<void> _saveFcmToken(String token) async {
+    await SessionService.instance.saveFcmToken(token);
+  }
+
+  /// Get device ID after login
+  Future<String?> _getDeviceIdAfterLogin() async {
+    try {
+      final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
+      if (Platform.isAndroid) {
+        final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        final String deviceId = androidInfo.id;
+        debugPrint('Android Device ID: $deviceId');
+
+        // Save device ID to session
+        await _saveDeviceId(deviceId);
+
+        return deviceId;
+      } else if (Platform.isIOS) {
+        final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        final String deviceId = iosInfo.identifierForVendor ?? 'unknown';
+        debugPrint('iOS Device ID: $deviceId');
+
+        // Save device ID to session
+        await _saveDeviceId(deviceId);
+
+        return deviceId;
+      } else {
+        debugPrint('Unsupported platform for device ID');
+        return null;
+      }
+    } catch (e) {
+      print('Error getting device ID: $e');
+      return null;
+    }
+  }
+
+  /// Save device ID
+  Future<void> _saveDeviceId(String deviceId) async {
+    await SessionService.instance.saveDeviceId(deviceId);
+  }
+
+  /// Register device after successful login
+  Future<void> _registerDeviceAfterLogin() async {
+    try {
+      // Get session data
+      final userId = await SessionService.instance.getUserId();
+      final fcmToken = await SessionService.instance.getFcmToken();
+      final deviceId = await SessionService.instance.getDeviceId();
+
+      print(userId);
+      print(fcmToken);
+      print(deviceId);
+
+      if (userId != null && fcmToken != null && deviceId != null) {
+        print('Registering device: userId=$userId, fcmToken=$fcmToken, deviceId=$deviceId');
+
+        final response = await ApiService.instance.registerDevice(
+          masyarakatId: userId,
+          fcmToken: fcmToken,
+          deviceId: deviceId,
+        );
+
+        if (response.success) {
+          print('Device registered successfully');
+        } else {
+          print('Failed to register device: ${response.error}');
+        }
+      } else {
+        print('Missing session data for device registration: userId=$userId, fcmToken=$fcmToken, deviceId=$deviceId');
+      }
+    } catch (e) {
+      print('Error registering device: $e');
     }
   }
 
@@ -245,6 +366,12 @@ class LandingController {
       await prefs.setString(
           'user_photo_url', data['foto_profil_url']?.toString() ?? '');
     if (token != null) await prefs.setBool('is_logged_in', true);
+    
+    // Save to session service as well
+    if (data.containsKey('id')) {
+      await SessionService.instance.saveUserId(data['id'].toString());
+    }
+    // Note: FCM token will be saved separately after login
   }
 
   /// Return saved session information (token + user fields) or null if none.
