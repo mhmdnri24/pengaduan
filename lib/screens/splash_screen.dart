@@ -55,8 +55,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2258DA),
-      body: Center(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -87,6 +96,7 @@ class _SplashScreenState extends State<SplashScreen> {
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             ),
           ],
+        ),
         ),
       ),
     );

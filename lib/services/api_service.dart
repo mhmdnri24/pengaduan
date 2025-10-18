@@ -87,6 +87,78 @@ class ApiService {
     }
   }
 
+  Future<ApiResponse<Map<String, dynamic>>> registerUser({
+    required String namaLengkap,
+    required String nik,
+    required String noTelpon,
+    required File fotoProfil,
+    required File fotoKtp,
+  }) async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/register');
+      var request = http.MultipartRequest('POST', uri);
+
+      // Add headers
+      request.headers.addAll(_headers);
+
+      // Add form fields
+      request.fields.addAll({
+        'nama_lengkap': namaLengkap,
+        'nik': nik,
+        'no_telpon': noTelpon,
+      });
+
+      // Validate files exist
+      if (!await fotoProfil.exists()) {
+        return ApiResponse(success: false, error: 'Profile photo file not found');
+      }
+      if (!await fotoKtp.exists()) {
+        return ApiResponse(success: false, error: 'ID card photo file not found');
+      }
+      
+      print('Profile photo path: ${fotoProfil.path}');
+      print('ID card photo path: ${fotoKtp.path}');
+      print('Profile photo exists: ${await fotoProfil.exists()}');
+      print('ID card photo exists: ${await fotoKtp.exists()}');
+
+      // Add profile photo
+      var profileMultipartFile = await http.MultipartFile.fromPath(
+        'foto_profil',
+        fotoProfil.path,
+        filename: 'foto_profil.jpg',
+      );
+      request.files.add(profileMultipartFile);
+
+      // Add ID card photo
+      var ktpMultipartFile = await http.MultipartFile.fromPath(
+        'foto_ktp',
+        fotoKtp.path,
+        filename: 'foto_ktp.jpg',
+      );
+      request.files.add(ktpMultipartFile);
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+      
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+      print('Request Headers: ${request.headers}');
+      print('Request Fields: ${request.fields}');
+      // print('Request Files: ${request.files.map((f) => f.field + ': ' + f.filename).toList()}');
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var responseData = json.decode(response.body);
+        return ApiResponse(success: true, data: responseData);
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
   Future<ApiResponse<ComplaintListResponse>> getComplaints({
     int page = 1,
     int limit = 10,

@@ -151,6 +151,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
         '/dashboard': (context) => const DashboardPage(),
+        '/complaints': (context) => const DashboardPage(), // Redirect to dashboard for now
       },
     );
   }

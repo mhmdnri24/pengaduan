@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../controllers/landing_controller.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import '../services/api_service.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -30,10 +33,15 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
-  // TODO: Logic lama tetap ada di sini
-  // Misalnya: controller, fungsi navigasi ke login/daftar dll
-  void _goToRegister() {
-    // logika lama ke halaman register
+  void _goToRegister(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      builder: (context) {
+        return const RegisterStepperModal();
+      },
+    );
   }
 
   void _goToLogin(BuildContext context) {
@@ -370,7 +378,7 @@ class _LandingPageState extends State<LandingPage> {
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF2F80ED), Color(0xFF56CCF2)],
+            colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -431,7 +439,7 @@ class _LandingPageState extends State<LandingPage> {
                 width: 250,
                 height: 48,
                 child: ElevatedButton.icon(
-                  onPressed: _goToRegister,
+                  onPressed: () => _goToRegister(context),
                   icon: const Icon(Icons.person_add_alt, color: Colors.white),
                   label: const Text(
                     'Daftar Sekarang',
@@ -472,6 +480,964 @@ class _LandingPageState extends State<LandingPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class RegisterStepperModal extends StatefulWidget {
+  const RegisterStepperModal({Key? key}) : super(key: key);
+
+  @override
+  State<RegisterStepperModal> createState() => _RegisterStepperModalState();
+}
+
+class _RegisterStepperModalState extends State<RegisterStepperModal> {
+  int currentStep = 0;
+  final PageController _pageController = PageController();
+  
+  // Form controllers
+  final TextEditingController _namaController = TextEditingController();
+  final TextEditingController _nikController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  bool _agreeToTerms = false;
+  
+  // Photo variables
+  File? _selfiePhoto;
+  File? _idCardPhoto;
+  final ImagePicker _picker = ImagePicker();
+  
+  static const blue = Color(0xFF2D62F2);
+
+  @override
+  void initState() {
+    super.initState();
+    _namaController.addListener(() {
+      setState(() {});
+    });
+    _nikController.addListener(() {
+      setState(() {});
+    });
+    _phoneController.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _namaController.dispose();
+    _nikController.dispose();
+    _phoneController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _nextStep() {
+    if (currentStep < 3) {
+      setState(() {
+        currentStep++;
+      });
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _previousStep() {
+    if (currentStep > 0) {
+      setState(() {
+        currentStep--;
+      });
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  Future<void> _pickSelfie() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+      );
+      if (image != null) {
+        setState(() {
+          _selfiePhoto = File(image.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error mengambil foto: $e')),
+      );
+    }
+  }
+
+  Future<void> _pickIdCard() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+      );
+      if (image != null) {
+        setState(() {
+          _idCardPhoto = File(image.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error mengambil foto: $e')),
+      );
+    }
+  }
+
+  Future<void> _register() async {
+    print(_agreeToTerms);
+    print(_selfiePhoto);
+    print(_idCardPhoto);
+    if (_agreeToTerms && _selfiePhoto != null && _idCardPhoto != null) {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+      print(_namaController.text.trim());
+
+      try {
+        // Format phone number - remove +62 prefix if present and ensure it starts with 0
+        String phoneNumber = _phoneController.text.trim();
+        if (phoneNumber.startsWith('+62')) {
+          phoneNumber = '0' + phoneNumber.substring(3);
+        } else if (phoneNumber.startsWith('62')) {
+          phoneNumber = '0' + phoneNumber.substring(2);
+        } else if (!phoneNumber.startsWith('0')) {
+          phoneNumber = '0' + phoneNumber;
+        }
+        
+        print('Formatted phone number: $phoneNumber');
+        
+        // Validate NIK length
+        String nik = _nikController.text.trim();
+        if (nik.length != 16) {
+          Navigator.of(context).pop(); // Close loading dialog
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('NIK harus 16 digit'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+        
+        // Validate phone number length (should be 10-13 digits after formatting)
+        if (phoneNumber.length < 10 || phoneNumber.length > 13) {
+          Navigator.of(context).pop(); // Close loading dialog
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Nomor telepon tidak valid'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+        
+        final response = await ApiService.instance.registerUser(
+          namaLengkap: _namaController.text.trim(),
+          nik: nik,
+          noTelpon: phoneNumber,
+          fotoProfil: _selfiePhoto!,
+          fotoKtp: _idCardPhoto!,
+        );
+
+        // Close loading dialog
+        Navigator.of(context).pop();
+        print(response.data);
+        print(response.success);
+
+        if (response.success && response.data != null) {
+          // Close registration modal
+          Navigator.of(context).pop();
+          
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response.data!['message'] ?? 'Registrasi berhasil!'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          // Show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response.error ?? 'Terjadi kesalahan saat registrasi'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        // Close loading dialog
+        Navigator.of(context).pop();
+        
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Terjadi kesalahan: $e'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }else{
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Silahkan isi semua data'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.9,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+        ),
+        child: Column(
+          children: [
+            // Progress indicator
+            Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Langkah ${currentStep + 1} dari 4',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      Text(
+                        '${((currentStep + 1) / 4 * 100).round()}%',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: (currentStep + 1) / 4,
+                    backgroundColor: Colors.grey.shade200,
+                    valueColor: const AlwaysStoppedAnimation<Color>(blue),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Page content
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildStep1(),
+                  _buildStep2(),
+                  _buildStep3(), // Photo upload
+                  _buildStep4(), // Final agreement
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStep1() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Informasi Pribadi',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Pastikan data sesuai dengan KTP Anda.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 32),
+          
+          // Nama Lengkap field
+          const Text(
+            'Nama Lengkap',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _namaController,
+            decoration: InputDecoration(
+              hintText: 'Masukkan nama lengkap',
+              prefixIcon: const Icon(Icons.person, color: Colors.grey),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: blue),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          
+          // NIK field
+          const Text(
+            '16 Digit NIK KTP',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _nikController,
+            keyboardType: TextInputType.number,
+            maxLength: 16,
+            decoration: InputDecoration(
+              hintText: '1234567890123456',
+              prefixIcon: const Icon(Icons.badge, color: Colors.grey),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: blue),
+              ),
+            ),
+          ),
+          const SizedBox(height: 40),
+          
+          // Continue button
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: _namaController.text.isNotEmpty && _nikController.text.length == 16
+                  ? _nextStep
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Lanjutkan',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          
+          // Login link
+          Center(
+            child: RichText(
+              text: const TextSpan(
+                style: TextStyle(color: Colors.grey),
+                children: [
+                  TextSpan(text: 'Sudah punya akun? '),
+                  TextSpan(
+                    text: 'Masuk di sini',
+                    style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep2() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Informasi Kontak',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Digunakan untuk verifikasi dan notifikasi.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 32),
+          
+          // Phone number field
+          const Text(
+            'Nomor WhatsApp',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              hintText: '812 3456 7890',
+              prefixIcon: const Icon(Icons.phone_android, color: Colors.grey),
+              prefixText: '+62 ',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: blue),
+              ),
+            ),
+          ),
+          const SizedBox(height: 40),
+          
+          // Navigation buttons
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: _previousStep,
+                  child: const Text(
+                    'Kembali',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _phoneController.text.isNotEmpty
+                        ? _nextStep
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Lanjutkan',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          // Login link
+          Center(
+            child: RichText(
+              text: const TextSpan(
+                style: TextStyle(color: Colors.grey),
+                children: [
+                  TextSpan(text: 'Sudah punya akun? '),
+                  TextSpan(
+                    text: 'Masuk di sini',
+                    style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep3() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Upload Foto',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Ambil foto selfie dan foto KTP untuk verifikasi.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 32),
+          
+          // Selfie Photo Section
+          const Text(
+            'Foto Selfie',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Ambil foto selfie yang jelas untuk verifikasi identitas.',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: _pickSelfie,
+            child: Container(
+              width: double.infinity,
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: _selfiePhoto != null ? blue : Colors.grey.shade300,
+                  width: 2,
+                ),
+              ),
+              child: _selfiePhoto != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(
+                        _selfiePhoto!,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.camera_alt,
+                          size: 48,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap untuk mengambil foto selfie',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+          const SizedBox(height: 32),
+          
+          // ID Card Photo Section
+          const Text(
+            'Foto KTP',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Ambil foto KTP yang jelas dan sesuai dengan frame.',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: _pickIdCard,
+            child: Container(
+              width: double.infinity,
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: _idCardPhoto != null ? blue : Colors.grey.shade300,
+                  width: 2,
+                ),
+              ),
+              child: _idCardPhoto != null
+                  ? Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.file(
+                            _idCardPhoto!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
+                        ),
+                        // Card frame overlay
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 3,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.grey.shade400,
+                              width: 2,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.credit_card,
+                                size: 32,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'KTP',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Tap untuk mengambil foto KTP',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+          const SizedBox(height: 40),
+          
+          // Navigation buttons
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: _previousStep,
+                  child: const Text(
+                    'Kembali',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _selfiePhoto != null && _idCardPhoto != null
+                        ? _nextStep
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Lanjutkan',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          // Login link
+          Center(
+            child: RichText(
+              text: const TextSpan(
+                style: TextStyle(color: Colors.grey),
+                children: [
+                  TextSpan(text: 'Sudah punya akun? '),
+                  TextSpan(
+                    text: 'Masuk di sini',
+                    style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep4() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Persetujuan Akhir',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Satu langkah lagi untuk menyelesaikan.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 32),
+          
+          // Agreement checkbox
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: blue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Checkbox(
+                  value: _agreeToTerms,
+                  onChanged: (value) {
+                    setState(() {
+                      _agreeToTerms = value ?? false;
+                    });
+                  },
+                  activeColor: blue,
+                ),
+                Expanded(
+                  child: RichText(
+                    text: const TextSpan(
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                        height: 1.4,
+                      ),
+                      children: [
+                        TextSpan(text: 'Saya menyatakan bahwa data yang saya isi adalah benar dan saya telah membaca serta setuju dengan '),
+                        TextSpan(
+                          text: 'Syarat & Ketentuan',
+                          style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                        ),
+                        TextSpan(text: ' dan '),
+                        TextSpan(
+                          text: 'Kebijakan Privasi',
+                          style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                        ),
+                        TextSpan(text: '.'),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          
+          // Security message
+          Row(
+            children: [
+              Icon(Icons.security, color: Colors.green, size: 16),
+              const SizedBox(width: 8),
+              const Text(
+                'Data Anda dijamin aman dan terenkripsi.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 40),
+          
+          // Navigation buttons
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: _previousStep,
+                  child: const Text(
+                    'Kembali',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _agreeToTerms ? _register : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Daftar Akun Saya',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          // Login link
+          Center(
+            child: RichText(
+              text: const TextSpan(
+                style: TextStyle(color: Colors.grey),
+                children: [
+                  TextSpan(text: 'Sudah punya akun? '),
+                  TextSpan(
+                    text: 'Masuk di sini',
+                    style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
