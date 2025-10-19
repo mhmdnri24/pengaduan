@@ -141,7 +141,7 @@ class BubbleOverlayService : Service() {
 
     private fun createNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Complaint Bubble Service")
+            .setContentTitle("Service Init")
             .setContentText("Monitoring for new complaints")
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setPriority(NotificationCompat.PRIORITY_LOW)

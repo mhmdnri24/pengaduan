@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Person figure with raised hand (Lapor Pak Wali) -->
+    <path
+        android:fillColor="#E53E3E"
+        android:pathData="M12,2C13.1,2 14,2.9 14,4C14,5.1 13.1,6 12,6C10.9,6 10,5.1 10,4C10,2.9 10.9,2 12,2zM21,9V7L15,7.5V9.5C15,10.3 14.3,11 13.5,11S12,10.3 12,9.5V7.5L6,7V9C6,9.6 6.4,10 7,10H8V22H10V16H14V22H16V10H17C17.6,10 18,9.6 18,9z"/>
+    
+    <!-- Raised hand/alert gesture -->
+    <path
+        android:fillColor="#FF4444"
+        android:pathData="M8,12L10,12L10,14L8,14zM14,12L16,12L16,14L14,14z"/>
+    
+    <!-- Alert lines -->
+    <path
+        android:fillColor="#FF6B35"
+        android:pathData="M12,4C12.6,4 13,4.4 13,5S12.6,6 12,6 11,5.6 11,5 11.4,4 12,4z"/>
+</vector>

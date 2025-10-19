@@ -378,10 +378,7 @@ class _LandingPageState extends State<LandingPage> {
         leading: Padding(
           padding: const EdgeInsets.only(left: 12),
           child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
+            
             padding: const EdgeInsets.all(6),
             child: const Icon(Icons.account_balance, color: Colors.white),
           ),
