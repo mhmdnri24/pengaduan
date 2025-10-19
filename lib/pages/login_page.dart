@@ -27,8 +27,17 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Masuk'),
-        backgroundColor: const Color(0xFF2258DA),
+        title: const Text(
+          'Masuk',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: const Color(0xFF1C3FAA),
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

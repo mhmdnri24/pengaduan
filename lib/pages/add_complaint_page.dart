@@ -9,7 +9,8 @@ import 'dart:io';
 import '../services/complaint_service.dart';
 
 class AddComplaintPage extends StatefulWidget {
-  const AddComplaintPage({Key? key}) : super(key: key);
+  final bool showAppBar;
+  const AddComplaintPage({Key? key, this.showAppBar = true}) : super(key: key);
 
   @override
   State<AddComplaintPage> createState() => _AddComplaintPageState();
@@ -586,19 +587,53 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
       backgroundColor: const Color(0xFFF6F8FB),
       resizeToAvoidBottomInset: true,
       extendBody: true,
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   backgroundColor: Colors.transparent,
-      //   foregroundColor: Colors.black87,
-      //   title: const Text('Buat Laporan'),
-      //   centerTitle: true,
-      //   leading: IconButton(
-      //       onPressed: () => Navigator.pop(context),
-      //       icon: const Icon(Icons.arrow_back)),
-      //   actions: [
-      //     IconButton(onPressed: () {}, icon: const Icon(Icons.help_outline))
-      //   ],
-      // ),
+      appBar: widget.showAppBar ? AppBar(
+        elevation: 0,
+        backgroundColor: const Color(0xFF1C3FAA), // Dominant blue color
+        foregroundColor: Colors.white,
+        title: const Text(
+          'Buat Laporan',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios),
+          style: IconButton.styleFrom(
+            backgroundColor: Colors.white.withOpacity(0.2),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              // Add help functionality here
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Bantuan: Isi semua field yang diperlukan untuk membuat laporan'),
+                  duration: Duration(seconds: 3),
+                ),
+              );
+            },
+            icon: const Icon(Icons.help_outline),
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.white.withOpacity(0.2),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ) : null,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10),
         child: Column(

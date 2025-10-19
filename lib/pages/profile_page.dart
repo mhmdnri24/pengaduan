@@ -60,13 +60,20 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FB),
-      appBar: AppBar(
-        title: const Text('Profil Saya'),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.black87,
-      ),
+      // appBar: AppBar(
+      //   title: const Text(
+      //     'Profil Saya',
+      //     style: TextStyle(
+      //       fontWeight: FontWeight.w600,
+      //       fontSize: 18,
+      //       color: Colors.white,
+      //     ),
+      //   ),
+      //   centerTitle: true,
+      //   elevation: 0,
+      //   backgroundColor: const Color(0xFF1C3FAA),
+      //   foregroundColor: Colors.white,
+      // ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(

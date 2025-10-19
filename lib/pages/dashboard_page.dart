@@ -79,13 +79,13 @@ class _DashboardPageState extends State<DashboardPage> {
       case 0:
         return Icons.account_balance;
       case 1:
-        return Icons.arrow_left;
+        return Icons.history;
       case 2:
         return Icons.grid_view;
       case 3:
         return Icons.person;
       case 4:
-        return Icons.add;
+        return Icons.report_problem;
       default:
         return Icons.account_balance;
     }
@@ -102,7 +102,6 @@ class _DashboardPageState extends State<DashboardPage> {
       appBar: Navbar(
         title: _getTitle(),
         notificationCount: DashboardConstants.notificationCount,
-        avatarUrl: DashboardConstants.avatarUrl,
         iconic: _getIcon(),
       ),
       drawer: isDesktop
@@ -126,6 +125,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ],
       ),
       bottomNavigationBar: BottomAppBar(
+        color: DashboardConstants.primaryColor,
         shape: const CircularNotchedRectangle(),
         notchMargin: DashboardConstants.borderRadius,
         child: SizedBox(
@@ -146,6 +146,7 @@ class _DashboardPageState extends State<DashboardPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _onItemTapped(DashboardConstants.fabIndex),
         backgroundColor: DashboardConstants.primaryColor,
+        shape: const CircleBorder(),
         child: Icon(Icons.add,
             size: DashboardConstants.fabSize, color: Colors.white),
       ),
@@ -154,7 +155,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildTabItem(IconData icon, String label, int index) {
     final isSelected = _selectedIndex == index;
-    final color = isSelected ? DashboardConstants.primaryColor : Colors.grey;
+    final color = isSelected ? Colors.white : Colors.white70;
 
     return InkWell(
       onTap: () => _onItemTapped(index),
@@ -320,7 +321,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildAddComplaintContent() {
     return Center(
-      child: AddComplaintPage(),
+      child: AddComplaintPage(showAppBar: false),
     );
   }
 }

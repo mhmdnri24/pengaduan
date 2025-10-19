@@ -4,6 +4,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../services/api_service.dart';
+import 'package:provider/provider.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -20,6 +21,12 @@ class _LandingPageState extends State<LandingPage> {
   void initState() {
     super.initState();
     _checkSession();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   Future<void> _checkSession() async {
@@ -53,6 +60,10 @@ class _LandingPageState extends State<LandingPage> {
       isScrollControlled: true,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       builder: (context) {
+        return ChangeNotifierProvider<LandingController>.value(
+          value: controller,
+          child: Builder(
+            builder: (context) {
         return Padding(
           padding:
               EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -137,64 +148,63 @@ class _LandingPageState extends State<LandingPage> {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: controller.isSending
-                                ? null
-                                : () async {
-                                    final localCtx = context;
+                          child: Consumer<LandingController>(
+                            builder: (context, controller, child) {
+                              return ElevatedButton.icon(
+                                onPressed: controller.isSending
+                                    ? null
+                                    : () async {
+                                        final localCtx = context;
 
-                                    final result = await controller.sendOtp(
-                                      () => setState(
-                                          () => controller.isSending = true),
-                                      () => setState(
-                                          () => controller.isSending = false),
-                                    );
+                                        final result = await controller.sendOtp();
 
-                                    if (!mounted) return;
+                                        if (!mounted) return;
 
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(result.message),
-                                          behavior: SnackBarBehavior
-                                              .floating, // 👈 penting!
-                                          margin: const EdgeInsets.only(
-                                            bottom:
-                                                10.0, // jarak dari bawah (atur sesuai tinggi FAB + BottomAppBar)
-                                            right: 16.0,
-                                            left: 16.0,
-                                          ),
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(result.message),
+                                              behavior: SnackBarBehavior
+                                                  .floating, // 👈 penting!
+                                              margin: const EdgeInsets.only(
+                                                bottom:
+                                                    10.0, // jarak dari bawah (atur sesuai tinggi FAB + BottomAppBar)
+                                                right: 16.0,
+                                                left: 16.0,
+                                              ),
+                                            ),
+                                          );
+                                        }
+
+                                        if (result.success) {
+                                          Navigator.of(localCtx).pop();
+                                          _showOtpDialog(localCtx);
+                                        }
+                                      },
+                                icon: controller.isSending
+                                    ? Container(
+                                        width: 18,
+                                        height: 18,
+                                        child: const CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
                                         ),
-                                      );
-                                    }
-
-                                    if (result.success) {
-                                      Navigator.of(localCtx).pop();
-                                      _showOtpDialog(localCtx);
-                                    }
-                                  },
-                            icon: controller.isSending
-                                ? Container(
-                                    width: 18,
-                                    height: 18,
-                                    child: const CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Icon(Icons.send,
-                                    size: 18, color: Colors.white),
-                            label: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 12.0),
-                                child: controller.isSending
-                                    ? const Text('Mengirim...',
-                                        style: TextStyle(color: Colors.white))
-                                    : const Text('Kirim',
-                                        style: TextStyle(color: Colors.white))),
-                            style:
-                                ElevatedButton.styleFrom(backgroundColor: blue),
+                                      )
+                                    : const Icon(Icons.send,
+                                        size: 18, color: Colors.white),
+                                label: Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 12.0),
+                                    child: controller.isSending
+                                        ? const Text('Mengirim...',
+                                            style: TextStyle(color: Colors.white))
+                                        : const Text('Kirim',
+                                            style: TextStyle(color: Colors.white))),
+                                style:
+                                    ElevatedButton.styleFrom(backgroundColor: blue),
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -203,6 +213,9 @@ class _LandingPageState extends State<LandingPage> {
                 ),
               ),
             ),
+          ),
+        );
+            },
           ),
         );
       },
@@ -215,7 +228,11 @@ class _LandingPageState extends State<LandingPage> {
       isScrollControlled: true,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       builder: (context) {
-        return Padding(
+        return ChangeNotifierProvider<LandingController>.value(
+          value: controller,
+          child: Builder(
+            builder: (context) {
+              return Padding(
           padding:
               EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           child: SingleChildScrollView(
@@ -265,8 +282,7 @@ class _LandingPageState extends State<LandingPage> {
                                   if (verifying) return;
                                   setState(() => verifying = true);
 
-                                  final result = await controller.verifyOtp(
-                                      code, () {}, () {});
+                                  final result = await controller.verifyOtp(code);
 
                                   if (!mounted) return;
 
@@ -342,16 +358,22 @@ class _LandingPageState extends State<LandingPage> {
             ),
           ),
         );
+            },
+          ),
+        );
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ChangeNotifierProvider<LandingController>.value(
+      value: controller,
+      child: Builder(
+        builder: (context) => Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF1C3FAA),
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.only(left: 12),
@@ -480,6 +502,8 @@ class _LandingPageState extends State<LandingPage> {
             ],
           ),
         ),
+      ),
+      ),
       ),
     );
   }

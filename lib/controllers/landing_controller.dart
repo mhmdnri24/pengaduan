@@ -30,10 +30,17 @@ class VerifyOtpResult {
   VerifyOtpResult(this.success, this.message, [this.data]);
 }
 
-class LandingController {
+class LandingController extends ChangeNotifier {
   final TextEditingController nikController = TextEditingController();
-  bool isSending = false;
+  bool _isSending = false;
   final _secureStorage = const FlutterSecureStorage();
+
+  bool get isSending => _isSending;
+
+  void setSending(bool value) {
+    _isSending = value;
+    notifyListeners();
+  }
 
   // Helpers that gracefully handle the case where the secure storage plugin
   // isn't registered (MissingPluginException). When the plugin is missing
@@ -122,8 +129,7 @@ class LandingController {
   /// Does NOT use or depend on a BuildContext. Instead it returns a
   /// [SendOtpResult] so the caller (UI) can show SnackBars / navigation
   /// while respecting mounted/context rules.
-  Future<SendOtpResult> sendOtp(
-      VoidCallback onStart, VoidCallback onDone) async {
+  Future<SendOtpResult> sendOtp() async {
     final nik = nikController.text.trim();
     if (nik.isEmpty) {
       return SendOtpResult(false, 'Masukkan NIK terlebih dahulu');
@@ -131,7 +137,7 @@ class LandingController {
     if (kDebugMode) {
       debugPrint('debug: masuk verifyOtp $nik');
     }
-    onStart();
+    setSending(true);
 
     try {
       // Logging for debugging - replace with a proper logger in prod
@@ -166,19 +172,18 @@ class LandingController {
     } catch (e) {
       return SendOtpResult(false, 'Terjadi kesalahan: $e');
     } finally {
-      onDone();
+      setSending(false);
     }
   }
 
   /// Verify the OTP using multipart/form-data to match the curl example.
-  Future<VerifyOtpResult> verifyOtp(
-      String otp, VoidCallback onStart, VoidCallback onDone) async {
+  Future<VerifyOtpResult> verifyOtp(String otp) async {
     final nik = nikController.text.trim();
     if (nik.isEmpty || otp.trim().isEmpty) {
       return VerifyOtpResult(false, 'NIK dan OTP wajib diisi');
     }
 
-    onStart();
+    setSending(true);
 
     try {
       final uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/verify-otp');
@@ -228,7 +233,7 @@ class LandingController {
       print('Error during OTP verification: $e');
       return VerifyOtpResult(false, 'Terjadi kesalahan: $e');
     } finally {
-      onDone();
+      setSending(false);
     }
   }
 

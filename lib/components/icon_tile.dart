@@ -7,6 +7,7 @@ class IconTile extends StatelessWidget {
   final Gradient? gradient;
   final Color? accentColor;
   final Color? color;
+  final VoidCallback? onTap;
 
   const IconTile({
     Key? key,
@@ -15,6 +16,7 @@ class IconTile extends StatelessWidget {
     this.gradient,
     this.accentColor,
     this.color,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -39,9 +41,11 @@ class IconTile extends StatelessWidget {
       final maxW = constraints.maxWidth.isFinite ? constraints.maxWidth : 84.0;
       final boxSize = math.min(64.0, maxW * 0.75);
 
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      return GestureDetector(
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           Container(
             height: boxSize,
             width: boxSize,
@@ -87,7 +91,8 @@ if (resolvedAccent != null) ...[
 
 
 
-        ],
+          ],
+        ),
       );
     });
   }

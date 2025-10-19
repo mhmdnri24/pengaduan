@@ -25,6 +25,9 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
   String? _historyError;
   List<Map<String, dynamic>> _history = [];
 
+  // Comments data
+  List<Map<String, dynamic>> _comments = [];
+
   // Rating functionality
   int _selectedRating = 0;
   final TextEditingController _commentController = TextEditingController();
@@ -60,8 +63,14 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
       if (resp.statusCode == 200) {
         final body = json.decode(resp.body) as Map<String, dynamic>;
         if (body['status'] == 'success' && body['data'] != null) {
+          final data = body['data'] as Map<String, dynamic>;
+          
+          // Extract comments from the response
+          final commentsList = data['comments'] as List<dynamic>? ?? [];
+          
           setState(() {
-            _data = body['data'] as Map<String, dynamic>;
+            _data = data;
+            _comments = commentsList.cast<Map<String, dynamic>>();
             _loading = false;
           });
           return;
@@ -158,12 +167,14 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
           );
         }
         
-        // Reset form
+        // Reset form and refresh data
         if (mounted) {
           setState(() {
             _selectedRating = 0;
             _commentController.clear();
           });
+          // Refresh the detail data to get updated comments
+          _fetchDetail();
         }
       } else {
         if (mounted) {
@@ -198,7 +209,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D47A1),
+        backgroundColor: const Color(0xFF1C3FAA),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -390,7 +401,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
 
         const SizedBox(height: 20),
 
-        // Tanggapan Petugas (left as static placeholders)
+        // Komentar
         Text(
           'Komentar',
           style: GoogleFonts.poppins(
@@ -399,20 +410,42 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
           ),
         ),
         const SizedBox(height: 10),
-        _tanggapanCard(
-          role: 'Petugas Teknis - Ahmad Wijaya',
-          date: '23 Agt 2024, 10:30',
-          message:
-              'Tim teknis telah tiba di lokasi dan sedang melakukan penggantian lampu yang rusak. Estimasi selesai hari ini sebelum maghrib.',
-          color: const Color(0xFFE3F2FD),
-        ),
-        _tanggapanCard(
-          role: 'Koordinator Lapangan - Budi Santoso',
-          date: '22 Agt 2024, 17:00',
-          message:
-              'Laporan telah diverifikasi. Tim teknis akan ditugaskan untuk perbaikan besok pagi.',
-          color: const Color(0xFFE8F5E9),
-        ),
+        if (_comments.isEmpty)
+          Card(
+            color: Colors.grey[50],
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.comment_outlined,
+                      size: 48,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Belum ada komentar',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        else
+          ..._comments.map((comment) => _commentCard(
+                userName: comment['created_by_name']?.toString() ?? 'Anonim',
+                date: comment['created_at_formatted']?.toString() ?? '',
+                message: comment['comment']?.toString() ?? '',
+                rating: comment['rating'] != null 
+                    ? int.tryParse(comment['rating'].toString()) 
+                    : null,
+              )),
         const SizedBox(height: 20),
 
         // Berikan Rating
@@ -560,6 +593,78 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _commentCard({
+    required String userName,
+    required String date,
+    required String message,
+    required int? rating,
+  }) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    userName,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12.5,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  date,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+            if (rating != null) ...[
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Text(
+                    'Rating: ',
+                    style: GoogleFonts.poppins(
+                      fontSize: 11,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  ...List.generate(5, (index) {
+                    return Icon(
+                      index < rating 
+                          ? Icons.star_rounded 
+                          : Icons.star_border_rounded,
+                      color: Colors.amber,
+                      size: 14,
+                    );
+                  }),
+                ],
+              ),
+            ],
+            const SizedBox(height: 6),
+            Text(
+              message,
+              style: GoogleFonts.poppins(fontSize: 12.5),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

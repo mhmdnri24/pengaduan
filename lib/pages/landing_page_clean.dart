@@ -350,7 +350,7 @@ class _LandingPageState extends State<LandingPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF1C3FAA),
         elevation: 0,
         leading: Padding(
           padding: const EdgeInsets.only(left: 12),

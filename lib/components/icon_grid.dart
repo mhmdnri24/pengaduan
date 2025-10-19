@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'icon_tile.dart';
+import '../pages/add_complaint_page.dart';
 
 class IconGrid extends StatelessWidget {
   final bool isDesktop;
@@ -26,7 +27,7 @@ class IconGrid extends StatelessWidget {
         childAspectRatio: childAspectRatio,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        children: const [
+        children: [
           IconTile(
             icon: Icons.report_problem,
             label: 'Darurat',
@@ -36,6 +37,15 @@ class IconGrid extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
             accentColor: Colors.red,
+            onTap: () {
+              // Add emergency functionality here
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Fitur Darurat akan segera hadir'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
           ),
           IconTile(
             icon: Icons.send,
@@ -46,6 +56,14 @@ class IconGrid extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
             accentColor: Colors.blue,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AddComplaintPage(),
+                ),
+              );
+            },
           ),
           IconTile(
             icon: Icons.article,
@@ -56,6 +74,15 @@ class IconGrid extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
             accentColor: Colors.teal,
+            onTap: () {
+              // Add news functionality here
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Fitur Berita akan segera hadir'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
           ),
           IconTile(
             icon: Icons.qr_code,
@@ -66,6 +93,15 @@ class IconGrid extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
             accentColor: Colors.orange,
+            onTap: () {
+              // Add commodity functionality here
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Fitur Harga Komoditas akan segera hadir'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
           ),
           IconTile(
             icon: Icons.group,
@@ -76,6 +112,15 @@ class IconGrid extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
             accentColor: Colors.green,
+            onTap: () {
+              // Add public facilities functionality here
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Fitur Fasilitas Umum akan segera hadir'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
           ),
         ],
       ),
