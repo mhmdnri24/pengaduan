@@ -265,4 +265,43 @@ class ApiService {
       return ApiResponse(success: false, error: 'Network error: $e');
     }
   }
+
+  Future<ApiResponse<Map<String, dynamic>>> createComment({
+    required String pelaporanId,
+    required String comment,
+    int? rating,
+    required String createdBy,
+  }) async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/$pelaporanId/create_comment');
+      
+      var request = http.MultipartRequest('POST', uri);
+      
+      // Add headers
+      request.headers.addAll(_headers);
+      
+      // Add form fields
+      request.fields['comment'] = comment;
+      request.fields['created_by'] = createdBy;
+      
+      // Add rating if provided
+      if (rating != null) {
+        request.fields['rating'] = rating.toString();
+      }
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var responseData = json.decode(response.body);
+        return ApiResponse(success: true, data: responseData);
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
 }

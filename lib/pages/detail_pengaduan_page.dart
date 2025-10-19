@@ -25,11 +25,22 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
   String? _historyError;
   List<Map<String, dynamic>> _history = [];
 
+  // Rating functionality
+  int _selectedRating = 0;
+  final TextEditingController _commentController = TextEditingController();
+  bool _isSubmittingRating = false;
+
   @override
   void initState() {
     super.initState();
     _fetchDetail();
     _fetchHistory();
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchDetail() async {
@@ -115,6 +126,73 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
     }
   }
 
+  Future<void> _submitRating() async {
+    if (_selectedRating == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Silakan pilih rating terlebih dahulu')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmittingRating = true;
+    });
+
+    try {
+      final response = await ApiService.instance.createComment(
+        pelaporanId: widget.complaintId,
+        comment: _commentController.text.trim().isNotEmpty 
+            ? _commentController.text.trim() 
+            : 'Rating: $_selectedRating bintang',
+        rating: _selectedRating,
+        createdBy: '1', // Default user ID - should be replaced with actual user ID
+      );
+
+      if (response.success) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Rating berhasil dikirim!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        
+        // Reset form
+        if (mounted) {
+          setState(() {
+            _selectedRating = 0;
+            _commentController.clear();
+          });
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal mengirim rating: ${response.error ?? 'Unknown error'}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmittingRating = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,7 +227,10 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [CircularProgressIndicator(), SizedBox(height: 8)],
+            children: const [
+              CircularProgressIndicator(),
+              SizedBox(height: 8)
+            ],
           ),
         ),
       );
@@ -311,7 +392,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
 
         // Tanggapan Petugas (left as static placeholders)
         Text(
-          'Tanggapan Petugas',
+          'Komentar',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
             fontSize: 16,
@@ -357,19 +438,40 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
                   'Bagaimana penilaian Anda terhadap penanganan pengaduan ini?',
                   style: GoogleFonts.poppins(fontSize: 12.5),
                 ),
+                if (_selectedRating > 0) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    'Rating: $_selectedRating bintang',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.amber[700],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 10),
                 Row(
                   children: List.generate(
                     5,
-                    (index) => const Icon(
-                      Icons.star_border_rounded,
-                      color: Colors.amber,
-                      size: 28,
+                    (index) => GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedRating = index + 1;
+                        });
+                      },
+                      child: Icon(
+                        index < _selectedRating 
+                            ? Icons.star_rounded 
+                            : Icons.star_border_rounded,
+                        color: Colors.amber,
+                        size: 28,
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 TextField(
+                  controller: _commentController,
                   maxLines: 3,
                   decoration: InputDecoration(
                     hintText: 'Komentar (Opsional)',
@@ -397,14 +499,36 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    onPressed: () {},
-                    child: Text(
-                      'Kirim Rating',
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    onPressed: _isSubmittingRating ? null : _submitRating,
+                    child: _isSubmittingRating
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Mengirim...',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            'Kirim Rating',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
                 ),
               ],
