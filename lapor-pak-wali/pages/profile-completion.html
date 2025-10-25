@@ -1,0 +1,3406 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lengkapi Profil - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Lengkapi Profil - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 for Mobile -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Custom SweetAlert2 Mobile Styles -->
+    <style>
+        /* SweetAlert2 Mobile Optimizations */
+        .swal2-popup {
+            font-size: 16px !important;
+            padding: 1.5rem !important;
+        }
+        .swal2-title {
+            font-size: 1.2rem !important;
+            margin-bottom: 1rem !important;
+        }
+        .swal2-content {
+            font-size: 0.9rem !important;
+            line-height: 1.4 !important;
+        }
+        .swal2-confirm {
+            font-size: 0.9rem !important;
+            padding: 0.75rem 1.5rem !important;
+            min-width: 120px !important;
+        }
+        .swal2-cancel {
+            font-size: 0.9rem !important;
+            padding: 0.75rem 1.5rem !important;
+        }
+        @media (max-width: 480px) {
+            .swal2-popup {
+                width: 95% !important;
+                margin: 0 auto !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary-blue to-secondary-blue text-white shadow-lg">
+        <div class="px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-edit text-white"></i>
+                </div>
+                <h1 class="text-lg font-bold">Lengkapi Profil</h1>
+                <button onclick="showHelp()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 active:scale-95">
+                    <i class="fas fa-question-circle text-white"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="px-4 py-3 bg-white border-b border-gray-100">
+        <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600">Langkah 2 dari 2</span>
+            <span class="text-primary-blue font-medium">Hampir selesai!</span>
+        </div>
+        <div class="mt-2">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary-blue h-2 rounded-full" style="width: 85%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Form Container -->
+    <div class="px-4 py-6">
+        <!-- Welcome Section -->
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <i class="fas fa-check text-white text-xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Selamat Datang!</h2>
+            <p class="text-gray-600 text-sm">Lengkapi profil Anda untuk menggunakan semua fitur</p>
+        </div>
+
+        <!-- Profile Completion Form -->
+        <form id="profileForm" class="space-y-6">
+            <!-- Address Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-map-marker-alt text-primary-blue mr-2"></i>
+                    Informasi Alamat
+                </h3>
+                
+                <!-- Full Address -->
+                <div class="mb-4">
+                    <label for="alamat" class="block text-xs font-medium text-gray-600 mb-2">
+                        Alamat Lengkap *
+                    </label>
+                    <textarea 
+                        id="alamat" 
+                        name="alamat"
+                        rows="3"
+                        placeholder="Masukkan alamat lengkap (jalan, RT/RW, dll)"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200 resize-none"
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Kecamatan -->
+                <div class="mb-4">
+                    <label for="kecamatan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kecamatan *
+                    </label>
+                    <select 
+                        id="kecamatan" 
+                        name="kecamatan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required
+                    >
+                        <option value="">Pilih Kecamatan</option>
+                        <option value="kec_gambir">Gambir</option>
+                        <option value="kec_sawah_besar">Sawah Besar</option>
+                        <option value="kec_kemayoran">Kemayoran</option>
+                        <option value="kec_senen">Senen</option>
+                        <option value="kec_cempaka_putih">Cempaka Putih</option>
+                        <option value="kec_menteng">Menteng</option>
+                        <option value="kec_tanah_abang">Tanah Abang</option>
+                        <option value="kec_johar_baru">Johar Baru</option>
+                    </select>\n                </div>
+
+                <!-- Kelurahan -->
+                <div>
+                    <label for="kelurahan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kelurahan *
+                    </label>
+                    <select 
+                        id="kelurahan" 
+                        name="kelurahan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required\n                        disabled
+                    >
+                        <option value="">Pilih Kelurahan</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Pilih kecamatan terlebih dahulu</p>
+                </div>
+            </div>
+
+            <!-- Photo Upload -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-camera text-primary-blue mr-2"></i>
+                    Foto Profil
+                </h3>
+                
+                <div class="flex flex-col items-center">
+                    <!-- Photo Preview -->
+                    <div id="photoPreview" class="w-32 h-32 border-2 border-dashed border-gray-300 rounded-full flex flex-col items-center justify-center cursor-pointer hover:border-primary-blue transition-colors mb-4">
+                        <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                        <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+                    </div>
+                    
+                    <!-- Hidden File Input -->
+                    <input type="file" id="photoInput" accept="image/*" capture="user" class="hidden">
+                    
+                    <!-- Upload Button -->
+                    <button type="button" onclick="selectPhoto()" class="bg-primary-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Foto</span>
+                    </button>
+                    
+                    <p class="text-xs text-gray-500 mt-2 text-center">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Foto akan digunakan untuk profil akun Anda<br>
+                        Format: JPG, PNG | Maksimal: 2MB
+                    </p>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl active:scale-98"
+            >
+                <i class="fas fa-save"></i>
+                <span>Simpan & Lanjutkan</span>
+            </button>
+            
+            <!-- Skip Button -->
+            <button 
+                type="button" 
+                onclick="skipProfile()"
+                class="w-full bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-300 transition-all duration-200 flex items-center justify-center space-x-2 active:scale-98"
+            >
+                <i class="fas fa-arrow-right"></i>
+                <span>Lewati untuk Sekarang</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Profil Lengkap!</h3>
+            <p class="text-gray-600 mb-6 text-sm">
+                Profil Anda berhasil disimpan. Sekarang Anda dapat menggunakan semua fitur aplikasi.
+            </p>
+            <button onclick="window.location.href='dashboard.html'" class="w-full bg-primary-blue text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors duration-200">
+                Buka Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-primary-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-spinner fa-spin text-2xl text-primary-blue"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Menyimpan Profil</h3>
+            <p class="text-gray-600 text-sm">Mohon tunggu sebentar...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Kelurahan data based on kecamatan
+        const kelurahanData = {
+            'kec_gambir': [
+                { value: 'kel_gambir', text: 'Gambir' },
+                { value: 'kel_cideng', text: 'Cideng' },
+                { value: 'kel_petojo_utara', text: 'Petojo Utara' },
+                { value: 'kel_petojo_selatan', text: 'Petojo Selatan' },
+                { value: 'kel_kebon_kelapa', text: 'Kebon Kelapa' },
+                { value: 'kel_duri_pulo', text: 'Duri Pulo' }
+            ],
+            'kec_sawah_besar': [
+                { value: 'kel_sawah_besar', text: 'Sawah Besar' },
+                { value: 'kel_karang_anyar', text: 'Karang Anyar' },
+                { value: 'kel_kartini', text: 'Kartini' },
+                { value: 'kel_gunung_sahari_utara', text: 'Gunung Sahari Utara' },
+                { value: 'kel_gunung_sahari_selatan', text: 'Gunung Sahari Selatan' }
+            ],
+            'kec_kemayoran': [
+                { value: 'kel_kemayoran', text: 'Kemayoran' },
+                { value: 'kel_kebon_kosong', text: 'Kebon Kosong' },
+                { value: 'kel_cempaka_baru', text: 'Cempaka Baru' },
+                { value: 'kel_sumur_batu', text: 'Sumur Batu' },
+                { value: 'kel_serdang', text: 'Serdang' },
+                { value: 'kel_utan_panjang', text: 'Utan Panjang' },
+                { value: 'kel_limau_manis', text: 'Limau Manis' },
+                { value: 'kel_harapan_mulya', text: 'Harapan Mulya' }
+            ],
+            'kec_senen': [
+                { value: 'kel_senen', text: 'Senen' },
+                { value: 'kel_kenari', text: 'Kenari' },
+                { value: 'kel_paseban', text: 'Paseban' },
+                { value: 'kel_kramat', text: 'Kramat' },
+                { value: 'kel_kwitang', text: 'Kwitang' },
+                { value: 'kel_bungur', text: 'Bungur' }
+            ],
+            'kec_cempaka_putih': [
+                { value: 'kel_cempaka_putih_timur', text: 'Cempaka Putih Timur' },
+                { value: 'kel_cempaka_putih_barat', text: 'Cempaka Putih Barat' },
+                { value: 'kel_rawasari', text: 'Rawasari' }
+            ],
+            'kec_menteng': [
+                { value: 'kel_menteng', text: 'Menteng' },
+                { value: 'kel_pegangsaan', text: 'Pegangsaan' },
+                { value: 'kel_cikini', text: 'Cikini' },
+                { value: 'kel_gondangdia', text: 'Gondangdia' },
+                { value: 'kel_kebon_sirih', text: 'Kebon Sirih' }
+            ],
+            'kec_tanah_abang': [
+                { value: 'kel_bendungan_hilir', text: 'Bendungan Hilir' },
+                { value: 'kel_karet_tengsin', text: 'Karet Tengsin' },
+                { value: 'kel_kebon_melati', text: 'Kebon Melati' },
+                { value: 'kel_kebon_kacang', text: 'Kebon Kacang' },
+                { value: 'kel_kampung_bali', text: 'Kampung Bali' },
+                { value: 'kel_petamburan', text: 'Petamburan' },
+                { value: 'kel_gelora', text: 'Gelora' }
+            ],
+            'kec_johar_baru': [
+                { value: 'kel_johar_baru', text: 'Johar Baru' },
+                { value: 'kel_kampung_rawa', text: 'Kampung Rawa' },
+                { value: 'kel_galur', text: 'Galur' },
+                { value: 'kel_tanah_tinggi', text: 'Tanah Tinggi' }
+            ]
+        };
+
+        // Help function
+        function showHelp() {
+            alert('Bantuan Lengkapi Profil:\n\n1. Isi alamat lengkap dengan detail\n2. Pilih kecamatan tempat tinggal\n3. Pilih kelurahan sesuai kecamatan\n4. Upload foto profil (opsional)\n5. Klik "Simpan & Lanjutkan"');
+        }
+        
+        // Load kelurahan based on kecamatan selection
+        function loadKelurahan(kecamatanValue) {
+            const kelurahanSelect = document.getElementById('kelurahan');
+            kelurahanSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            
+            if (kecamatanValue && kelurahanData[kecamatanValue]) {
+                kelurahanSelect.disabled = false;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kelurahan yang sesuai';
+                
+                kelurahanData[kecamatanValue].forEach(kelurahan => {
+                    const option = document.createElement('option');
+                    option.value = kelurahan.value;
+                    option.textContent = kelurahan.text;
+                    kelurahanSelect.appendChild(option);
+                });
+            } else {
+                kelurahanSelect.disabled = true;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kecamatan terlebih dahulu';
+            }
+        }
+
+        // Select photo function
+        function selectPhoto() {
+            document.getElementById('photoInput').click();
+        }
+
+        // Handle photo selection
+        function handlePhotoSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Check file size (2MB limit)
+                if (file.size > 2 * 1024 * 1024) {
+                    Swal.fire({
+                        title: 'File Terlalu Besar',
+                        text: 'Ukuran file maksimal 2MB.',
+                        icon: 'error',
+                        confirmButtonText: 'Pilih Ulang',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                }
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        title: 'Format File Salah',
+                        text: 'File harus berupa gambar (JPG, PNG, dll).',
+                        icon: 'error',
+                        confirmButtonText: 'Pilih Ulang',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoPreview = document.getElementById('photoPreview');
+                    photoPreview.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-full object-cover rounded-full">
+                        <button type="button" onclick="removePhoto()" class="absolute top-0 right-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors -mt-1 -mr-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    photoPreview.classList.add('relative', 'border-green-500');
+                    photoPreview.classList.remove('border-dashed', 'border-gray-300');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove photo function
+        function removePhoto() {
+            const photoPreview = document.getElementById('photoPreview');
+            photoPreview.innerHTML = `
+                <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+            `;
+            photoPreview.classList.remove('relative', 'border-green-500');
+            photoPreview.classList.add('border-dashed', 'border-gray-300');
+            document.getElementById('photoInput').value = '';
+        }
+
+        // Skip profile completion
+        function skipProfile() {
+            Swal.fire({
+                title: 'Lewati Profil?',
+                text: 'Apakah Anda yakin ingin melewati pengisian profil? Anda dapat melengkapinya nanti di menu profil.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Lewati',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#6b7280',
+                cancelButtonColor: '#1e40af'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.setItem('profileCompleted', 'skipped');
+                    window.location.href = 'dashboard.html';
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('kecamatan').addEventListener('change', function() {
+            loadKelurahan(this.value);
+        });
+
+        document.getElementById('photoInput').addEventListener('change', handlePhotoSelect);
+
+        document.getElementById('photoPreview').addEventListener('click', function() {
+            if (!this.querySelector('img')) {
+                selectPhoto();
+            }
+        });
+
+        // Form submission
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const alamat = document.getElementById('alamat').value.trim();
+            const kecamatan = document.getElementById('kecamatan').value;
+            const kelurahan = document.getElementById('kelurahan').value;
+            const photoInput = document.getElementById('photoInput');
+            
+            // Validation with SweetAlert2
+            if (!alamat) {
+                Swal.fire({
+                    title: 'Alamat Diperlukan',
+                    text: 'Mohon isi alamat lengkap Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            if (!kecamatan) {
+                Swal.fire({
+                    title: 'Kecamatan Diperlukan',
+                    text: 'Mohon pilih kecamatan tempat tinggal Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            if (!kelurahan) {
+                Swal.fire({
+                    title: 'Kelurahan Diperlukan',
+                    text: 'Mohon pilih kelurahan tempat tinggal Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            // Show loading modal
+            document.getElementById('loadingModal').classList.remove('hidden');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Save profile data
+                const profileData = {
+                    alamat: alamat,
+                    kecamatan: kecamatan,
+                    kelurahan: kelurahan,
+                    hasPhoto: photoInput.files.length > 0,
+                    completedAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('userProfile', JSON.stringify(profileData));
+                localStorage.setItem('profileCompleted', 'true');
+                
+                document.getElementById('loadingModal').classList.add('hidden');
+                document.getElementById('successModal').classList.remove('hidden');
+            }, 2000);
+        });
+
+        // Check if user is logged in
+        window.addEventListener('load', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!isLoggedIn) {
+                Swal.fire({
+                    title: 'Login Diperlukan',
+                    text: 'Anda harus login terlebih dahulu.',
+                    icon: 'warning',
+                    confirmButtonText: 'Login',
+                    confirmButtonColor: '#1e40af',
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'mobile-login.html';
+                    }
+                });
+                return;
+            }
+            
+            // Show user NIK in a welcoming way
+            const userNIK = localStorage.getItem('userNIK');
+            if (userNIK) {
+                const maskedNIK = userNIK.substring(0, 4) + '****' + userNIK.substring(12);
+                document.querySelector('.text-center h2').textContent = `Selamat Datang!`;
+                document.querySelector('.text-center p').textContent = `NIK: ${maskedNIK} - Lengkapi profil untuk menggunakan semua fitur`;
+            }
+        });
+
+        // Auto-focus first input
+        document.getElementById('alamat').focus();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lengkapi Profil - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Lengkapi Profil - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 for Mobile -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary-blue to-secondary-blue text-white shadow-lg">
+        <div class="px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-edit text-white"></i>
+                </div>
+                <h1 class="text-lg font-bold">Lengkapi Profil</h1>
+                <button onclick="showHelp()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 active:scale-95">
+                    <i class="fas fa-question-circle text-white"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="px-4 py-3 bg-white border-b border-gray-100">
+        <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600">Langkah 2 dari 2</span>
+            <span class="text-primary-blue font-medium">Hampir selesai!</span>
+        </div>
+        <div class="mt-2">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary-blue h-2 rounded-full" style="width: 85%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Form Container -->
+    <div class="px-4 py-6">
+        <!-- Welcome Section -->
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <i class="fas fa-check text-white text-xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Selamat Datang!</h2>
+            <p class="text-gray-600 text-sm">Lengkapi profil Anda untuk menggunakan semua fitur</p>
+        </div>
+
+        <!-- Profile Completion Form -->
+        <form id="profileForm" class="space-y-6">
+            <!-- Address Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-map-marker-alt text-primary-blue mr-2"></i>
+                    Informasi Alamat
+                </h3>
+                
+                <!-- Full Address -->
+                <div class="mb-4">
+                    <label for="alamat" class="block text-xs font-medium text-gray-600 mb-2">
+                        Alamat Lengkap *
+                    </label>
+                    <textarea 
+                        id="alamat" 
+                        name="alamat"
+                        rows="3"
+                        placeholder="Masukkan alamat lengkap (jalan, RT/RW, dll)"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200 resize-none"
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Kecamatan -->
+                <div class="mb-4">
+                    <label for="kecamatan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kecamatan *
+                    </label>
+                    <select 
+                        id="kecamatan" 
+                        name="kecamatan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required
+                    >
+                        <option value="">Pilih Kecamatan</option>
+                        <option value="kec_gambir">Gambir</option>
+                        <option value="kec_sawah_besar">Sawah Besar</option>
+                        <option value="kec_kemayoran">Kemayoran</option>
+                        <option value="kec_senen">Senen</option>
+                        <option value="kec_cempaka_putih">Cempaka Putih</option>
+                        <option value="kec_menteng">Menteng</option>
+                        <option value="kec_tanah_abang">Tanah Abang</option>
+                        <option value="kec_johar_baru">Johar Baru</option>
+                    </select>\n                </div>
+
+                <!-- Kelurahan -->
+                <div>
+                    <label for="kelurahan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kelurahan *
+                    </label>
+                    <select 
+                        id="kelurahan" 
+                        name="kelurahan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required\n                        disabled
+                    >
+                        <option value="">Pilih Kelurahan</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Pilih kecamatan terlebih dahulu</p>
+                </div>
+            </div>
+
+            <!-- Photo Upload -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-camera text-primary-blue mr-2"></i>
+                    Foto Profil
+                </h3>
+                
+                <div class="flex flex-col items-center">
+                    <!-- Photo Preview -->
+                    <div id="photoPreview" class="w-32 h-32 border-2 border-dashed border-gray-300 rounded-full flex flex-col items-center justify-center cursor-pointer hover:border-primary-blue transition-colors mb-4">
+                        <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                        <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+                    </div>
+                    
+                    <!-- Hidden File Input -->
+                    <input type="file" id="photoInput" accept="image/*" capture="user" class="hidden">
+                    
+                    <!-- Upload Button -->
+                    <button type="button" onclick="selectPhoto()" class="bg-primary-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Foto</span>
+                    </button>
+                    
+                    <p class="text-xs text-gray-500 mt-2 text-center">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Foto akan digunakan untuk profil akun Anda<br>
+                        Format: JPG, PNG | Maksimal: 2MB
+                    </p>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl active:scale-98"
+            >
+                <i class="fas fa-save"></i>
+                <span>Simpan & Lanjutkan</span>
+            </button>
+            
+            <!-- Skip Button -->
+            <button 
+                type="button" 
+                onclick="skipProfile()"
+                class="w-full bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-300 transition-all duration-200 flex items-center justify-center space-x-2 active:scale-98"
+            >
+                <i class="fas fa-arrow-right"></i>
+                <span>Lewati untuk Sekarang</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Profil Lengkap!</h3>
+            <p class="text-gray-600 mb-6 text-sm">
+                Profil Anda berhasil disimpan. Sekarang Anda dapat menggunakan semua fitur aplikasi.
+            </p>
+            <button onclick="window.location.href='dashboard.html'" class="w-full bg-primary-blue text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors duration-200">
+                Buka Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-primary-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-spinner fa-spin text-2xl text-primary-blue"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Menyimpan Profil</h3>
+            <p class="text-gray-600 text-sm">Mohon tunggu sebentar...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Kelurahan data based on kecamatan
+        const kelurahanData = {
+            'kec_gambir': [
+                { value: 'kel_gambir', text: 'Gambir' },
+                { value: 'kel_cideng', text: 'Cideng' },
+                { value: 'kel_petojo_utara', text: 'Petojo Utara' },
+                { value: 'kel_petojo_selatan', text: 'Petojo Selatan' },
+                { value: 'kel_kebon_kelapa', text: 'Kebon Kelapa' },
+                { value: 'kel_duri_pulo', text: 'Duri Pulo' }
+            ],
+            'kec_sawah_besar': [
+                { value: 'kel_sawah_besar', text: 'Sawah Besar' },
+                { value: 'kel_karang_anyar', text: 'Karang Anyar' },
+                { value: 'kel_kartini', text: 'Kartini' },
+                { value: 'kel_gunung_sahari_utara', text: 'Gunung Sahari Utara' },
+                { value: 'kel_gunung_sahari_selatan', text: 'Gunung Sahari Selatan' }
+            ],
+            'kec_kemayoran': [
+                { value: 'kel_kemayoran', text: 'Kemayoran' },
+                { value: 'kel_kebon_kosong', text: 'Kebon Kosong' },
+                { value: 'kel_cempaka_baru', text: 'Cempaka Baru' },
+                { value: 'kel_sumur_batu', text: 'Sumur Batu' },
+                { value: 'kel_serdang', text: 'Serdang' },
+                { value: 'kel_utan_panjang', text: 'Utan Panjang' },
+                { value: 'kel_limau_manis', text: 'Limau Manis' },
+                { value: 'kel_harapan_mulya', text: 'Harapan Mulya' }
+            ],
+            'kec_senen': [
+                { value: 'kel_senen', text: 'Senen' },
+                { value: 'kel_kenari', text: 'Kenari' },
+                { value: 'kel_paseban', text: 'Paseban' },
+                { value: 'kel_kramat', text: 'Kramat' },
+                { value: 'kel_kwitang', text: 'Kwitang' },
+                { value: 'kel_bungur', text: 'Bungur' }
+            ],
+            'kec_cempaka_putih': [
+                { value: 'kel_cempaka_putih_timur', text: 'Cempaka Putih Timur' },
+                { value: 'kel_cempaka_putih_barat', text: 'Cempaka Putih Barat' },
+                { value: 'kel_rawasari', text: 'Rawasari' }
+            ],
+            'kec_menteng': [
+                { value: 'kel_menteng', text: 'Menteng' },
+                { value: 'kel_pegangsaan', text: 'Pegangsaan' },
+                { value: 'kel_cikini', text: 'Cikini' },
+                { value: 'kel_gondangdia', text: 'Gondangdia' },
+                { value: 'kel_kebon_sirih', text: 'Kebon Sirih' }
+            ],
+            'kec_tanah_abang': [
+                { value: 'kel_bendungan_hilir', text: 'Bendungan Hilir' },
+                { value: 'kel_karet_tengsin', text: 'Karet Tengsin' },
+                { value: 'kel_kebon_melati', text: 'Kebon Melati' },
+                { value: 'kel_kebon_kacang', text: 'Kebon Kacang' },
+                { value: 'kel_kampung_bali', text: 'Kampung Bali' },
+                { value: 'kel_petamburan', text: 'Petamburan' },
+                { value: 'kel_gelora', text: 'Gelora' }
+            ],
+            'kec_johar_baru': [
+                { value: 'kel_johar_baru', text: 'Johar Baru' },
+                { value: 'kel_kampung_rawa', text: 'Kampung Rawa' },
+                { value: 'kel_galur', text: 'Galur' },
+                { value: 'kel_tanah_tinggi', text: 'Tanah Tinggi' }
+            ]
+        };
+
+        // Help function
+        function showHelp() {
+            alert('Bantuan Lengkapi Profil:\n\n1. Isi alamat lengkap dengan detail\n2. Pilih kecamatan tempat tinggal\n3. Pilih kelurahan sesuai kecamatan\n4. Upload foto profil (opsional)\n5. Klik "Simpan & Lanjutkan"');
+        }
+        
+        // Load kelurahan based on kecamatan selection
+        function loadKelurahan(kecamatanValue) {
+            const kelurahanSelect = document.getElementById('kelurahan');
+            kelurahanSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            
+            if (kecamatanValue && kelurahanData[kecamatanValue]) {
+                kelurahanSelect.disabled = false;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kelurahan yang sesuai';
+                
+                kelurahanData[kecamatanValue].forEach(kelurahan => {
+                    const option = document.createElement('option');
+                    option.value = kelurahan.value;
+                    option.textContent = kelurahan.text;
+                    kelurahanSelect.appendChild(option);
+                });
+            } else {
+                kelurahanSelect.disabled = true;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kecamatan terlebih dahulu';
+            }
+        }
+
+        // Select photo function
+        function selectPhoto() {
+            document.getElementById('photoInput').click();
+        }
+
+        // Handle photo selection
+        function handlePhotoSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Check file size (2MB limit)
+                if (file.size > 2 * 1024 * 1024) {
+                    Swal.fire({
+                        title: 'File Terlalu Besar',
+                        text: 'Ukuran file maksimal 2MB.',
+                        icon: 'error',
+                        confirmButtonText: 'Pilih Ulang',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                }
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        title: 'Format File Salah',
+                        text: 'File harus berupa gambar (JPG, PNG, dll).',
+                        icon: 'error',
+                        confirmButtonText: 'Pilih Ulang',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoPreview = document.getElementById('photoPreview');
+                    photoPreview.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-full object-cover rounded-full">
+                        <button type="button" onclick="removePhoto()" class="absolute top-0 right-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors -mt-1 -mr-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    photoPreview.classList.add('relative', 'border-green-500');
+                    photoPreview.classList.remove('border-dashed', 'border-gray-300');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove photo function
+        function removePhoto() {
+            const photoPreview = document.getElementById('photoPreview');
+            photoPreview.innerHTML = `
+                <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+            `;
+            photoPreview.classList.remove('relative', 'border-green-500');
+            photoPreview.classList.add('border-dashed', 'border-gray-300');
+            document.getElementById('photoInput').value = '';
+        }
+
+        // Skip profile completion
+        function skipProfile() {
+            Swal.fire({
+                title: 'Lewati Profil?',
+                text: 'Apakah Anda yakin ingin melewati pengisian profil? Anda dapat melengkapinya nanti di menu profil.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Lewati',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#6b7280',
+                cancelButtonColor: '#1e40af'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.setItem('profileCompleted', 'skipped');
+                    window.location.href = 'dashboard.html';
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('kecamatan').addEventListener('change', function() {
+            loadKelurahan(this.value);
+        });
+
+        document.getElementById('photoInput').addEventListener('change', handlePhotoSelect);
+
+        document.getElementById('photoPreview').addEventListener('click', function() {
+            if (!this.querySelector('img')) {
+                selectPhoto();
+            }
+        });
+
+        // Form submission
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const alamat = document.getElementById('alamat').value.trim();
+            const kecamatan = document.getElementById('kecamatan').value;
+            const kelurahan = document.getElementById('kelurahan').value;
+            const photoInput = document.getElementById('photoInput');
+            
+            // Validation with SweetAlert2
+            if (!alamat) {
+                Swal.fire({
+                    title: 'Alamat Diperlukan',
+                    text: 'Mohon isi alamat lengkap Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            if (!kecamatan) {
+                Swal.fire({
+                    title: 'Kecamatan Diperlukan',
+                    text: 'Mohon pilih kecamatan tempat tinggal Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            if (!kelurahan) {
+                Swal.fire({
+                    title: 'Kelurahan Diperlukan',
+                    text: 'Mohon pilih kelurahan tempat tinggal Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            // Show loading modal
+            document.getElementById('loadingModal').classList.remove('hidden');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Save profile data
+                const profileData = {
+                    alamat: alamat,
+                    kecamatan: kecamatan,
+                    kelurahan: kelurahan,
+                    hasPhoto: photoInput.files.length > 0,
+                    completedAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('userProfile', JSON.stringify(profileData));
+                localStorage.setItem('profileCompleted', 'true');
+                
+                document.getElementById('loadingModal').classList.add('hidden');
+                document.getElementById('successModal').classList.remove('hidden');
+            }, 2000);
+        });
+
+        // Check if user is logged in
+        window.addEventListener('load', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!isLoggedIn) {
+                Swal.fire({
+                    title: 'Login Diperlukan',
+                    text: 'Anda harus login terlebih dahulu.',
+                    icon: 'warning',
+                    confirmButtonText: 'Login',
+                    confirmButtonColor: '#1e40af',
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'mobile-login.html';
+                    }
+                });
+                return;
+            }
+            
+            // Show user NIK in a welcoming way
+            const userNIK = localStorage.getItem('userNIK');
+            if (userNIK) {
+                const maskedNIK = userNIK.substring(0, 4) + '****' + userNIK.substring(12);
+                document.querySelector('.text-center h2').textContent = `Selamat Datang!`;
+                document.querySelector('.text-center p').textContent = `NIK: ${maskedNIK} - Lengkapi profil untuk menggunakan semua fitur`;
+            }
+        });
+
+        // Auto-focus first input
+        document.getElementById('alamat').focus();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lengkapi Profil - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Lengkapi Profil - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 for Mobile -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary-blue to-secondary-blue text-white shadow-lg">
+        <div class="px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-edit text-white"></i>
+                </div>
+                <h1 class="text-lg font-bold">Lengkapi Profil</h1>
+                <button onclick="showHelp()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 active:scale-95">
+                    <i class="fas fa-question-circle text-white"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="px-4 py-3 bg-white border-b border-gray-100">
+        <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600">Langkah 2 dari 2</span>
+            <span class="text-primary-blue font-medium">Hampir selesai!</span>
+        </div>
+        <div class="mt-2">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary-blue h-2 rounded-full" style="width: 85%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Form Container -->
+    <div class="px-4 py-6">
+        <!-- Welcome Section -->
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <i class="fas fa-check text-white text-xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Selamat Datang!</h2>
+            <p class="text-gray-600 text-sm">Lengkapi profil Anda untuk menggunakan semua fitur</p>
+        </div>
+
+        <!-- Profile Completion Form -->
+        <form id="profileForm" class="space-y-6">
+            <!-- Address Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-map-marker-alt text-primary-blue mr-2"></i>
+                    Informasi Alamat
+                </h3>
+                
+                <!-- Full Address -->
+                <div class="mb-4">
+                    <label for="alamat" class="block text-xs font-medium text-gray-600 mb-2">
+                        Alamat Lengkap *
+                    </label>
+                    <textarea 
+                        id="alamat" 
+                        name="alamat"
+                        rows="3"
+                        placeholder="Masukkan alamat lengkap (jalan, RT/RW, dll)"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200 resize-none"
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Kecamatan -->
+                <div class="mb-4">
+                    <label for="kecamatan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kecamatan *
+                    </label>
+                    <select 
+                        id="kecamatan" 
+                        name="kecamatan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required
+                    >
+                        <option value="">Pilih Kecamatan</option>
+                        <option value="kec_gambir">Gambir</option>
+                        <option value="kec_sawah_besar">Sawah Besar</option>
+                        <option value="kec_kemayoran">Kemayoran</option>
+                        <option value="kec_senen">Senen</option>
+                        <option value="kec_cempaka_putih">Cempaka Putih</option>
+                        <option value="kec_menteng">Menteng</option>
+                        <option value="kec_tanah_abang">Tanah Abang</option>
+                        <option value="kec_johar_baru">Johar Baru</option>
+                    </select>\n                </div>
+
+                <!-- Kelurahan -->
+                <div>
+                    <label for="kelurahan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kelurahan *
+                    </label>
+                    <select 
+                        id="kelurahan" 
+                        name="kelurahan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required\n                        disabled
+                    >
+                        <option value="">Pilih Kelurahan</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Pilih kecamatan terlebih dahulu</p>
+                </div>
+            </div>
+
+            <!-- Photo Upload -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-camera text-primary-blue mr-2"></i>
+                    Foto Profil
+                </h3>
+                
+                <div class="flex flex-col items-center">
+                    <!-- Photo Preview -->
+                    <div id="photoPreview" class="w-32 h-32 border-2 border-dashed border-gray-300 rounded-full flex flex-col items-center justify-center cursor-pointer hover:border-primary-blue transition-colors mb-4">
+                        <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                        <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+                    </div>
+                    
+                    <!-- Hidden File Input -->
+                    <input type="file" id="photoInput" accept="image/*" capture="user" class="hidden">
+                    
+                    <!-- Upload Button -->
+                    <button type="button" onclick="selectPhoto()" class="bg-primary-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Foto</span>
+                    </button>
+                    
+                    <p class="text-xs text-gray-500 mt-2 text-center">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Foto akan digunakan untuk profil akun Anda<br>
+                        Format: JPG, PNG | Maksimal: 2MB
+                    </p>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl active:scale-98"
+            >
+                <i class="fas fa-save"></i>
+                <span>Simpan & Lanjutkan</span>
+            </button>
+            
+            <!-- Skip Button -->
+            <button 
+                type="button" 
+                onclick="skipProfile()"
+                class="w-full bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-300 transition-all duration-200 flex items-center justify-center space-x-2 active:scale-98"
+            >
+                <i class="fas fa-arrow-right"></i>
+                <span>Lewati untuk Sekarang</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Profil Lengkap!</h3>
+            <p class="text-gray-600 mb-6 text-sm">
+                Profil Anda berhasil disimpan. Sekarang Anda dapat menggunakan semua fitur aplikasi.
+            </p>
+            <button onclick="window.location.href='dashboard.html'" class="w-full bg-primary-blue text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors duration-200">
+                Buka Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-primary-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-spinner fa-spin text-2xl text-primary-blue"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Menyimpan Profil</h3>
+            <p class="text-gray-600 text-sm">Mohon tunggu sebentar...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Kelurahan data based on kecamatan
+        const kelurahanData = {
+            'kec_gambir': [
+                { value: 'kel_gambir', text: 'Gambir' },
+                { value: 'kel_cideng', text: 'Cideng' },
+                { value: 'kel_petojo_utara', text: 'Petojo Utara' },
+                { value: 'kel_petojo_selatan', text: 'Petojo Selatan' },
+                { value: 'kel_kebon_kelapa', text: 'Kebon Kelapa' },
+                { value: 'kel_duri_pulo', text: 'Duri Pulo' }
+            ],
+            'kec_sawah_besar': [
+                { value: 'kel_sawah_besar', text: 'Sawah Besar' },
+                { value: 'kel_karang_anyar', text: 'Karang Anyar' },
+                { value: 'kel_kartini', text: 'Kartini' },
+                { value: 'kel_gunung_sahari_utara', text: 'Gunung Sahari Utara' },
+                { value: 'kel_gunung_sahari_selatan', text: 'Gunung Sahari Selatan' }
+            ],
+            'kec_kemayoran': [
+                { value: 'kel_kemayoran', text: 'Kemayoran' },
+                { value: 'kel_kebon_kosong', text: 'Kebon Kosong' },
+                { value: 'kel_cempaka_baru', text: 'Cempaka Baru' },
+                { value: 'kel_sumur_batu', text: 'Sumur Batu' },
+                { value: 'kel_serdang', text: 'Serdang' },
+                { value: 'kel_utan_panjang', text: 'Utan Panjang' },
+                { value: 'kel_limau_manis', text: 'Limau Manis' },
+                { value: 'kel_harapan_mulya', text: 'Harapan Mulya' }
+            ],
+            'kec_senen': [
+                { value: 'kel_senen', text: 'Senen' },
+                { value: 'kel_kenari', text: 'Kenari' },
+                { value: 'kel_paseban', text: 'Paseban' },
+                { value: 'kel_kramat', text: 'Kramat' },
+                { value: 'kel_kwitang', text: 'Kwitang' },
+                { value: 'kel_bungur', text: 'Bungur' }
+            ],
+            'kec_cempaka_putih': [
+                { value: 'kel_cempaka_putih_timur', text: 'Cempaka Putih Timur' },
+                { value: 'kel_cempaka_putih_barat', text: 'Cempaka Putih Barat' },
+                { value: 'kel_rawasari', text: 'Rawasari' }
+            ],
+            'kec_menteng': [
+                { value: 'kel_menteng', text: 'Menteng' },
+                { value: 'kel_pegangsaan', text: 'Pegangsaan' },
+                { value: 'kel_cikini', text: 'Cikini' },
+                { value: 'kel_gondangdia', text: 'Gondangdia' },
+                { value: 'kel_kebon_sirih', text: 'Kebon Sirih' }
+            ],
+            'kec_tanah_abang': [
+                { value: 'kel_bendungan_hilir', text: 'Bendungan Hilir' },
+                { value: 'kel_karet_tengsin', text: 'Karet Tengsin' },
+                { value: 'kel_kebon_melati', text: 'Kebon Melati' },
+                { value: 'kel_kebon_kacang', text: 'Kebon Kacang' },
+                { value: 'kel_kampung_bali', text: 'Kampung Bali' },
+                { value: 'kel_petamburan', text: 'Petamburan' },
+                { value: 'kel_gelora', text: 'Gelora' }
+            ],
+            'kec_johar_baru': [
+                { value: 'kel_johar_baru', text: 'Johar Baru' },
+                { value: 'kel_kampung_rawa', text: 'Kampung Rawa' },
+                { value: 'kel_galur', text: 'Galur' },
+                { value: 'kel_tanah_tinggi', text: 'Tanah Tinggi' }
+            ]
+        };
+
+        // Help function
+        function showHelp() {
+            alert('Bantuan Lengkapi Profil:\n\n1. Isi alamat lengkap dengan detail\n2. Pilih kecamatan tempat tinggal\n3. Pilih kelurahan sesuai kecamatan\n4. Upload foto profil (opsional)\n5. Klik "Simpan & Lanjutkan"');
+        }
+        
+        // Load kelurahan based on kecamatan selection
+        function loadKelurahan(kecamatanValue) {
+            const kelurahanSelect = document.getElementById('kelurahan');
+            kelurahanSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            
+            if (kecamatanValue && kelurahanData[kecamatanValue]) {
+                kelurahanSelect.disabled = false;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kelurahan yang sesuai';
+                
+                kelurahanData[kecamatanValue].forEach(kelurahan => {
+                    const option = document.createElement('option');
+                    option.value = kelurahan.value;
+                    option.textContent = kelurahan.text;
+                    kelurahanSelect.appendChild(option);
+                });
+            } else {
+                kelurahanSelect.disabled = true;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kecamatan terlebih dahulu';
+            }
+        }
+
+        // Select photo function
+        function selectPhoto() {
+            document.getElementById('photoInput').click();
+        }
+
+        // Handle photo selection
+        function handlePhotoSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Check file size (2MB limit)
+                if (file.size > 2 * 1024 * 1024) {
+                    Swal.fire({
+                        title: 'File Terlalu Besar',
+                        text: 'Ukuran file maksimal 2MB.',
+                        icon: 'error',
+                        confirmButtonText: 'Pilih Ulang',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                }
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        title: 'Format File Salah',
+                        text: 'File harus berupa gambar (JPG, PNG, dll).',
+                        icon: 'error',
+                        confirmButtonText: 'Pilih Ulang',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoPreview = document.getElementById('photoPreview');
+                    photoPreview.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-full object-cover rounded-full">
+                        <button type="button" onclick="removePhoto()" class="absolute top-0 right-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors -mt-1 -mr-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    photoPreview.classList.add('relative', 'border-green-500');
+                    photoPreview.classList.remove('border-dashed', 'border-gray-300');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove photo function
+        function removePhoto() {
+            const photoPreview = document.getElementById('photoPreview');
+            photoPreview.innerHTML = `
+                <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+            `;
+            photoPreview.classList.remove('relative', 'border-green-500');
+            photoPreview.classList.add('border-dashed', 'border-gray-300');
+            document.getElementById('photoInput').value = '';
+        }
+
+        // Skip profile completion
+        function skipProfile() {
+            Swal.fire({
+                title: 'Lewati Profil?',
+                text: 'Apakah Anda yakin ingin melewati pengisian profil? Anda dapat melengkapinya nanti di menu profil.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Lewati',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#6b7280',
+                cancelButtonColor: '#1e40af'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.setItem('profileCompleted', 'skipped');
+                    window.location.href = 'dashboard.html';
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('kecamatan').addEventListener('change', function() {
+            loadKelurahan(this.value);
+        });
+
+        document.getElementById('photoInput').addEventListener('change', handlePhotoSelect);
+
+        document.getElementById('photoPreview').addEventListener('click', function() {
+            if (!this.querySelector('img')) {
+                selectPhoto();
+            }
+        });
+
+        // Form submission
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const alamat = document.getElementById('alamat').value.trim();
+            const kecamatan = document.getElementById('kecamatan').value;
+            const kelurahan = document.getElementById('kelurahan').value;
+            const photoInput = document.getElementById('photoInput');
+            
+            // Validation with SweetAlert2
+            if (!alamat) {
+                Swal.fire({
+                    title: 'Alamat Diperlukan',
+                    text: 'Mohon isi alamat lengkap Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            if (!kecamatan) {
+                Swal.fire({
+                    title: 'Kecamatan Diperlukan',
+                    text: 'Mohon pilih kecamatan tempat tinggal Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            if (!kelurahan) {
+                Swal.fire({
+                    title: 'Kelurahan Diperlukan',
+                    text: 'Mohon pilih kelurahan tempat tinggal Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            // Show loading modal
+            document.getElementById('loadingModal').classList.remove('hidden');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Save profile data
+                const profileData = {
+                    alamat: alamat,
+                    kecamatan: kecamatan,
+                    kelurahan: kelurahan,
+                    hasPhoto: photoInput.files.length > 0,
+                    completedAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('userProfile', JSON.stringify(profileData));
+                localStorage.setItem('profileCompleted', 'true');
+                
+                document.getElementById('loadingModal').classList.add('hidden');
+                document.getElementById('successModal').classList.remove('hidden');
+            }, 2000);
+        });
+
+        // Check if user is logged in
+        window.addEventListener('load', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!isLoggedIn) {
+                alert('Anda harus login terlebih dahulu.');
+                window.location.href = 'mobile-login.html';
+                return;
+            }
+            
+            // Show user NIK in a welcoming way
+            const userNIK = localStorage.getItem('userNIK');
+            if (userNIK) {
+                const maskedNIK = userNIK.substring(0, 4) + '****' + userNIK.substring(12);
+                document.querySelector('.text-center h2').textContent = `Selamat Datang!`;
+                document.querySelector('.text-center p').textContent = `NIK: ${maskedNIK} - Lengkapi profil untuk menggunakan semua fitur`;
+            }
+        });
+
+        // Auto-focus first input
+        document.getElementById('alamat').focus();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lengkapi Profil - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Lengkapi Profil - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 for Mobile -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary-blue to-secondary-blue text-white shadow-lg">
+        <div class="px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-edit text-white"></i>
+                </div>
+                <h1 class="text-lg font-bold">Lengkapi Profil</h1>
+                <button onclick="showHelp()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 active:scale-95">
+                    <i class="fas fa-question-circle text-white"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="px-4 py-3 bg-white border-b border-gray-100">
+        <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600">Langkah 2 dari 2</span>
+            <span class="text-primary-blue font-medium">Hampir selesai!</span>
+        </div>
+        <div class="mt-2">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary-blue h-2 rounded-full" style="width: 85%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Form Container -->
+    <div class="px-4 py-6">
+        <!-- Welcome Section -->
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <i class="fas fa-check text-white text-xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Selamat Datang!</h2>
+            <p class="text-gray-600 text-sm">Lengkapi profil Anda untuk menggunakan semua fitur</p>
+        </div>
+
+        <!-- Profile Completion Form -->
+        <form id="profileForm" class="space-y-6">
+            <!-- Address Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-map-marker-alt text-primary-blue mr-2"></i>
+                    Informasi Alamat
+                </h3>
+                
+                <!-- Full Address -->
+                <div class="mb-4">
+                    <label for="alamat" class="block text-xs font-medium text-gray-600 mb-2">
+                        Alamat Lengkap *
+                    </label>
+                    <textarea 
+                        id="alamat" 
+                        name="alamat"
+                        rows="3"
+                        placeholder="Masukkan alamat lengkap (jalan, RT/RW, dll)"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200 resize-none"
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Kecamatan -->
+                <div class="mb-4">
+                    <label for="kecamatan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kecamatan *
+                    </label>
+                    <select 
+                        id="kecamatan" 
+                        name="kecamatan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required
+                    >
+                        <option value="">Pilih Kecamatan</option>
+                        <option value="kec_gambir">Gambir</option>
+                        <option value="kec_sawah_besar">Sawah Besar</option>
+                        <option value="kec_kemayoran">Kemayoran</option>
+                        <option value="kec_senen">Senen</option>
+                        <option value="kec_cempaka_putih">Cempaka Putih</option>
+                        <option value="kec_menteng">Menteng</option>
+                        <option value="kec_tanah_abang">Tanah Abang</option>
+                        <option value="kec_johar_baru">Johar Baru</option>
+                    </select>\n                </div>
+
+                <!-- Kelurahan -->
+                <div>
+                    <label for="kelurahan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kelurahan *
+                    </label>
+                    <select 
+                        id="kelurahan" 
+                        name="kelurahan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required\n                        disabled
+                    >
+                        <option value="">Pilih Kelurahan</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Pilih kecamatan terlebih dahulu</p>
+                </div>
+            </div>
+
+            <!-- Photo Upload -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-camera text-primary-blue mr-2"></i>
+                    Foto Profil
+                </h3>
+                
+                <div class="flex flex-col items-center">
+                    <!-- Photo Preview -->
+                    <div id="photoPreview" class="w-32 h-32 border-2 border-dashed border-gray-300 rounded-full flex flex-col items-center justify-center cursor-pointer hover:border-primary-blue transition-colors mb-4">
+                        <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                        <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+                    </div>
+                    
+                    <!-- Hidden File Input -->
+                    <input type="file" id="photoInput" accept="image/*" capture="user" class="hidden">
+                    
+                    <!-- Upload Button -->
+                    <button type="button" onclick="selectPhoto()" class="bg-primary-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Foto</span>
+                    </button>
+                    
+                    <p class="text-xs text-gray-500 mt-2 text-center">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Foto akan digunakan untuk profil akun Anda<br>
+                        Format: JPG, PNG | Maksimal: 2MB
+                    </p>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl active:scale-98"
+            >
+                <i class="fas fa-save"></i>
+                <span>Simpan & Lanjutkan</span>
+            </button>
+            
+            <!-- Skip Button -->
+            <button 
+                type="button" 
+                onclick="skipProfile()"
+                class="w-full bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-300 transition-all duration-200 flex items-center justify-center space-x-2 active:scale-98"
+            >
+                <i class="fas fa-arrow-right"></i>
+                <span>Lewati untuk Sekarang</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Profil Lengkap!</h3>
+            <p class="text-gray-600 mb-6 text-sm">
+                Profil Anda berhasil disimpan. Sekarang Anda dapat menggunakan semua fitur aplikasi.
+            </p>
+            <button onclick="window.location.href='dashboard.html'" class="w-full bg-primary-blue text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors duration-200">
+                Buka Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-primary-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-spinner fa-spin text-2xl text-primary-blue"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Menyimpan Profil</h3>
+            <p class="text-gray-600 text-sm">Mohon tunggu sebentar...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Kelurahan data based on kecamatan
+        const kelurahanData = {
+            'kec_gambir': [
+                { value: 'kel_gambir', text: 'Gambir' },
+                { value: 'kel_cideng', text: 'Cideng' },
+                { value: 'kel_petojo_utara', text: 'Petojo Utara' },
+                { value: 'kel_petojo_selatan', text: 'Petojo Selatan' },
+                { value: 'kel_kebon_kelapa', text: 'Kebon Kelapa' },
+                { value: 'kel_duri_pulo', text: 'Duri Pulo' }
+            ],
+            'kec_sawah_besar': [
+                { value: 'kel_sawah_besar', text: 'Sawah Besar' },
+                { value: 'kel_karang_anyar', text: 'Karang Anyar' },
+                { value: 'kel_kartini', text: 'Kartini' },
+                { value: 'kel_gunung_sahari_utara', text: 'Gunung Sahari Utara' },
+                { value: 'kel_gunung_sahari_selatan', text: 'Gunung Sahari Selatan' }
+            ],
+            'kec_kemayoran': [
+                { value: 'kel_kemayoran', text: 'Kemayoran' },
+                { value: 'kel_kebon_kosong', text: 'Kebon Kosong' },
+                { value: 'kel_cempaka_baru', text: 'Cempaka Baru' },
+                { value: 'kel_sumur_batu', text: 'Sumur Batu' },
+                { value: 'kel_serdang', text: 'Serdang' },
+                { value: 'kel_utan_panjang', text: 'Utan Panjang' },
+                { value: 'kel_limau_manis', text: 'Limau Manis' },
+                { value: 'kel_harapan_mulya', text: 'Harapan Mulya' }
+            ],
+            'kec_senen': [
+                { value: 'kel_senen', text: 'Senen' },
+                { value: 'kel_kenari', text: 'Kenari' },
+                { value: 'kel_paseban', text: 'Paseban' },
+                { value: 'kel_kramat', text: 'Kramat' },
+                { value: 'kel_kwitang', text: 'Kwitang' },
+                { value: 'kel_bungur', text: 'Bungur' }
+            ],
+            'kec_cempaka_putih': [
+                { value: 'kel_cempaka_putih_timur', text: 'Cempaka Putih Timur' },
+                { value: 'kel_cempaka_putih_barat', text: 'Cempaka Putih Barat' },
+                { value: 'kel_rawasari', text: 'Rawasari' }
+            ],
+            'kec_menteng': [
+                { value: 'kel_menteng', text: 'Menteng' },
+                { value: 'kel_pegangsaan', text: 'Pegangsaan' },
+                { value: 'kel_cikini', text: 'Cikini' },
+                { value: 'kel_gondangdia', text: 'Gondangdia' },
+                { value: 'kel_kebon_sirih', text: 'Kebon Sirih' }
+            ],
+            'kec_tanah_abang': [
+                { value: 'kel_bendungan_hilir', text: 'Bendungan Hilir' },
+                { value: 'kel_karet_tengsin', text: 'Karet Tengsin' },
+                { value: 'kel_kebon_melati', text: 'Kebon Melati' },
+                { value: 'kel_kebon_kacang', text: 'Kebon Kacang' },
+                { value: 'kel_kampung_bali', text: 'Kampung Bali' },
+                { value: 'kel_petamburan', text: 'Petamburan' },
+                { value: 'kel_gelora', text: 'Gelora' }
+            ],
+            'kec_johar_baru': [
+                { value: 'kel_johar_baru', text: 'Johar Baru' },
+                { value: 'kel_kampung_rawa', text: 'Kampung Rawa' },
+                { value: 'kel_galur', text: 'Galur' },
+                { value: 'kel_tanah_tinggi', text: 'Tanah Tinggi' }
+            ]
+        };
+
+        // Help function
+        function showHelp() {
+            alert('Bantuan Lengkapi Profil:\n\n1. Isi alamat lengkap dengan detail\n2. Pilih kecamatan tempat tinggal\n3. Pilih kelurahan sesuai kecamatan\n4. Upload foto profil (opsional)\n5. Klik "Simpan & Lanjutkan"');
+        }
+        
+        // Load kelurahan based on kecamatan selection
+        function loadKelurahan(kecamatanValue) {
+            const kelurahanSelect = document.getElementById('kelurahan');
+            kelurahanSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            
+            if (kecamatanValue && kelurahanData[kecamatanValue]) {
+                kelurahanSelect.disabled = false;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kelurahan yang sesuai';
+                
+                kelurahanData[kecamatanValue].forEach(kelurahan => {
+                    const option = document.createElement('option');
+                    option.value = kelurahan.value;
+                    option.textContent = kelurahan.text;
+                    kelurahanSelect.appendChild(option);
+                });
+            } else {
+                kelurahanSelect.disabled = true;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kecamatan terlebih dahulu';
+            }
+        }
+
+        // Select photo function
+        function selectPhoto() {
+            document.getElementById('photoInput').click();
+        }
+
+        // Handle photo selection
+        function handlePhotoSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Check file size (2MB limit)
+                if (file.size > 2 * 1024 * 1024) {
+                    Swal.fire({
+                        title: 'File Terlalu Besar',
+                        text: 'Ukuran file maksimal 2MB.',
+                        icon: 'error',
+                        confirmButtonText: 'Pilih Ulang',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                }
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    Swal.fire({
+                        title: 'Format File Salah',
+                        text: 'File harus berupa gambar (JPG, PNG, dll).',
+                        icon: 'error',
+                        confirmButtonText: 'Pilih Ulang',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoPreview = document.getElementById('photoPreview');
+                    photoPreview.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-full object-cover rounded-full">
+                        <button type="button" onclick="removePhoto()" class="absolute top-0 right-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors -mt-1 -mr-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    photoPreview.classList.add('relative', 'border-green-500');
+                    photoPreview.classList.remove('border-dashed', 'border-gray-300');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove photo function
+        function removePhoto() {
+            const photoPreview = document.getElementById('photoPreview');
+            photoPreview.innerHTML = `
+                <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+            `;
+            photoPreview.classList.remove('relative', 'border-green-500');
+            photoPreview.classList.add('border-dashed', 'border-gray-300');
+            document.getElementById('photoInput').value = '';
+        }
+
+        // Skip profile completion
+        function skipProfile() {
+            if (confirm('Apakah Anda yakin ingin melewati pengisian profil?\nAnda dapat melengkapinya nanti di menu profil.')) {
+                localStorage.setItem('profileCompleted', 'skipped');
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('kecamatan').addEventListener('change', function() {
+            loadKelurahan(this.value);
+        });
+
+        document.getElementById('photoInput').addEventListener('change', handlePhotoSelect);
+
+        document.getElementById('photoPreview').addEventListener('click', function() {
+            if (!this.querySelector('img')) {
+                selectPhoto();
+            }
+        });
+
+        // Form submission
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const alamat = document.getElementById('alamat').value.trim();
+            const kecamatan = document.getElementById('kecamatan').value;
+            const kelurahan = document.getElementById('kelurahan').value;
+            const photoInput = document.getElementById('photoInput');
+            
+            // Validation with SweetAlert2
+            if (!alamat) {
+                Swal.fire({
+                    title: 'Alamat Diperlukan',
+                    text: 'Mohon isi alamat lengkap Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            if (!kecamatan) {
+                Swal.fire({
+                    title: 'Kecamatan Diperlukan',
+                    text: 'Mohon pilih kecamatan tempat tinggal Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            if (!kelurahan) {
+                Swal.fire({
+                    title: 'Kelurahan Diperlukan',
+                    text: 'Mohon pilih kelurahan tempat tinggal Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            // Show loading modal
+            document.getElementById('loadingModal').classList.remove('hidden');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Save profile data
+                const profileData = {
+                    alamat: alamat,
+                    kecamatan: kecamatan,
+                    kelurahan: kelurahan,
+                    hasPhoto: photoInput.files.length > 0,
+                    completedAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('userProfile', JSON.stringify(profileData));
+                localStorage.setItem('profileCompleted', 'true');
+                
+                document.getElementById('loadingModal').classList.add('hidden');
+                document.getElementById('successModal').classList.remove('hidden');
+            }, 2000);
+        });
+
+        // Check if user is logged in
+        window.addEventListener('load', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!isLoggedIn) {
+                alert('Anda harus login terlebih dahulu.');
+                window.location.href = 'mobile-login.html';
+                return;
+            }
+            
+            // Show user NIK in a welcoming way
+            const userNIK = localStorage.getItem('userNIK');
+            if (userNIK) {
+                const maskedNIK = userNIK.substring(0, 4) + '****' + userNIK.substring(12);
+                document.querySelector('.text-center h2').textContent = `Selamat Datang!`;
+                document.querySelector('.text-center p').textContent = `NIK: ${maskedNIK} - Lengkapi profil untuk menggunakan semua fitur`;
+            }
+        });
+
+        // Auto-focus first input
+        document.getElementById('alamat').focus();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lengkapi Profil - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Lengkapi Profil - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 for Mobile -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary-blue to-secondary-blue text-white shadow-lg">
+        <div class="px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-edit text-white"></i>
+                </div>
+                <h1 class="text-lg font-bold">Lengkapi Profil</h1>
+                <button onclick="showHelp()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 active:scale-95">
+                    <i class="fas fa-question-circle text-white"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="px-4 py-3 bg-white border-b border-gray-100">
+        <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600">Langkah 2 dari 2</span>
+            <span class="text-primary-blue font-medium">Hampir selesai!</span>
+        </div>
+        <div class="mt-2">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary-blue h-2 rounded-full" style="width: 85%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Form Container -->
+    <div class="px-4 py-6">
+        <!-- Welcome Section -->
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <i class="fas fa-check text-white text-xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Selamat Datang!</h2>
+            <p class="text-gray-600 text-sm">Lengkapi profil Anda untuk menggunakan semua fitur</p>
+        </div>
+
+        <!-- Profile Completion Form -->
+        <form id="profileForm" class="space-y-6">
+            <!-- Address Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-map-marker-alt text-primary-blue mr-2"></i>
+                    Informasi Alamat
+                </h3>
+                
+                <!-- Full Address -->
+                <div class="mb-4">
+                    <label for="alamat" class="block text-xs font-medium text-gray-600 mb-2">
+                        Alamat Lengkap *
+                    </label>
+                    <textarea 
+                        id="alamat" 
+                        name="alamat"
+                        rows="3"
+                        placeholder="Masukkan alamat lengkap (jalan, RT/RW, dll)"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200 resize-none"
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Kecamatan -->
+                <div class="mb-4">
+                    <label for="kecamatan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kecamatan *
+                    </label>
+                    <select 
+                        id="kecamatan" 
+                        name="kecamatan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required
+                    >
+                        <option value="">Pilih Kecamatan</option>
+                        <option value="kec_gambir">Gambir</option>
+                        <option value="kec_sawah_besar">Sawah Besar</option>
+                        <option value="kec_kemayoran">Kemayoran</option>
+                        <option value="kec_senen">Senen</option>
+                        <option value="kec_cempaka_putih">Cempaka Putih</option>
+                        <option value="kec_menteng">Menteng</option>
+                        <option value="kec_tanah_abang">Tanah Abang</option>
+                        <option value="kec_johar_baru">Johar Baru</option>
+                    </select>\n                </div>
+
+                <!-- Kelurahan -->
+                <div>
+                    <label for="kelurahan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kelurahan *
+                    </label>
+                    <select 
+                        id="kelurahan" 
+                        name="kelurahan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required\n                        disabled
+                    >
+                        <option value="">Pilih Kelurahan</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Pilih kecamatan terlebih dahulu</p>
+                </div>
+            </div>
+
+            <!-- Photo Upload -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-camera text-primary-blue mr-2"></i>
+                    Foto Profil
+                </h3>
+                
+                <div class="flex flex-col items-center">
+                    <!-- Photo Preview -->
+                    <div id="photoPreview" class="w-32 h-32 border-2 border-dashed border-gray-300 rounded-full flex flex-col items-center justify-center cursor-pointer hover:border-primary-blue transition-colors mb-4">
+                        <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                        <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+                    </div>
+                    
+                    <!-- Hidden File Input -->
+                    <input type="file" id="photoInput" accept="image/*" capture="user" class="hidden">
+                    
+                    <!-- Upload Button -->
+                    <button type="button" onclick="selectPhoto()" class="bg-primary-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Foto</span>
+                    </button>
+                    
+                    <p class="text-xs text-gray-500 mt-2 text-center">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Foto akan digunakan untuk profil akun Anda<br>
+                        Format: JPG, PNG | Maksimal: 2MB
+                    </p>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl active:scale-98"
+            >
+                <i class="fas fa-save"></i>
+                <span>Simpan & Lanjutkan</span>
+            </button>
+            
+            <!-- Skip Button -->
+            <button 
+                type="button" 
+                onclick="skipProfile()"
+                class="w-full bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-300 transition-all duration-200 flex items-center justify-center space-x-2 active:scale-98"
+            >
+                <i class="fas fa-arrow-right"></i>
+                <span>Lewati untuk Sekarang</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Profil Lengkap!</h3>
+            <p class="text-gray-600 mb-6 text-sm">
+                Profil Anda berhasil disimpan. Sekarang Anda dapat menggunakan semua fitur aplikasi.
+            </p>
+            <button onclick="window.location.href='dashboard.html'" class="w-full bg-primary-blue text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors duration-200">
+                Buka Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-primary-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-spinner fa-spin text-2xl text-primary-blue"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Menyimpan Profil</h3>
+            <p class="text-gray-600 text-sm">Mohon tunggu sebentar...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Kelurahan data based on kecamatan
+        const kelurahanData = {
+            'kec_gambir': [
+                { value: 'kel_gambir', text: 'Gambir' },
+                { value: 'kel_cideng', text: 'Cideng' },
+                { value: 'kel_petojo_utara', text: 'Petojo Utara' },
+                { value: 'kel_petojo_selatan', text: 'Petojo Selatan' },
+                { value: 'kel_kebon_kelapa', text: 'Kebon Kelapa' },
+                { value: 'kel_duri_pulo', text: 'Duri Pulo' }
+            ],
+            'kec_sawah_besar': [
+                { value: 'kel_sawah_besar', text: 'Sawah Besar' },
+                { value: 'kel_karang_anyar', text: 'Karang Anyar' },
+                { value: 'kel_kartini', text: 'Kartini' },
+                { value: 'kel_gunung_sahari_utara', text: 'Gunung Sahari Utara' },
+                { value: 'kel_gunung_sahari_selatan', text: 'Gunung Sahari Selatan' }
+            ],
+            'kec_kemayoran': [
+                { value: 'kel_kemayoran', text: 'Kemayoran' },
+                { value: 'kel_kebon_kosong', text: 'Kebon Kosong' },
+                { value: 'kel_cempaka_baru', text: 'Cempaka Baru' },
+                { value: 'kel_sumur_batu', text: 'Sumur Batu' },
+                { value: 'kel_serdang', text: 'Serdang' },
+                { value: 'kel_utan_panjang', text: 'Utan Panjang' },
+                { value: 'kel_limau_manis', text: 'Limau Manis' },
+                { value: 'kel_harapan_mulya', text: 'Harapan Mulya' }
+            ],
+            'kec_senen': [
+                { value: 'kel_senen', text: 'Senen' },
+                { value: 'kel_kenari', text: 'Kenari' },
+                { value: 'kel_paseban', text: 'Paseban' },
+                { value: 'kel_kramat', text: 'Kramat' },
+                { value: 'kel_kwitang', text: 'Kwitang' },
+                { value: 'kel_bungur', text: 'Bungur' }
+            ],
+            'kec_cempaka_putih': [
+                { value: 'kel_cempaka_putih_timur', text: 'Cempaka Putih Timur' },
+                { value: 'kel_cempaka_putih_barat', text: 'Cempaka Putih Barat' },
+                { value: 'kel_rawasari', text: 'Rawasari' }
+            ],
+            'kec_menteng': [
+                { value: 'kel_menteng', text: 'Menteng' },
+                { value: 'kel_pegangsaan', text: 'Pegangsaan' },
+                { value: 'kel_cikini', text: 'Cikini' },
+                { value: 'kel_gondangdia', text: 'Gondangdia' },
+                { value: 'kel_kebon_sirih', text: 'Kebon Sirih' }
+            ],
+            'kec_tanah_abang': [
+                { value: 'kel_bendungan_hilir', text: 'Bendungan Hilir' },
+                { value: 'kel_karet_tengsin', text: 'Karet Tengsin' },
+                { value: 'kel_kebon_melati', text: 'Kebon Melati' },
+                { value: 'kel_kebon_kacang', text: 'Kebon Kacang' },
+                { value: 'kel_kampung_bali', text: 'Kampung Bali' },
+                { value: 'kel_petamburan', text: 'Petamburan' },
+                { value: 'kel_gelora', text: 'Gelora' }
+            ],
+            'kec_johar_baru': [
+                { value: 'kel_johar_baru', text: 'Johar Baru' },
+                { value: 'kel_kampung_rawa', text: 'Kampung Rawa' },
+                { value: 'kel_galur', text: 'Galur' },
+                { value: 'kel_tanah_tinggi', text: 'Tanah Tinggi' }
+            ]
+        };
+
+        // Help function
+        function showHelp() {
+            alert('Bantuan Lengkapi Profil:\n\n1. Isi alamat lengkap dengan detail\n2. Pilih kecamatan tempat tinggal\n3. Pilih kelurahan sesuai kecamatan\n4. Upload foto profil (opsional)\n5. Klik "Simpan & Lanjutkan"');
+        }
+        
+        // Load kelurahan based on kecamatan selection
+        function loadKelurahan(kecamatanValue) {
+            const kelurahanSelect = document.getElementById('kelurahan');
+            kelurahanSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            
+            if (kecamatanValue && kelurahanData[kecamatanValue]) {
+                kelurahanSelect.disabled = false;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kelurahan yang sesuai';
+                
+                kelurahanData[kecamatanValue].forEach(kelurahan => {
+                    const option = document.createElement('option');
+                    option.value = kelurahan.value;
+                    option.textContent = kelurahan.text;
+                    kelurahanSelect.appendChild(option);
+                });
+            } else {
+                kelurahanSelect.disabled = true;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kecamatan terlebih dahulu';
+            }
+        }
+
+        // Select photo function
+        function selectPhoto() {
+            document.getElementById('photoInput').click();
+        }
+
+        // Handle photo selection
+        function handlePhotoSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Check file size (2MB limit)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                    return;
+                }
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    alert('File harus berupa gambar (JPG, PNG, dll).');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoPreview = document.getElementById('photoPreview');
+                    photoPreview.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-full object-cover rounded-full">
+                        <button type="button" onclick="removePhoto()" class="absolute top-0 right-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors -mt-1 -mr-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    photoPreview.classList.add('relative', 'border-green-500');
+                    photoPreview.classList.remove('border-dashed', 'border-gray-300');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove photo function
+        function removePhoto() {
+            const photoPreview = document.getElementById('photoPreview');
+            photoPreview.innerHTML = `
+                <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+            `;
+            photoPreview.classList.remove('relative', 'border-green-500');
+            photoPreview.classList.add('border-dashed', 'border-gray-300');
+            document.getElementById('photoInput').value = '';
+        }
+
+        // Skip profile completion
+        function skipProfile() {
+            if (confirm('Apakah Anda yakin ingin melewati pengisian profil?\nAnda dapat melengkapinya nanti di menu profil.')) {
+                localStorage.setItem('profileCompleted', 'skipped');
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('kecamatan').addEventListener('change', function() {
+            loadKelurahan(this.value);
+        });
+
+        document.getElementById('photoInput').addEventListener('change', handlePhotoSelect);
+
+        document.getElementById('photoPreview').addEventListener('click', function() {
+            if (!this.querySelector('img')) {
+                selectPhoto();
+            }
+        });
+
+        // Form submission
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const alamat = document.getElementById('alamat').value.trim();
+            const kecamatan = document.getElementById('kecamatan').value;
+            const kelurahan = document.getElementById('kelurahan').value;
+            const photoInput = document.getElementById('photoInput');
+            
+            // Validation with SweetAlert2
+            if (!alamat) {
+                Swal.fire({
+                    title: 'Alamat Diperlukan',
+                    text: 'Mohon isi alamat lengkap Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            if (!kecamatan) {
+                Swal.fire({
+                    title: 'Kecamatan Diperlukan',
+                    text: 'Mohon pilih kecamatan tempat tinggal Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            if (!kelurahan) {
+                Swal.fire({
+                    title: 'Kelurahan Diperlukan',
+                    text: 'Mohon pilih kelurahan tempat tinggal Anda.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+            
+            // Show loading modal
+            document.getElementById('loadingModal').classList.remove('hidden');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Save profile data
+                const profileData = {
+                    alamat: alamat,
+                    kecamatan: kecamatan,
+                    kelurahan: kelurahan,
+                    hasPhoto: photoInput.files.length > 0,
+                    completedAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('userProfile', JSON.stringify(profileData));
+                localStorage.setItem('profileCompleted', 'true');
+                
+                document.getElementById('loadingModal').classList.add('hidden');
+                document.getElementById('successModal').classList.remove('hidden');
+            }, 2000);
+        });
+
+        // Check if user is logged in
+        window.addEventListener('load', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!isLoggedIn) {
+                alert('Anda harus login terlebih dahulu.');
+                window.location.href = 'mobile-login.html';
+                return;
+            }
+            
+            // Show user NIK in a welcoming way
+            const userNIK = localStorage.getItem('userNIK');
+            if (userNIK) {
+                const maskedNIK = userNIK.substring(0, 4) + '****' + userNIK.substring(12);
+                document.querySelector('.text-center h2').textContent = `Selamat Datang!`;
+                document.querySelector('.text-center p').textContent = `NIK: ${maskedNIK} - Lengkapi profil untuk menggunakan semua fitur`;
+            }
+        });
+
+        // Auto-focus first input
+        document.getElementById('alamat').focus();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lengkapi Profil - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Lengkapi Profil - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 for Mobile -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary-blue to-secondary-blue text-white shadow-lg">
+        <div class="px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-edit text-white"></i>
+                </div>
+                <h1 class="text-lg font-bold">Lengkapi Profil</h1>
+                <button onclick="showHelp()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 active:scale-95">
+                    <i class="fas fa-question-circle text-white"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="px-4 py-3 bg-white border-b border-gray-100">
+        <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600">Langkah 2 dari 2</span>
+            <span class="text-primary-blue font-medium">Hampir selesai!</span>
+        </div>
+        <div class="mt-2">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary-blue h-2 rounded-full" style="width: 85%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Form Container -->
+    <div class="px-4 py-6">
+        <!-- Welcome Section -->
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <i class="fas fa-check text-white text-xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Selamat Datang!</h2>
+            <p class="text-gray-600 text-sm">Lengkapi profil Anda untuk menggunakan semua fitur</p>
+        </div>
+
+        <!-- Profile Completion Form -->
+        <form id="profileForm" class="space-y-6">
+            <!-- Address Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-map-marker-alt text-primary-blue mr-2"></i>
+                    Informasi Alamat
+                </h3>
+                
+                <!-- Full Address -->
+                <div class="mb-4">
+                    <label for="alamat" class="block text-xs font-medium text-gray-600 mb-2">
+                        Alamat Lengkap *
+                    </label>
+                    <textarea 
+                        id="alamat" 
+                        name="alamat"
+                        rows="3"
+                        placeholder="Masukkan alamat lengkap (jalan, RT/RW, dll)"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200 resize-none"
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Kecamatan -->
+                <div class="mb-4">
+                    <label for="kecamatan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kecamatan *
+                    </label>
+                    <select 
+                        id="kecamatan" 
+                        name="kecamatan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required
+                    >
+                        <option value="">Pilih Kecamatan</option>
+                        <option value="kec_gambir">Gambir</option>
+                        <option value="kec_sawah_besar">Sawah Besar</option>
+                        <option value="kec_kemayoran">Kemayoran</option>
+                        <option value="kec_senen">Senen</option>
+                        <option value="kec_cempaka_putih">Cempaka Putih</option>
+                        <option value="kec_menteng">Menteng</option>
+                        <option value="kec_tanah_abang">Tanah Abang</option>
+                        <option value="kec_johar_baru">Johar Baru</option>
+                    </select>\n                </div>
+
+                <!-- Kelurahan -->
+                <div>
+                    <label for="kelurahan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kelurahan *
+                    </label>
+                    <select 
+                        id="kelurahan" 
+                        name="kelurahan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required\n                        disabled
+                    >
+                        <option value="">Pilih Kelurahan</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Pilih kecamatan terlebih dahulu</p>
+                </div>
+            </div>
+
+            <!-- Photo Upload -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-camera text-primary-blue mr-2"></i>
+                    Foto Profil
+                </h3>
+                
+                <div class="flex flex-col items-center">
+                    <!-- Photo Preview -->
+                    <div id="photoPreview" class="w-32 h-32 border-2 border-dashed border-gray-300 rounded-full flex flex-col items-center justify-center cursor-pointer hover:border-primary-blue transition-colors mb-4">
+                        <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                        <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+                    </div>
+                    
+                    <!-- Hidden File Input -->
+                    <input type="file" id="photoInput" accept="image/*" capture="user" class="hidden">
+                    
+                    <!-- Upload Button -->
+                    <button type="button" onclick="selectPhoto()" class="bg-primary-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Foto</span>
+                    </button>
+                    
+                    <p class="text-xs text-gray-500 mt-2 text-center">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Foto akan digunakan untuk profil akun Anda<br>
+                        Format: JPG, PNG | Maksimal: 2MB
+                    </p>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl active:scale-98"
+            >
+                <i class="fas fa-save"></i>
+                <span>Simpan & Lanjutkan</span>
+            </button>
+            
+            <!-- Skip Button -->
+            <button 
+                type="button" 
+                onclick="skipProfile()"
+                class="w-full bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-300 transition-all duration-200 flex items-center justify-center space-x-2 active:scale-98"
+            >
+                <i class="fas fa-arrow-right"></i>
+                <span>Lewati untuk Sekarang</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Profil Lengkap!</h3>
+            <p class="text-gray-600 mb-6 text-sm">
+                Profil Anda berhasil disimpan. Sekarang Anda dapat menggunakan semua fitur aplikasi.
+            </p>
+            <button onclick="window.location.href='dashboard.html'" class="w-full bg-primary-blue text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors duration-200">
+                Buka Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-primary-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-spinner fa-spin text-2xl text-primary-blue"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Menyimpan Profil</h3>
+            <p class="text-gray-600 text-sm">Mohon tunggu sebentar...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Kelurahan data based on kecamatan
+        const kelurahanData = {
+            'kec_gambir': [
+                { value: 'kel_gambir', text: 'Gambir' },
+                { value: 'kel_cideng', text: 'Cideng' },
+                { value: 'kel_petojo_utara', text: 'Petojo Utara' },
+                { value: 'kel_petojo_selatan', text: 'Petojo Selatan' },
+                { value: 'kel_kebon_kelapa', text: 'Kebon Kelapa' },
+                { value: 'kel_duri_pulo', text: 'Duri Pulo' }
+            ],
+            'kec_sawah_besar': [
+                { value: 'kel_sawah_besar', text: 'Sawah Besar' },
+                { value: 'kel_karang_anyar', text: 'Karang Anyar' },
+                { value: 'kel_kartini', text: 'Kartini' },
+                { value: 'kel_gunung_sahari_utara', text: 'Gunung Sahari Utara' },
+                { value: 'kel_gunung_sahari_selatan', text: 'Gunung Sahari Selatan' }
+            ],
+            'kec_kemayoran': [
+                { value: 'kel_kemayoran', text: 'Kemayoran' },
+                { value: 'kel_kebon_kosong', text: 'Kebon Kosong' },
+                { value: 'kel_cempaka_baru', text: 'Cempaka Baru' },
+                { value: 'kel_sumur_batu', text: 'Sumur Batu' },
+                { value: 'kel_serdang', text: 'Serdang' },
+                { value: 'kel_utan_panjang', text: 'Utan Panjang' },
+                { value: 'kel_limau_manis', text: 'Limau Manis' },
+                { value: 'kel_harapan_mulya', text: 'Harapan Mulya' }
+            ],
+            'kec_senen': [
+                { value: 'kel_senen', text: 'Senen' },
+                { value: 'kel_kenari', text: 'Kenari' },
+                { value: 'kel_paseban', text: 'Paseban' },
+                { value: 'kel_kramat', text: 'Kramat' },
+                { value: 'kel_kwitang', text: 'Kwitang' },
+                { value: 'kel_bungur', text: 'Bungur' }
+            ],
+            'kec_cempaka_putih': [
+                { value: 'kel_cempaka_putih_timur', text: 'Cempaka Putih Timur' },
+                { value: 'kel_cempaka_putih_barat', text: 'Cempaka Putih Barat' },
+                { value: 'kel_rawasari', text: 'Rawasari' }
+            ],
+            'kec_menteng': [
+                { value: 'kel_menteng', text: 'Menteng' },
+                { value: 'kel_pegangsaan', text: 'Pegangsaan' },
+                { value: 'kel_cikini', text: 'Cikini' },
+                { value: 'kel_gondangdia', text: 'Gondangdia' },
+                { value: 'kel_kebon_sirih', text: 'Kebon Sirih' }
+            ],
+            'kec_tanah_abang': [
+                { value: 'kel_bendungan_hilir', text: 'Bendungan Hilir' },
+                { value: 'kel_karet_tengsin', text: 'Karet Tengsin' },
+                { value: 'kel_kebon_melati', text: 'Kebon Melati' },
+                { value: 'kel_kebon_kacang', text: 'Kebon Kacang' },
+                { value: 'kel_kampung_bali', text: 'Kampung Bali' },
+                { value: 'kel_petamburan', text: 'Petamburan' },
+                { value: 'kel_gelora', text: 'Gelora' }
+            ],
+            'kec_johar_baru': [
+                { value: 'kel_johar_baru', text: 'Johar Baru' },
+                { value: 'kel_kampung_rawa', text: 'Kampung Rawa' },
+                { value: 'kel_galur', text: 'Galur' },
+                { value: 'kel_tanah_tinggi', text: 'Tanah Tinggi' }
+            ]
+        };
+
+        // Help function
+        function showHelp() {
+            alert('Bantuan Lengkapi Profil:\n\n1. Isi alamat lengkap dengan detail\n2. Pilih kecamatan tempat tinggal\n3. Pilih kelurahan sesuai kecamatan\n4. Upload foto profil (opsional)\n5. Klik "Simpan & Lanjutkan"');
+        }
+        
+        // Load kelurahan based on kecamatan selection
+        function loadKelurahan(kecamatanValue) {
+            const kelurahanSelect = document.getElementById('kelurahan');
+            kelurahanSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            
+            if (kecamatanValue && kelurahanData[kecamatanValue]) {
+                kelurahanSelect.disabled = false;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kelurahan yang sesuai';
+                
+                kelurahanData[kecamatanValue].forEach(kelurahan => {
+                    const option = document.createElement('option');
+                    option.value = kelurahan.value;
+                    option.textContent = kelurahan.text;
+                    kelurahanSelect.appendChild(option);
+                });
+            } else {
+                kelurahanSelect.disabled = true;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kecamatan terlebih dahulu';
+            }
+        }
+
+        // Select photo function
+        function selectPhoto() {
+            document.getElementById('photoInput').click();
+        }
+
+        // Handle photo selection
+        function handlePhotoSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Check file size (2MB limit)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                    return;
+                }
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    alert('File harus berupa gambar (JPG, PNG, dll).');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoPreview = document.getElementById('photoPreview');
+                    photoPreview.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-full object-cover rounded-full">
+                        <button type="button" onclick="removePhoto()" class="absolute top-0 right-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors -mt-1 -mr-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    photoPreview.classList.add('relative', 'border-green-500');
+                    photoPreview.classList.remove('border-dashed', 'border-gray-300');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove photo function
+        function removePhoto() {
+            const photoPreview = document.getElementById('photoPreview');
+            photoPreview.innerHTML = `
+                <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+            `;
+            photoPreview.classList.remove('relative', 'border-green-500');
+            photoPreview.classList.add('border-dashed', 'border-gray-300');
+            document.getElementById('photoInput').value = '';
+        }
+
+        // Skip profile completion
+        function skipProfile() {
+            if (confirm('Apakah Anda yakin ingin melewati pengisian profil?\nAnda dapat melengkapinya nanti di menu profil.')) {
+                localStorage.setItem('profileCompleted', 'skipped');
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('kecamatan').addEventListener('change', function() {
+            loadKelurahan(this.value);
+        });
+
+        document.getElementById('photoInput').addEventListener('change', handlePhotoSelect);
+
+        document.getElementById('photoPreview').addEventListener('click', function() {
+            if (!this.querySelector('img')) {
+                selectPhoto();
+            }
+        });
+
+        // Form submission
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const alamat = document.getElementById('alamat').value.trim();
+            const kecamatan = document.getElementById('kecamatan').value;
+            const kelurahan = document.getElementById('kelurahan').value;
+            const photoInput = document.getElementById('photoInput');
+            
+            // Validation
+            if (!alamat) {
+                alert('Mohon isi alamat lengkap.');
+                return;
+            }
+            
+            if (!kecamatan) {
+                alert('Mohon pilih kecamatan.');
+                return;
+            }
+            
+            if (!kelurahan) {
+                alert('Mohon pilih kelurahan.');
+                return;
+            }
+            
+            // Show loading modal
+            document.getElementById('loadingModal').classList.remove('hidden');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Save profile data
+                const profileData = {
+                    alamat: alamat,
+                    kecamatan: kecamatan,
+                    kelurahan: kelurahan,
+                    hasPhoto: photoInput.files.length > 0,
+                    completedAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('userProfile', JSON.stringify(profileData));
+                localStorage.setItem('profileCompleted', 'true');
+                
+                document.getElementById('loadingModal').classList.add('hidden');
+                document.getElementById('successModal').classList.remove('hidden');
+            }, 2000);
+        });
+
+        // Check if user is logged in
+        window.addEventListener('load', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!isLoggedIn) {
+                alert('Anda harus login terlebih dahulu.');
+                window.location.href = 'mobile-login.html';
+                return;
+            }
+            
+            // Show user NIK in a welcoming way
+            const userNIK = localStorage.getItem('userNIK');
+            if (userNIK) {
+                const maskedNIK = userNIK.substring(0, 4) + '****' + userNIK.substring(12);
+                document.querySelector('.text-center h2').textContent = `Selamat Datang!`;
+                document.querySelector('.text-center p').textContent = `NIK: ${maskedNIK} - Lengkapi profil untuk menggunakan semua fitur`;
+            }
+        });
+
+        // Auto-focus first input
+        document.getElementById('alamat').focus();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lengkapi Profil - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Lengkapi Profil - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary-blue to-secondary-blue text-white shadow-lg">
+        <div class="px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-edit text-white"></i>
+                </div>
+                <h1 class="text-lg font-bold">Lengkapi Profil</h1>
+                <button onclick="showHelp()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 active:scale-95">
+                    <i class="fas fa-question-circle text-white"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="px-4 py-3 bg-white border-b border-gray-100">
+        <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600">Langkah 2 dari 2</span>
+            <span class="text-primary-blue font-medium">Hampir selesai!</span>
+        </div>
+        <div class="mt-2">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary-blue h-2 rounded-full" style="width: 85%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Form Container -->
+    <div class="px-4 py-6">
+        <!-- Welcome Section -->
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <i class="fas fa-check text-white text-xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Selamat Datang!</h2>
+            <p class="text-gray-600 text-sm">Lengkapi profil Anda untuk menggunakan semua fitur</p>
+        </div>
+
+        <!-- Profile Completion Form -->
+        <form id="profileForm" class="space-y-6">
+            <!-- Address Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-map-marker-alt text-primary-blue mr-2"></i>
+                    Informasi Alamat
+                </h3>
+                
+                <!-- Full Address -->
+                <div class="mb-4">
+                    <label for="alamat" class="block text-xs font-medium text-gray-600 mb-2">
+                        Alamat Lengkap *
+                    </label>
+                    <textarea 
+                        id="alamat" 
+                        name="alamat"
+                        rows="3"
+                        placeholder="Masukkan alamat lengkap (jalan, RT/RW, dll)"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200 resize-none"
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Kecamatan -->
+                <div class="mb-4">
+                    <label for="kecamatan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kecamatan *
+                    </label>
+                    <select 
+                        id="kecamatan" 
+                        name="kecamatan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required
+                    >
+                        <option value="">Pilih Kecamatan</option>
+                        <option value="kec_gambir">Gambir</option>
+                        <option value="kec_sawah_besar">Sawah Besar</option>
+                        <option value="kec_kemayoran">Kemayoran</option>
+                        <option value="kec_senen">Senen</option>
+                        <option value="kec_cempaka_putih">Cempaka Putih</option>
+                        <option value="kec_menteng">Menteng</option>
+                        <option value="kec_tanah_abang">Tanah Abang</option>
+                        <option value="kec_johar_baru">Johar Baru</option>
+                    </select>\n                </div>
+
+                <!-- Kelurahan -->
+                <div>
+                    <label for="kelurahan" class="block text-xs font-medium text-gray-600 mb-2">
+                        Kelurahan *
+                    </label>
+                    <select 
+                        id="kelurahan" 
+                        name="kelurahan"
+                        class="w-full px-3 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all duration-200"
+                        required\n                        disabled
+                    >
+                        <option value="">Pilih Kelurahan</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Pilih kecamatan terlebih dahulu</p>
+                </div>
+            </div>
+
+            <!-- Photo Upload -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                    <i class="fas fa-camera text-primary-blue mr-2"></i>
+                    Foto Profil
+                </h3>
+                
+                <div class="flex flex-col items-center">
+                    <!-- Photo Preview -->
+                    <div id="photoPreview" class="w-32 h-32 border-2 border-dashed border-gray-300 rounded-full flex flex-col items-center justify-center cursor-pointer hover:border-primary-blue transition-colors mb-4">
+                        <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                        <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+                    </div>
+                    
+                    <!-- Hidden File Input -->
+                    <input type="file" id="photoInput" accept="image/*" capture="user" class="hidden">
+                    
+                    <!-- Upload Button -->
+                    <button type="button" onclick="selectPhoto()" class="bg-primary-blue text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Foto</span>
+                    </button>
+                    
+                    <p class="text-xs text-gray-500 mt-2 text-center">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Foto akan digunakan untuk profil akun Anda<br>
+                        Format: JPG, PNG | Maksimal: 2MB
+                    </p>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl active:scale-98"
+            >
+                <i class="fas fa-save"></i>
+                <span>Simpan & Lanjutkan</span>
+            </button>
+            
+            <!-- Skip Button -->
+            <button 
+                type="button" 
+                onclick="skipProfile()"
+                class="w-full bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-300 transition-all duration-200 flex items-center justify-center space-x-2 active:scale-98"
+            >
+                <i class="fas fa-arrow-right"></i>
+                <span>Lewati untuk Sekarang</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Profil Lengkap!</h3>
+            <p class="text-gray-600 mb-6 text-sm">
+                Profil Anda berhasil disimpan. Sekarang Anda dapat menggunakan semua fitur aplikasi.
+            </p>
+            <button onclick="window.location.href='dashboard.html'" class="w-full bg-primary-blue text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors duration-200">
+                Buka Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-primary-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-spinner fa-spin text-2xl text-primary-blue"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Menyimpan Profil</h3>
+            <p class="text-gray-600 text-sm">Mohon tunggu sebentar...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Kelurahan data based on kecamatan
+        const kelurahanData = {
+            'kec_gambir': [
+                { value: 'kel_gambir', text: 'Gambir' },
+                { value: 'kel_cideng', text: 'Cideng' },
+                { value: 'kel_petojo_utara', text: 'Petojo Utara' },
+                { value: 'kel_petojo_selatan', text: 'Petojo Selatan' },
+                { value: 'kel_kebon_kelapa', text: 'Kebon Kelapa' },
+                { value: 'kel_duri_pulo', text: 'Duri Pulo' }
+            ],
+            'kec_sawah_besar': [
+                { value: 'kel_sawah_besar', text: 'Sawah Besar' },
+                { value: 'kel_karang_anyar', text: 'Karang Anyar' },
+                { value: 'kel_kartini', text: 'Kartini' },
+                { value: 'kel_gunung_sahari_utara', text: 'Gunung Sahari Utara' },
+                { value: 'kel_gunung_sahari_selatan', text: 'Gunung Sahari Selatan' }
+            ],
+            'kec_kemayoran': [
+                { value: 'kel_kemayoran', text: 'Kemayoran' },
+                { value: 'kel_kebon_kosong', text: 'Kebon Kosong' },
+                { value: 'kel_cempaka_baru', text: 'Cempaka Baru' },
+                { value: 'kel_sumur_batu', text: 'Sumur Batu' },
+                { value: 'kel_serdang', text: 'Serdang' },
+                { value: 'kel_utan_panjang', text: 'Utan Panjang' },
+                { value: 'kel_limau_manis', text: 'Limau Manis' },
+                { value: 'kel_harapan_mulya', text: 'Harapan Mulya' }
+            ],
+            'kec_senen': [
+                { value: 'kel_senen', text: 'Senen' },
+                { value: 'kel_kenari', text: 'Kenari' },
+                { value: 'kel_paseban', text: 'Paseban' },
+                { value: 'kel_kramat', text: 'Kramat' },
+                { value: 'kel_kwitang', text: 'Kwitang' },
+                { value: 'kel_bungur', text: 'Bungur' }
+            ],
+            'kec_cempaka_putih': [
+                { value: 'kel_cempaka_putih_timur', text: 'Cempaka Putih Timur' },
+                { value: 'kel_cempaka_putih_barat', text: 'Cempaka Putih Barat' },
+                { value: 'kel_rawasari', text: 'Rawasari' }
+            ],
+            'kec_menteng': [
+                { value: 'kel_menteng', text: 'Menteng' },
+                { value: 'kel_pegangsaan', text: 'Pegangsaan' },
+                { value: 'kel_cikini', text: 'Cikini' },
+                { value: 'kel_gondangdia', text: 'Gondangdia' },
+                { value: 'kel_kebon_sirih', text: 'Kebon Sirih' }
+            ],
+            'kec_tanah_abang': [
+                { value: 'kel_bendungan_hilir', text: 'Bendungan Hilir' },
+                { value: 'kel_karet_tengsin', text: 'Karet Tengsin' },
+                { value: 'kel_kebon_melati', text: 'Kebon Melati' },
+                { value: 'kel_kebon_kacang', text: 'Kebon Kacang' },
+                { value: 'kel_kampung_bali', text: 'Kampung Bali' },
+                { value: 'kel_petamburan', text: 'Petamburan' },
+                { value: 'kel_gelora', text: 'Gelora' }
+            ],
+            'kec_johar_baru': [
+                { value: 'kel_johar_baru', text: 'Johar Baru' },
+                { value: 'kel_kampung_rawa', text: 'Kampung Rawa' },
+                { value: 'kel_galur', text: 'Galur' },
+                { value: 'kel_tanah_tinggi', text: 'Tanah Tinggi' }
+            ]
+        };
+
+        // Help function
+        function showHelp() {
+            alert('Bantuan Lengkapi Profil:\n\n1. Isi alamat lengkap dengan detail\n2. Pilih kecamatan tempat tinggal\n3. Pilih kelurahan sesuai kecamatan\n4. Upload foto profil (opsional)\n5. Klik "Simpan & Lanjutkan"');
+        }
+        
+        // Load kelurahan based on kecamatan selection
+        function loadKelurahan(kecamatanValue) {
+            const kelurahanSelect = document.getElementById('kelurahan');
+            kelurahanSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            
+            if (kecamatanValue && kelurahanData[kecamatanValue]) {
+                kelurahanSelect.disabled = false;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kelurahan yang sesuai';
+                
+                kelurahanData[kecamatanValue].forEach(kelurahan => {
+                    const option = document.createElement('option');
+                    option.value = kelurahan.value;
+                    option.textContent = kelurahan.text;
+                    kelurahanSelect.appendChild(option);
+                });
+            } else {
+                kelurahanSelect.disabled = true;
+                document.querySelector('label[for=\"kelurahan\"] + select + p').textContent = 'Pilih kecamatan terlebih dahulu';
+            }
+        }
+
+        // Select photo function
+        function selectPhoto() {
+            document.getElementById('photoInput').click();
+        }
+
+        // Handle photo selection
+        function handlePhotoSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Check file size (2MB limit)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                    return;
+                }
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    alert('File harus berupa gambar (JPG, PNG, dll).');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoPreview = document.getElementById('photoPreview');
+                    photoPreview.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-full object-cover rounded-full">
+                        <button type="button" onclick="removePhoto()" class="absolute top-0 right-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors -mt-1 -mr-1">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    photoPreview.classList.add('relative', 'border-green-500');
+                    photoPreview.classList.remove('border-dashed', 'border-gray-300');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove photo function
+        function removePhoto() {
+            const photoPreview = document.getElementById('photoPreview');
+            photoPreview.innerHTML = `
+                <i class="fas fa-camera text-3xl text-gray-400 mb-2"></i>
+                <span class="text-xs text-gray-500 text-center">Tambah Foto</span>
+            `;
+            photoPreview.classList.remove('relative', 'border-green-500');
+            photoPreview.classList.add('border-dashed', 'border-gray-300');
+            document.getElementById('photoInput').value = '';
+        }
+
+        // Skip profile completion
+        function skipProfile() {
+            if (confirm('Apakah Anda yakin ingin melewati pengisian profil?\nAnda dapat melengkapinya nanti di menu profil.')) {
+                localStorage.setItem('profileCompleted', 'skipped');
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('kecamatan').addEventListener('change', function() {
+            loadKelurahan(this.value);
+        });
+
+        document.getElementById('photoInput').addEventListener('change', handlePhotoSelect);
+
+        document.getElementById('photoPreview').addEventListener('click', function() {
+            if (!this.querySelector('img')) {
+                selectPhoto();
+            }
+        });
+
+        // Form submission
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const alamat = document.getElementById('alamat').value.trim();
+            const kecamatan = document.getElementById('kecamatan').value;
+            const kelurahan = document.getElementById('kelurahan').value;
+            const photoInput = document.getElementById('photoInput');
+            
+            // Validation
+            if (!alamat) {
+                alert('Mohon isi alamat lengkap.');
+                return;
+            }
+            
+            if (!kecamatan) {
+                alert('Mohon pilih kecamatan.');
+                return;
+            }
+            
+            if (!kelurahan) {
+                alert('Mohon pilih kelurahan.');
+                return;
+            }
+            
+            // Show loading modal
+            document.getElementById('loadingModal').classList.remove('hidden');
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Save profile data
+                const profileData = {
+                    alamat: alamat,
+                    kecamatan: kecamatan,
+                    kelurahan: kelurahan,
+                    hasPhoto: photoInput.files.length > 0,
+                    completedAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('userProfile', JSON.stringify(profileData));
+                localStorage.setItem('profileCompleted', 'true');
+                
+                document.getElementById('loadingModal').classList.add('hidden');
+                document.getElementById('successModal').classList.remove('hidden');
+            }, 2000);
+        });
+
+        // Check if user is logged in
+        window.addEventListener('load', function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (!isLoggedIn) {
+                alert('Anda harus login terlebih dahulu.');
+                window.location.href = 'mobile-login.html';
+                return;
+            }
+            
+            // Show user NIK in a welcoming way
+            const userNIK = localStorage.getItem('userNIK');
+            if (userNIK) {
+                const maskedNIK = userNIK.substring(0, 4) + '****' + userNIK.substring(12);
+                document.querySelector('.text-center h2').textContent = `Selamat Datang!`;
+                document.querySelector('.text-center p').textContent = `NIK: ${maskedNIK} - Lengkapi profil untuk menggunakan semua fitur`;
+            }
+        });
+
+        // Auto-focus first input
+        document.getElementById('alamat').focus();
+    </script>
+</body>
+</html>

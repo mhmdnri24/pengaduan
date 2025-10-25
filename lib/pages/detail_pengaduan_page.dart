@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:pengaduan/config/api_config.dart';
 import 'package:pengaduan/components/progress_timeline.dart';
 import 'package:pengaduan/services/api_service.dart';
+import 'package:pengaduan/services/session_service.dart';
 
 class DetailPengaduanPage extends StatefulWidget {
   final String complaintId;
@@ -148,13 +149,31 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
     });
 
     try {
+      // Get user_id from session
+      final userId = await SessionService.instance.getUserId();
+        
+      if (userId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Session tidak valid. Silakan login kembali.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        setState(() {
+          _isSubmittingRating = false;
+        });
+        return;
+      }
+
       final response = await ApiService.instance.createComment(
         pelaporanId: widget.complaintId,
         comment: _commentController.text.trim().isNotEmpty 
             ? _commentController.text.trim() 
             : 'Rating: $_selectedRating bintang',
         rating: _selectedRating,
-        createdBy: '1', // Default user ID - should be replaced with actual user ID
+        createdBy: userId,
       );
 
       if (response.success) {

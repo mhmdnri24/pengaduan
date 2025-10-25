@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Laporan Saya - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Laporan Saya - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-primary-blue text-white sticky top-0 z-40">
+        <div class="px-4 py-4">
+            <div class="flex items-center justify-between">
+                <button onclick="history.back()" class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <i class="fas fa-arrow-left text-white"></i>
+                </button>
+                <h1 class="text-lg font-bold">Laporan Saya</h1>
+                <button class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <i class="fas fa-filter text-white"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="px-4 py-4">
+        <div class="grid grid-cols-3 gap-3">
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-primary-blue mb-1">12</div>
+                <div class="text-xs text-gray-600">Total</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-orange-500 mb-1">3</div>
+                <div class="text-xs text-gray-600">Proses</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 text-center shadow-sm">
+                <div class="text-2xl font-bold text-green-500 mb-1">9</div>
+                <div class="text-xs text-gray-600">Selesai</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="px-4 mb-4">
+        <div class="bg-white rounded-xl p-1 shadow-sm">
+            <div class="flex">
+                <button class="filter-tab flex-1 py-2 px-4 text-sm font-medium rounded-lg bg-primary-blue text-white" data-filter="all">
+                    Semua
+                </button>
+                <button class="filter-tab flex-1 py-2 px-4 text-sm font-medium rounded-lg text-gray-600" data-filter="baru">
+                    Baru
+                </button>
+                <button class="filter-tab flex-1 py-2 px-4 text-sm font-medium rounded-lg text-gray-600" data-filter="proses">
+                    Proses
+                </button>
+                <button class="filter-tab flex-1 py-2 px-4 text-sm font-medium rounded-lg text-gray-600" data-filter="selesai">
+                    Selesai
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports List -->
+    <div class="px-4 space-y-4" id="reportsList">
+        <!-- Report Card 1 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden report-card" data-status="baru">
+            <div class="p-4">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="bg-red-100 text-red-600 text-xs font-medium px-2 py-1 rounded-full">BARU</span>
+                            <span class="bg-orange-100 text-orange-600 text-xs font-medium px-2 py-1 rounded-full">TINGGI</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Jalan Rusak Parah di Jl. Sudirman</h3>
+                        <p class="text-sm text-gray-600 mb-2">Jalan berlubang sangat besar yang membahayakan pengendara motor dan mobil...</p>
+                        <div class="flex items-center text-xs text-gray-500 space-x-4">
+                            <span><i class="fas fa-map-marker-alt mr-1"></i>Jl. Sudirman No. 123</span>
+                            <span><i class="fas fa-clock mr-1"></i>2 jam lalu</span>
+                        </div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                         alt="Foto laporan" 
+                         class="w-16 h-16 rounded-lg object-cover ml-4">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">Menunggu Verifikasi</span>
+                    </div>
+                    <button class="text-primary-blue text-sm font-medium">Detail</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Card 2 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden report-card" data-status="proses">
+            <div class="p-4">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="bg-orange-100 text-orange-600 text-xs font-medium px-2 py-1 rounded-full">PROSES</span>
+                            <span class="bg-yellow-100 text-yellow-600 text-xs font-medium px-2 py-1 rounded-full">SEDANG</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Lampu Jalan Mati Total</h3>
+                        <p class="text-sm text-gray-600 mb-2">Lampu penerangan jalan di sepanjang Jl. Merdeka sudah mati selama 3 hari...</p>
+                        <div class="flex items-center text-xs text-gray-500 space-x-4">
+                            <span><i class="fas fa-map-marker-alt mr-1"></i>Jl. Merdeka Raya</span>
+                            <span><i class="fas fa-clock mr-1"></i>1 hari lalu</span>
+                        </div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                         alt="Foto laporan" 
+                         class="w-16 h-16 rounded-lg object-cover ml-4">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                        <span class="text-sm text-gray-600">Sedang Ditangani</span>
+                    </div>
+                    <button class="text-primary-blue text-sm font-medium">Detail</button>
+                </div>
+                <!-- Progress Bar -->
+                <div class="mt-3">
+                    <div class="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Progress</span>
+                        <span>60%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-orange-500 h-2 rounded-full" style="width: 60%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Card 3 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden report-card" data-status="selesai">
+            <div class="p-4">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="bg-green-100 text-green-600 text-xs font-medium px-2 py-1 rounded-full">SELESAI</span>
+                            <span class="bg-green-100 text-green-600 text-xs font-medium px-2 py-1 rounded-full">RENDAH</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Sampah Berserakan di Taman</h3>
+                        <p class="text-sm text-gray-600 mb-2">Tumpukan sampah di taman kota yang tidak dibersihkan dan mengganggu keindahan...</p>
+                        <div class="flex items-center text-xs text-gray-500 space-x-4">
+                            <span><i class="fas fa-map-marker-alt mr-1"></i>Taman Kota Indah</span>
+                            <span><i class="fas fa-clock mr-1"></i>3 hari lalu</span>
+                        </div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                         alt="Foto laporan" 
+                         class="w-16 h-16 rounded-lg object-cover ml-4">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">Telah Diselesaikan</span>
+                    </div>
+                    <button class="text-primary-blue text-sm font-medium">Detail</button>
+                </div>
+                <!-- Rating Section -->
+                <div class="mt-3 p-3 bg-green-50 rounded-lg">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-green-700">Beri Rating:</span>
+                        <div class="flex space-x-1">
+                            <i class="fas fa-star text-yellow-400 cursor-pointer"></i>
+                            <i class="fas fa-star text-yellow-400 cursor-pointer"></i>
+                            <i class="fas fa-star text-yellow-400 cursor-pointer"></i>
+                            <i class="fas fa-star text-yellow-400 cursor-pointer"></i>
+                            <i class="far fa-star text-gray-300 cursor-pointer"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Card 4 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden report-card" data-status="proses">
+            <div class="p-4">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="bg-orange-100 text-orange-600 text-xs font-medium px-2 py-1 rounded-full">PROSES</span>
+                            <span class="bg-red-100 text-red-600 text-xs font-medium px-2 py-1 rounded-full">TINGGI</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Pohon Tumbang Tutup Jalan</h3>
+                        <p class="text-sm text-gray-600 mb-2">Pohon besar tumbang akibat angin kencang dan menutup seluruh badan jalan...</p>
+                        <div class="flex items-center text-xs text-gray-500 space-x-4">
+                            <span><i class="fas fa-map-marker-alt mr-1"></i>Jl. Veteran No. 45</span>
+                            <span><i class="fas fa-clock mr-1"></i>5 jam lalu</span>
+                        </div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1574263867128-a3d5c1b1debc?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                         alt="Foto laporan" 
+                         class="w-16 h-16 rounded-lg object-cover ml-4">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                        <span class="text-sm text-gray-600">Tim Sedang Menuju Lokasi</span>
+                    </div>
+                    <button class="text-primary-blue text-sm font-medium">Detail</button>
+                </div>
+                <!-- Progress Bar -->
+                <div class="mt-3">
+                    <div class="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Progress</span>
+                        <span>25%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-orange-500 h-2 rounded-full" style="width: 25%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Card 5 -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden report-card" data-status="selesai">
+            <div class="p-4">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="bg-green-100 text-green-600 text-xs font-medium px-2 py-1 rounded-full">SELESAI</span>
+                            <span class="bg-blue-100 text-blue-600 text-xs font-medium px-2 py-1 rounded-full">SEDANG</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Fasilitas WC Umum Rusak</h3>
+                        <p class="text-sm text-gray-600 mb-2">Toilet umum di terminal tidak berfungsi dan menimbulkan bau tidak sedap...</p>
+                        <div class="flex items-center text-xs text-gray-500 space-x-4">
+                            <span><i class="fas fa-map-marker-alt mr-1"></i>Terminal Utama</span>
+                            <span><i class="fas fa-clock mr-1"></i>1 minggu lalu</span>
+                        </div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1585205465909-a1b0f2d8f8d0?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                         alt="Foto laporan" 
+                         class="w-16 h-16 rounded-lg object-cover ml-4">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span class="text-sm text-gray-600">Telah Diperbaiki</span>
+                    </div>
+                    <button class="text-primary-blue text-sm font-medium">Detail</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State (hidden by default) -->
+    <div id="emptyState" class="hidden px-4 py-16 text-center">
+        <div class="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+            <i class="fas fa-file-alt text-3xl text-gray-400"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Belum Ada Laporan</h3>
+        <p class="text-gray-600 mb-6">Anda belum memiliki laporan pada kategori ini.</p>
+        <button onclick="window.location.href='create-report.html'" class="bg-primary-blue text-white font-semibold py-3 px-6 rounded-xl">
+            Buat Laporan Pertama
+        </button>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button onclick="window.location.href='create-report.html'" class="fixed bottom-20 right-4 w-14 h-14 bg-primary-blue rounded-full shadow-lg flex items-center justify-center text-white hover:bg-blue-700 transition-colors z-30">
+        <i class="fas fa-plus text-lg"></i>
+    </button>
+
+    <!-- Bottom Navigation -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+        <div class="flex justify-around items-center">
+            <button onclick="window.location.href='dashboard.html'" class="flex flex-col items-center space-y-1 text-gray-400">
+                <i class="fas fa-home text-lg"></i>
+                <span class="text-xs">Beranda</span>
+            </button>
+            <button class="flex flex-col items-center space-y-1 text-gray-400">
+                <i class="fas fa-search text-lg"></i>
+                <span class="text-xs">Cari</span>
+            </button>
+            <button onclick="window.location.href='create-report.html'" class="flex flex-col items-center space-y-1 text-gray-400 relative">
+                <div class="w-12 h-12 bg-primary-blue rounded-full flex items-center justify-center -mt-2 shadow-lg">
+                    <i class="fas fa-plus text-white text-lg"></i>
+                </div>
+                <span class="text-xs">Lapor</span>
+            </button>
+            <button class="flex flex-col items-center space-y-1 text-gray-400">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="text-xs">Notif</span>
+            </button>
+            <button class="flex flex-col items-center space-y-1 text-primary-blue">
+                <i class="fas fa-file-alt text-lg"></i>
+                <span class="text-xs font-medium">Laporan</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Filter functionality
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const filter = this.dataset.filter;
+                
+                // Update active tab
+                document.querySelectorAll('.filter-tab').forEach(t => {
+                    t.classList.remove('bg-primary-blue', 'text-white');
+                    t.classList.add('text-gray-600');
+                });
+                this.classList.add('bg-primary-blue', 'text-white');
+                this.classList.remove('text-gray-600');
+                
+                // Filter reports
+                filterReports(filter);
+            });
+        });
+
+        function filterReports(filter) {
+            const reports = document.querySelectorAll('.report-card');
+            const emptyState = document.getElementById('emptyState');
+            let visibleCount = 0;
+
+            reports.forEach(report => {
+                const status = report.dataset.status;
+                
+                if (filter === 'all' || status === filter) {
+                    report.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    report.style.display = 'none';
+                }
+            });
+
+            // Show/hide empty state
+            if (visibleCount === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // Update stats
+            updateStats(filter);
+        }
+
+        function updateStats(filter) {
+            const reports = document.querySelectorAll('.report-card');
+            let total = 0, process = 0, complete = 0;
+
+            reports.forEach(report => {
+                if (filter === 'all' || report.dataset.status === filter) {
+                    total++;
+                    if (report.dataset.status === 'proses') process++;
+                    if (report.dataset.status === 'selesai') complete++;
+                }
+            });
+
+            // Update stat cards
+            const statCards = document.querySelectorAll('.grid > div');
+            if (filter === 'all') {
+                statCards[0].querySelector('.text-2xl').textContent = '12';
+                statCards[1].querySelector('.text-2xl').textContent = '3';
+                statCards[2].querySelector('.text-2xl').textContent = '9';
+            } else {
+                statCards[0].querySelector('.text-2xl').textContent = total;
+                statCards[1].querySelector('.text-2xl').textContent = process;
+                statCards[2].querySelector('.text-2xl').textContent = complete;
+            }
+        }
+
+        // Detail button functionality
+        document.querySelectorAll('.report-card button').forEach(btn => {
+            if (btn.textContent.includes('Detail')) {
+                btn.addEventListener('click', function() {
+                    const reportTitle = this.closest('.report-card').querySelector('h3').textContent;
+                    alert(`Menampilkan detail untuk: ${reportTitle}`);
+                    // In real app, navigate to detail page
+                });
+            }
+        });
+
+        // Star rating functionality
+        document.querySelectorAll('.fa-star').forEach(star => {
+            star.addEventListener('click', function() {
+                const stars = this.parentElement.querySelectorAll('.fa-star');
+                const index = Array.from(stars).indexOf(this);
+                
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.remove('far');
+                        s.classList.add('fas', 'text-yellow-400');
+                    } else {
+                        s.classList.remove('fas', 'text-yellow-400');
+                        s.classList.add('far', 'text-gray-300');
+                    }
+                });
+                
+                const rating = index + 1;
+                console.log(`Rating: ${rating} stars`);
+            });
+        });
+
+        // Pull to refresh simulation
+        let startY = 0;
+        let pullDistance = 0;
+        const refreshThreshold = 60;
+
+        document.addEventListener('touchstart', (e) => {
+            if (window.scrollY === 0) {
+                startY = e.touches[0].pageY;
+            }
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (window.scrollY === 0 && startY > 0) {
+                pullDistance = e.touches[0].pageY - startY;
+                
+                if (pullDistance > 0 && pullDistance < refreshThreshold * 2) {
+                    e.preventDefault();
+                }
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            if (pullDistance >= refreshThreshold) {
+                // Simulate refresh
+                window.location.reload();
+            }
+            
+            startY = 0;
+            pullDistance = 0;
+        });
+
+        // Auto refresh every 30 seconds for real-time updates
+        setInterval(() => {
+            // In real app, fetch new data from API
+            console.log('Checking for updates...');
+        }, 30000);
+    </script>
+</body>
+</html>

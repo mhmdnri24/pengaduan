@@ -32,6 +32,18 @@ class Api_pelaporan_proper extends api
             return 'System';
         }
 
+         // If not found in user table, check masyarakat table
+         $masyarakat = $this->db->select('nama_lengkap')
+         ->where('id', $user_id)
+         ->get('masyarakat')
+         ->row();
+
+        if ($masyarakat) {
+        return $masyarakat->nama_lengkap;
+        }
+
+
+
         // First check user table
         $user = $this->db->select('nama')
                         ->where('id_user', $user_id)
@@ -42,16 +54,7 @@ class Api_pelaporan_proper extends api
             return $user->nama;
         }
 
-        // If not found in user table, check masyarakat table
-        $masyarakat = $this->db->select('nama_lengkap')
-                              ->where('id', $user_id)
-                              ->get('masyarakat')
-                              ->row();
-
-        if ($masyarakat) {
-            return $masyarakat->nama_lengkap;
-        }
-
+       
         return 'System';
     }
 

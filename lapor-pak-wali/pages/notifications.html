@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Notifikasi - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Notifikasi - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Page Loader Styles -->
+    <link rel="stylesheet" href="../css/page-loader.css">
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary-blue to-secondary-blue text-white relative overflow-hidden">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-4 right-4 w-32 h-32 border border-white rounded-full"></div>
+            <div class="absolute -top-8 -right-8 w-24 h-24 border border-white rounded-full"></div>
+            <div class="absolute bottom-4 left-4 w-20 h-20 border border-white rounded-full"></div>
+        </div>
+        
+        <div class="relative z-10 px-4 py-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <button onclick="goBack()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center hover:bg-white/30 transition-colors">
+                        <i class="fas fa-arrow-left text-white text-lg"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-bold">Notifikasi</h1>
+                        <p class="text-sm text-white/80">Informasi terkini untuk Anda</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="markAllAsRead()" class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium hover:bg-white/30 transition-colors">
+                        <i class="fas fa-check-double mr-1"></i>
+                        Tandai Semua
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notification Stats -->
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
+                    <div class="text-2xl font-bold" id="totalNotifications">0</div>
+                    <div class="text-xs text-white/80">Total</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
+                    <div class="text-2xl font-bold text-yellow-300" id="unreadNotifications">0</div>
+                    <div class="text-xs text-white/80">Belum Dibaca</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
+                    <div class="text-2xl font-bold text-green-300" id="todayNotifications">0</div>
+                    <div class="text-xs text-white/80">Hari Ini</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="px-4 py-4 bg-white shadow-sm">
+        <div class="flex space-x-1 bg-gray-100 rounded-lg p-1">
+            <button class="filter-tab active flex-1 py-2 px-3 text-sm font-medium text-center rounded-md transition-colors" data-filter="all">
+                Semua
+            </button>
+            <button class="filter-tab flex-1 py-2 px-3 text-sm font-medium text-center rounded-md transition-colors" data-filter="unread">
+                Belum Dibaca
+            </button>
+            <button class="filter-tab flex-1 py-2 px-3 text-sm font-medium text-center rounded-md transition-colors" data-filter="important">
+                Penting
+            </button>
+        </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="px-4 py-4">
+        <div id="notificationsList" class="space-y-3">
+            <!-- Notifications will be loaded here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-12">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-bell-slash text-gray-400 text-3xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak Ada Notifikasi</h3>
+            <p class="text-gray-500 text-sm">Notifikasi baru akan muncul di sini</p>
+        </div>
+
+        <!-- Load More Button -->
+        <div id="loadMoreContainer" class="text-center mt-6 hidden">
+            <button onclick="loadMoreNotifications()" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-colors">
+                <i class="fas fa-plus mr-2"></i>
+                Muat Lebih Banyak
+            </button>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button onclick="refreshNotifications()" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-all z-30">
+        <i class="fas fa-sync-alt text-lg"></i>
+    </button>
+
+    <!-- Custom Styles -->
+    <style>
+        .filter-tab {
+            color: #6b7280;
+        }
+        
+        .filter-tab.active {
+            background-color: white;
+            color: #1e40af;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .notification-card {
+            transition: all 0.3s ease;
+        }
+        
+        .notification-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .notification-card.unread {
+            border-left: 4px solid #3b82f6;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+        
+        .notification-card.emergency {
+            border-left: 4px solid #dc2626;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        }
+        
+        .notification-card.success {
+            border-left: 4px solid #10b981;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+        
+        .notification-card.info {
+            border-left: 4px solid #0891b2;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+        
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .notification-icon.emergency {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+        }
+        
+        .notification-icon.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .notification-icon.info {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+            color: white;
+        }
+        
+        .notification-icon.default {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: #dc2626;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+
+    <!-- Page Loader Script -->
+    <script src="../js/page-loader.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        let notifications = [];
+        let currentFilter = 'all';
+        let displayedCount = 0;
+        const itemsPerPage = 10;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeNotifications();
+            setupFilterTabs();
+            loadNotifications();
+        });
+
+        function initializeNotifications() {
+            // Sample notifications data
+            const sampleNotifications = [
+                {
+                    id: 1,
+                    title: 'SINYAL DARURAT AKTIF!',
+                    message: 'Keadaan darurat: Medis di Jl. Sudirman No. 45',
+                    type: 'emergency',
+                    timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5 minutes ago
+                    read: false,
+                    important: true
+                },
+                {
+                    id: 2,
+                    title: 'Pengaduan Selesai',
+                    message: 'Pengaduan #LPW-2024-003 tentang "Saluran Air Tersumbat" telah diselesaikan',
+                    type: 'success',
+                    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+                    read: false,
+                    important: false
+                },
+                {
+                    id: 3,
+                    title: 'Update Pengaduan',
+                    message: 'Pengaduan #LPW-2024-001 sedang dalam proses perbaikan oleh tim teknis',
+                    type: 'info',
+                    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
+                    read: true,
+                    important: false
+                },
+                {
+                    id: 4,
+                    title: 'Berita Terbaru',
+                    message: 'Program Bantuan Sosial Diperluas - Pemerintah memperluas jangkauan program bantuan sosial',
+                    type: 'info',
+                    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
+                    read: true,
+                    important: false
+                },
+                {
+                    id: 5,
+                    title: 'Pengaduan Diterima',
+                    message: 'Pengaduan baru #LPW-2024-004 tentang "Lampu Jalan Mati" telah diterima sistem',
+                    type: 'default',
+                    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+                    read: true,
+                    important: false
+                },
+                {
+                    id: 6,
+                    title: 'Maintenance Sistem',
+                    message: 'Sistem akan mengalami maintenance pada 25 Agustus 2024, 01:00 - 03:00 WIB',
+                    type: 'info',
+                    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+                    read: true,
+                    important: true
+                },
+                {
+                    id: 7,
+                    title: 'Festival Budaya Daerah',
+                    message: 'Perayaan festival budaya daerah akan diselenggarakan pada 30 Agustus 2024',
+                    type: 'default',
+                    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+                    read: true,
+                    important: false
+                },
+                {
+                    id: 8,
+                    title: 'Pengaduan Diverifikasi',
+                    message: 'Pengaduan #LPW-2024-002 telah diverifikasi dan akan segera ditindaklanjuti',
+                    type: 'success',
+                    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+                    read: true,
+                    important: false
+                },
+                {
+                    id: 9,
+                    title: 'Peringatan Cuaca Ekstrem',
+                    message: 'BMKG mengeluarkan peringatan cuaca ekstrem untuk wilayah Palembang',
+                    type: 'emergency',
+                    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+                    read: true,
+                    important: true
+                },
+                {
+                    id: 10,
+                    title: 'Jadwal Pelayanan Terbaru',
+                    message: 'Perubahan jadwal pelayanan administrasi kependudukan mulai 1 September 2024',
+                    type: 'info',
+                    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+                    read: true,
+                    important: false
+                }
+            ];
+
+            // Check for emergency notifications from localStorage
+            const emergencyNotifications = JSON.parse(localStorage.getItem('emergencyNotifications') || '[]');
+            
+            // Merge with sample notifications
+            notifications = [...emergencyNotifications, ...sampleNotifications];
+            
+            // Sort by timestamp (newest first)
+            notifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            // Only keep latest 50 notifications
+            notifications = notifications.slice(0, 50);
+        }
+
+        function setupFilterTabs() {
+            const filterTabs = document.querySelectorAll('.filter-tab');
+            
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    filterTabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Update current filter
+                    currentFilter = this.dataset.filter;
+                    
+                    // Reload notifications
+                    displayedCount = 0;
+                    loadNotifications();
+                });
+            });
+        }
+
+        function loadNotifications() {
+            updateStats();
+            
+            let filteredNotifications = [...notifications];
+            
+            // Apply filter
+            if (currentFilter === 'unread') {
+                filteredNotifications = notifications.filter(n => !n.read);
+            } else if (currentFilter === 'important') {
+                filteredNotifications = notifications.filter(n => n.important);
+            }
+            
+            // Show only latest 10 initially
+            const notificationsToShow = filteredNotifications.slice(0, itemsPerPage);
+            displayedCount = notificationsToShow.length;
+            
+            const notificationsList = document.getElementById('notificationsList');
+            const emptyState = document.getElementById('emptyState');
+            const loadMoreContainer = document.getElementById('loadMoreContainer');
+            
+            if (notificationsToShow.length === 0) {
+                notificationsList.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                loadMoreContainer.classList.add('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                notificationsList.innerHTML = '';
+                
+                notificationsToShow.forEach((notification, index) => {
+                    const notificationElement = createNotificationElement(notification);
+                    notificationElement.style.animationDelay = `${index * 0.1}s`;
+                    notificationsList.appendChild(notificationElement);
+                });
+                
+                // Show load more button if there are more items
+                if (filteredNotifications.length > itemsPerPage) {
+                    loadMoreContainer.classList.remove('hidden');
+                } else {
+                    loadMoreContainer.classList.add('hidden');
+                }
+            }
+        }
+
+        function loadMoreNotifications() {
+            let filteredNotifications = [...notifications];
+            
+            // Apply filter
+            if (currentFilter === 'unread') {
+                filteredNotifications = notifications.filter(n => !n.read);
+            } else if (currentFilter === 'important') {
+                filteredNotifications = notifications.filter(n => n.important);
+            }
+            
+            const nextBatch = filteredNotifications.slice(displayedCount, displayedCount + itemsPerPage);
+            displayedCount += nextBatch.length;
+            
+            const notificationsList = document.getElementById('notificationsList');
+            
+            nextBatch.forEach((notification, index) => {
+                const notificationElement = createNotificationElement(notification);
+                notificationElement.style.animationDelay = `${index * 0.1}s`;
+                notificationsList.appendChild(notificationElement);
+            });
+            
+            // Hide load more button if no more items
+            if (displayedCount >= filteredNotifications.length) {
+                document.getElementById('loadMoreContainer').classList.add('hidden');
+            }
+        }
+
+        function createNotificationElement(notification) {
+            const div = document.createElement('div');
+            div.className = `notification-card bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer slide-in ${notification.read ? '' : 'unread'} ${notification.type}`;
+            div.onclick = () => markAsRead(notification.id);
+            
+            const timeAgo = getTimeAgo(notification.timestamp);
+            const icon = getNotificationIcon(notification.type);
+            
+            div.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="notification-icon ${notification.type} flex-shrink-0 relative">
+                        <i class="${icon}"></i>
+                        ${!notification.read ? '<div class="notification-badge"></div>' : ''}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h3 class="text-sm font-medium text-gray-900 ${!notification.read ? 'font-bold' : ''}">
+                                    ${notification.title}
+                                    ${notification.important ? '<i class="fas fa-star text-yellow-500 ml-1 text-xs"></i>' : ''}
+                                </h3>
+                                <p class="text-sm text-gray-600 mt-1 line-clamp-2">${notification.message}</p>
+                            </div>
+                            <div class="flex-shrink-0 ml-2">
+                                <span class="text-xs text-gray-500">${timeAgo}</span>
+                                ${!notification.read ? '<div class="w-2 h-2 bg-blue-600 rounded-full mt-1 ml-auto"></div>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        function getNotificationIcon(type) {
+            const icons = {
+                'emergency': 'fas fa-exclamation-triangle',
+                'success': 'fas fa-check-circle',
+                'info': 'fas fa-info-circle',
+                'default': 'fas fa-bell'
+            };
+            return icons[type] || icons['default'];
+        }
+
+        function getTimeAgo(timestamp) {
+            const now = new Date();
+            const time = new Date(timestamp);
+            const diffInSeconds = Math.floor((now - time) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return 'Baru saja';
+            } else if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                return `${minutes} menit lalu`;
+            } else if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                return `${hours} jam lalu`;
+            } else {
+                const days = Math.floor(diffInSeconds / 86400);
+                return `${days} hari lalu`;
+            }
+        }
+
+        function updateStats() {
+            const total = notifications.length;
+            const unread = notifications.filter(n => !n.read).length;
+            const today = notifications.filter(n => {
+                const notifDate = new Date(n.timestamp);
+                const todayDate = new Date();
+                return notifDate.toDateString() === todayDate.toDateString();
+            }).length;
+            
+            document.getElementById('totalNotifications').textContent = total;
+            document.getElementById('unreadNotifications').textContent = unread;
+            document.getElementById('todayNotifications').textContent = today;
+        }
+
+        function markAsRead(notificationId) {
+            const notification = notifications.find(n => n.id === notificationId);
+            if (notification && !notification.read) {
+                notification.read = true;
+                loadNotifications();
+                
+                // Update localStorage for emergency notifications
+                if (notification.type === 'emergency') {
+                    const emergencyNotifications = JSON.parse(localStorage.getItem('emergencyNotifications') || '[]');
+                    const emergencyNotif = emergencyNotifications.find(n => n.id === notificationId);
+                    if (emergencyNotif) {
+                        emergencyNotif.read = true;
+                        localStorage.setItem('emergencyNotifications', JSON.stringify(emergencyNotifications));
+                    }
+                }
+            }
+        }
+
+        function markAllAsRead() {
+            notifications.forEach(notification => {
+                notification.read = true;
+            });
+            
+            // Update localStorage for emergency notifications
+            const emergencyNotifications = JSON.parse(localStorage.getItem('emergencyNotifications') || '[]');
+            emergencyNotifications.forEach(notification => {
+                notification.read = true;
+            });
+            localStorage.setItem('emergencyNotifications', JSON.stringify(emergencyNotifications));
+            
+            loadNotifications();
+        }
+
+        function refreshNotifications() {
+            const button = event.target.closest('button');
+            button.innerHTML = '<i class="fas fa-spinner fa-spin text-lg"></i>';
+            
+            setTimeout(() => {
+                initializeNotifications();
+                loadNotifications();
+                button.innerHTML = '<i class="fas fa-sync-alt text-lg"></i>';
+            }, 1000);
+        }
+
+        function goBack() {
+            if (document.referrer) {
+                window.history.back();
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        }
+    </script>
+</body>
+</html>

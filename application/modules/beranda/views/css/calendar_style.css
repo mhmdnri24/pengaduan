@@ -1,0 +1,200 @@
+/* Calendar Styles for Jadwal Agenda */
+.calendar-table {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.calendar-table th {
+    background-color: #f4f4f4;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.calendar-day {
+    height: 120px;
+    vertical-align: top;
+    padding: 5px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.calendar-day.empty {
+    background-color: #f9f9f9;
+    cursor: default;
+}
+
+.calendar-day.available {
+    background-color: #d9edf7;
+}
+
+.calendar-day.available.clickable {
+    cursor: pointer;
+}
+
+.calendar-day.available.clickable:hover {
+    background-color: #bce8f1;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.calendar-day.booked {
+    background-color: #f2dede;
+}
+
+.calendar-day.today {
+    border: 3px solid #3c8dbc;
+}
+
+.date-number {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.booking-info {
+    font-size: 11px;
+    overflow: hidden;
+}
+
+.booking-item {
+    margin-bottom: 3px;
+    padding: 3px 5px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.booking-item:hover {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-color: #ddd;
+}
+
+/* Status-specific styling */
+.booking-item.finished {
+    background-color: rgba(60, 141, 188, 0.1);
+    border-left: 3px solid #3c8dbc;
+}
+
+.booking-item.running {
+    background-color: rgba(243, 156, 18, 0.1);
+    border-left: 3px solid #f39c12;
+    animation: pulse 2s infinite;
+}
+
+.booking-item.upcoming {
+    background-color: rgba(0, 166, 90, 0.1);
+    border-left: 3px solid #00a65a;
+}
+
+@keyframes pulse {
+    0% {
+        background-color: rgba(243, 156, 18, 0.1);
+    }
+    50% {
+        background-color: rgba(243, 156, 18, 0.2);
+    }
+    100% {
+        background-color: rgba(243, 156, 18, 0.1);
+    }
+}
+
+.more-bookings {
+    font-style: italic;
+    color: #666;
+}
+
+.calendar-legend {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+}
+
+.legend-item {
+    display: inline-block;
+    margin-right: 20px;
+    font-size: 13px;
+}
+
+.legend-color {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    margin-right: 5px;
+    border: 1px solid #ddd;
+    vertical-align: middle;
+}
+
+.calendar-header h4 {
+    margin: 10px 0;
+}
+
+.empty-date-hint {
+    text-align: center;
+    margin-top: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.calendar-day.available.clickable:hover .empty-date-hint {
+    opacity: 1;
+}
+
+.empty-date-hint i {
+    font-size: 24px;
+    color: #3c8dbc;
+}
+
+/* Badge styles */
+.badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 10px;
+}
+
+.badge.bg-blue {
+    background-color: #3c8dbc;
+}
+
+.badge.bg-orange {
+    background-color: #f39c12;
+}
+
+.badge.bg-green {
+    background-color: #00a65a;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .calendar-day {
+        height: 80px;
+        font-size: 10px;
+    }
+    
+    .date-number {
+        font-size: 12px;
+    }
+    
+    .booking-item {
+        padding: 2px 3px;
+        font-size: 9px;
+    }
+    
+    .badge {
+        font-size: 8px;
+        padding: 1px 4px;
+    }
+    
+    .empty-date-hint i {
+        font-size: 18px;
+    }
+}

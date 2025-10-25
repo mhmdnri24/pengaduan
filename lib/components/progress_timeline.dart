@@ -70,7 +70,7 @@ class ProgressTimeline extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Progress Penanganan',
+                  'Timeline',
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,

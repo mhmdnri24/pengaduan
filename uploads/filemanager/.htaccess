@@ -1,0 +1,14 @@
+# Mencegah eksekusi skrip PHP secara langsung
+<Files "*.php">
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Opsi tambahan untuk keamanan yang lebih ketat
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+
+# Mencegah server menangani file-file ini sebagai skrip
+RemoveHandler .php .phtml .php3
+AddType text/plain .php .phtml .php3 .pl .py .jsp .asp .htm .shtml .sh .cgi

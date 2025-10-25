@@ -1,0 +1,272 @@
+/* Kontak Bantuan Styles */
+.kontak-bantuan-section {
+    margin-bottom: 20px;
+}
+
+.kontak-bantuan-section .box-header {
+    background: linear-gradient(135deg, #3c8dbc 0%, #2c6aa0 100%);
+    color: white;
+    border-bottom: 1px solid #2c6aa0;
+    border-radius: 3px 3px 0 0;
+}
+
+.kontak-bantuan-section .box-header .box-title {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.kontak-bantuan-section .box-header .fa {
+    margin-right: 8px;
+}
+
+/* Kontak Card Styles */
+.kontak-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.kontak-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.kontak-card-header {
+    background: linear-gradient(135deg, #3c8dbc 0%, #2c6aa0 100%);
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.kontak-avatar {
+    margin-bottom: 10px;
+}
+
+.kontak-avatar .fa {
+    font-size: 48px;
+    color: rgba(255,255,255,0.9);
+}
+
+.kontak-avatar .fa-whatsapp {
+    color: #25d366;
+    background: white;
+    border-radius: 50%;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.kontak-nama {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+}
+
+.kontak-card-body {
+    padding: 20px;
+}
+
+.kontak-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 8px 0;
+}
+
+.kontak-info .fa {
+    width: 20px;
+    margin-right: 12px;
+    font-size: 16px;
+}
+
+.kontak-info span {
+    font-size: 14px;
+    color: #333;
+    word-break: break-all;
+}
+
+.kontak-card-footer {
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.kontak-btn-wa {
+    background-color: #25d366;
+    border-color: #25d366;
+    color: white;
+    margin: 3px;
+    padding: 8px 16px;
+    font-weight: 500;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.kontak-btn-wa:hover {
+    background-color: #128c7e;
+    border-color: #128c7e;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(37, 211, 102, 0.3);
+}
+
+.kontak-btn-email {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+    margin: 3px;
+    padding: 8px 16px;
+    font-weight: 500;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.kontak-btn-email:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 123, 255, 0.3);
+}
+
+.kontak-card-footer .fa {
+    margin-right: 6px;
+}
+
+/* Additional Icon Styles */
+.text-success {
+    color: #00a65a !important;
+}
+
+.text-primary {
+    color: #3c8dbc !important;
+}
+
+/* WhatsApp Icon Animation */
+.kontak-btn-wa .fa-whatsapp {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Card Hover Effects */
+.kontak-card:hover .kontak-avatar .fa-user-circle {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+.kontak-card:hover .kontak-avatar .fa-whatsapp {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+/* Alert Styles */
+.kontak-bantuan-section .alert {
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 0;
+}
+
+.kontak-bantuan-section .alert-info {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    color: #31708f;
+}
+
+.kontak-bantuan-section .alert-warning {
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+    color: #8a6d3b;
+}
+
+.kontak-bantuan-section .alert .btn {
+    margin-top: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .kontak-card {
+        margin-bottom: 15px;
+    }
+
+    .kontak-card-header {
+        padding: 15px;
+    }
+
+    .kontak-avatar .fa {
+        font-size: 36px;
+    }
+
+    .kontak-nama {
+        font-size: 16px;
+    }
+
+    .kontak-card-body {
+        padding: 15px;
+    }
+
+    .kontak-info {
+        margin-bottom: 10px;
+    }
+
+    .kontak-card-footer {
+        padding: 12px 15px;
+    }
+
+    .kontak-btn-wa,
+    .kontak-btn-email {
+        padding: 6px 12px;
+        font-size: 12px;
+        margin: 2px;
+    }
+
+    .kontak-bantuan-section .box-header .box-title {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .kontak-card-header {
+        padding: 12px;
+    }
+
+    .kontak-avatar .fa {
+        font-size: 32px;
+    }
+
+    .kontak-nama {
+        font-size: 14px;
+    }
+
+    .kontak-card-body {
+        padding: 12px;
+    }
+
+    .kontak-info span {
+        font-size: 12px;
+    }
+
+    .kontak-btn-wa,
+    .kontak-btn-email {
+        display: block;
+        width: 100%;
+        margin: 3px 0;
+        padding: 8px;
+        font-size: 11px;
+    }
+}

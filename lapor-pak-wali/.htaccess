@@ -1,0 +1,27 @@
+# Enable URL rewriting
+RewriteEngine On
+
+# Set proper MIME types
+AddType application/json .json
+AddType application/javascript .js
+AddType text/css .css
+
+# Set CORS headers
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>
+
+# Handle preflight OPTIONS requests
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Route all requests to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Handle specific API files
+RewriteRule ^api/auth$ index.php [QSA,L]
+RewriteRule ^api/auth/(.*)$ index.php [QSA,L]

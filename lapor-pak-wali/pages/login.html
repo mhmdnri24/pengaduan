@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login & Verifikasi - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Login - Lapor Pak Wali</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'dark-blue': '#1e3a8a',
+                        'slate': { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 400: '#94a3b8', 500: '#64748b' },
+                    },
+                    fontFamily: {
+                        'sans': ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .otp-input {
+            width: 3rem; height: 3.5rem;
+            text-align: center; font-size: 1.25rem;
+            font-weight: 600;
+        }
+        @media (max-width: 360px) {
+            .otp-input { width: 2.5rem; height: 3rem; }
+        }
+    </style>
+</head>
+<body class="font-sans bg-slate-50 sm:bg-transparent">
+
+    <div class="hidden sm:block fixed inset-0 bg-cover bg-center -z-20" style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1974&q=80')"></div>
+    <div class="hidden sm:block fixed inset-0 bg-gradient-to-br from-primary-blue/80 to-accent-blue/70 -z-10"></div>
+
+    <div id="loginContainer" class="min-h-screen flex flex-col justify-center sm:items-center p-4 sm:p-0 transition-opacity duration-500">
+        <div class="w-full bg-white sm:max-w-sm sm:rounded-2xl sm:shadow-2xl">
+            <div class="p-6 sm:p-8">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary-blue to-accent-blue rounded-xl flex items-center justify-center text-white text-3xl shadow-lg">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-slate-800">Selamat Datang</h1>
+                    <p class="text-slate-500 text-sm mt-1">Masuk untuk melanjutkan layanan.</p>
+                </div>
+
+                <div class="mb-5">
+                    <div class="flex bg-slate-100 rounded-xl p-1">
+                        <button id="nikLoginTab" class="flex-1 py-2.5 px-3 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition bg-white text-primary-blue shadow-sm" data-tab="nik">
+                            <i class="fa-solid fa-id-card fa-fw"></i> NIK
+                        </button>
+                        <button id="waLoginTab" class="flex-1 py-2.5 px-3 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition text-slate-500" data-tab="wa">
+                            <i class="fa-brands fa-whatsapp fa-fw"></i> WhatsApp
+                        </button>
+                    </div>
+                </div>
+
+                <form id="loginForm" novalidate>
+                    <div id="nikLoginForm">
+                        <div class="relative group">
+                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-blue transition-colors">
+                                <i class="fa-solid fa-id-card fa-fw"></i>
+                            </div>
+                            <input type="text" id="nikLogin" class="w-full pl-10 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-lg text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-blue/50 focus:border-primary-blue" placeholder="16 Digit NIK KTP Anda" required pattern="[0-9]{16}" maxlength="16" inputmode="numeric">
+                        </div>
+                    </div>
+
+                    <div id="waLoginForm" class="hidden">
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary-blue transition-colors">
+                                <i class="fa-brands fa-whatsapp fa-fw"></i>
+                                <span class="ml-2 text-sm text-slate-500 font-medium">+62</span>
+                            </div>
+                            <input type="tel" id="waLogin" class="w-full pl-16 pr-4 py-3 bg-slate-100 border border-slate-200 rounded-lg text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-blue/50 focus:border-primary-blue" placeholder="812 3456 7890" required pattern="[0-9]{10,13}" maxlength="13" inputmode="numeric">
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-4">
+                        <label class="flex items-center gap-2 cursor-pointer select-none">
+                            <input type="checkbox" id="rememberMe" class="h-4 w-4 text-primary-blue rounded border-slate-300 focus:ring-primary-blue">
+                            <span class="text-xs text-slate-600 font-medium">Ingat saya</span>
+                        </label>
+                        <a href="#" class="text-xs font-semibold text-primary-blue hover:underline">Lupa data akun?</a>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <button type="submit" id="submitBtn" class="w-full bg-primary-blue hover:bg-dark-blue text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-blue transition duration-300 flex items-center justify-center shadow-lg shadow-primary-blue/30 active:scale-95">
+                            Masuk
+                        </button>
+                    </div>
+                    
+                    <p class="text-center text-sm text-slate-500 mt-6">
+                        Belum punya akun? 
+                        <a href="register.html" class="font-semibold text-primary-blue hover:underline">Daftar di sini</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="otpVerificationContainer" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm flex items-end justify-center z-50 transition-opacity duration-300">
+        <div id="otpCard" class="w-full bg-white p-6 sm:max-w-sm sm:rounded-t-2xl shadow-2xl transform translate-y-full transition-transform duration-500 ease-in-out">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-slate-800">Masukkan Kode OTP</h1>
+                <p class="text-slate-500 text-sm mt-2">
+                    Kami telah mengirimkan 6 digit kode verifikasi ke nomor WhatsApp Anda di <span id="userPhone" class="font-semibold text-slate-700"></span>
+                </p>
+            </div>
+            
+            <form id="otpForm">
+                <div class="flex justify-center gap-2 sm:gap-3 mb-6" id="otp-inputs">
+                    <input type="text" class="otp-input bg-slate-100 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-primary-blue" maxlength="1" inputmode="numeric" required>
+                    <input type="text" class="otp-input bg-slate-100 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-primary-blue" maxlength="1" inputmode="numeric" required>
+                    <input type="text" class="otp-input bg-slate-100 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-primary-blue" maxlength="1" inputmode="numeric" required>
+                    <input type="text" class="otp-input bg-slate-100 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-primary-blue" maxlength="1" inputmode="numeric" required>
+                    <input type="text" class="otp-input bg-slate-100 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-primary-blue" maxlength="1" inputmode="numeric" required>
+                    <input type="text" class="otp-input bg-slate-100 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-primary-blue" maxlength="1" inputmode="numeric" required>
+                </div>
+                
+                <button type="submit" class="w-full bg-primary-blue text-white font-bold py-3 px-4 rounded-lg active:scale-95">
+                    Verifikasi
+                </button>
+            </form>
+
+            <div class="text-center text-sm mt-6">
+                <span class="text-slate-500">Tidak menerima kode?</span>
+                <button id="resendOtpBtn" class="font-semibold text-primary-blue hover:underline disabled:text-slate-400 disabled:no-underline disabled:cursor-wait">
+                    Kirim Ulang
+                </button>
+                <span id="countdown" class="text-slate-500 font-medium"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/login.js"></script>
+</body>
+</html>

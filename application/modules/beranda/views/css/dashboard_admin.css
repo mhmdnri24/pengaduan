@@ -1,0 +1,531 @@
+/* Dashboard Admin Styles */
+
+/* Statistics Cards */
+.small-box {
+    border-radius: 8px;
+    position: relative;
+    display: block;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.small-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.small-box .inner {
+    padding: 20px;
+}
+
+.small-box .inner h3 {
+    font-size: 38px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+    white-space: nowrap;
+    padding: 0;
+}
+
+.small-box .inner p {
+    font-size: 15px;
+    margin: 0;
+    font-weight: 500;
+}
+
+.small-box .icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 0;
+    font-size: 70px;
+    color: rgba(0,0,0,0.15);
+}
+
+.small-box .icon i {
+    transition: all 0.3s ease;
+}
+
+.small-box:hover .icon i {
+    transform: scale(1.1);
+}
+
+/* Color Variations */
+.bg-aqua {
+    background-color: #00c0ef !important;
+    background: linear-gradient(135deg, #00c0ef 0%, #0099cc 100%) !important;
+}
+
+.bg-yellow {
+    background-color: #f39c12 !important;
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
+}
+
+.bg-green {
+    background-color: #00a65a !important;
+    background: linear-gradient(135deg, #00a65a 0%, #008d4c 100%) !important;
+}
+
+.bg-red {
+    background-color: #dd4b39 !important;
+    background: linear-gradient(135deg, #dd4b39 0%, #c23321 100%) !important;
+}
+
+/* Rekap Table Styles */
+.rekap-table {
+    margin-bottom: 0;
+}
+
+.rekap-table th {
+    background: linear-gradient(135deg, #337ab7 0%, #286090 100%) !important;
+    color: white !important;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #286090 !important;
+    padding: 12px 8px;
+}
+
+.rekap-table td {
+    vertical-align: middle;
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.rekap-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.rekap-table tr:hover {
+    background-color: #f0f8ff;
+    transition: background-color 0.3s ease;
+}
+
+.rekap-table .badge {
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 12px;
+}
+
+/* Login History Table */
+.login-history-table {
+    margin-bottom: 0;
+}
+
+.login-history-table th {
+    background-color: #17a2b8;
+    color: white;
+    font-weight: bold;
+    border: 1px solid #138496;
+    padding: 10px 8px;
+}
+
+.login-history-table td {
+    vertical-align: middle;
+    padding: 10px 8px;
+    border: 1px solid #ddd;
+}
+
+.login-history-table tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease;
+}
+
+.login-history-table .label {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Box Styles */
+.box {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.box-header {
+    border-radius: 8px 8px 0 0;
+    padding: 15px;
+}
+
+.box-header.with-border {
+    border-bottom: 1px solid #f4f4f4;
+}
+
+.box-primary .box-header {
+    background: linear-gradient(135deg, #337ab7 0%, #286090 100%);
+    color: white;
+}
+
+.box-info .box-header {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+}
+
+.box-title {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.box-title .fa {
+    margin-right: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .small-box .inner h3 {
+        font-size: 28px;
+    }
+    
+    .small-box .inner p {
+        font-size: 13px;
+    }
+    
+    .small-box .icon {
+        font-size: 50px;
+        top: 15px;
+        right: 15px;
+    }
+    
+    .small-box .inner {
+        padding: 15px;
+    }
+    
+    .rekap-table th,
+    .rekap-table td,
+    .login-history-table th,
+    .login-history-table td {
+        padding: 8px 4px;
+        font-size: 12px;
+    }
+    
+    .box-title {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .small-box .inner h3 {
+        font-size: 24px;
+    }
+    
+    .small-box .inner p {
+        font-size: 12px;
+    }
+    
+    .small-box .icon {
+        font-size: 40px;
+        top: 10px;
+        right: 10px;
+    }
+    
+    .rekap-table,
+    .login-history-table {
+        font-size: 11px;
+    }
+    
+    .rekap-table .badge {
+        font-size: 10px;
+        padding: 4px 6px;
+    }
+    
+    .login-history-table .label {
+        font-size: 9px;
+        padding: 2px 4px;
+    }
+}
+
+/* Animation Effects */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.small-box {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.box {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+/* Tooltip Styles */
+.tooltip-inner {
+    max-width: 200px;
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+/* Badge Styles */
+.badge.bg-blue {
+    background-color: #337ab7 !important;
+}
+
+.badge.bg-green {
+    background-color: #00a65a !important;
+}
+
+/* Jadwal Agenda Box Schedule Styling */
+#jadwal-agenda-container .small-box {
+    margin-bottom: 15px;
+    min-height: 120px;
+}
+
+#jadwal-agenda-container .small-box .inner {
+    padding: 15px;
+}
+
+#jadwal-agenda-container .small-box .inner h4 {
+    margin: 0 0 10px 0;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 16px;
+}
+
+#jadwal-agenda-container .small-box .inner p {
+    margin: 5px 0;
+    font-size: 13px;
+}
+
+#jadwal-agenda-container .small-box .inner small {
+    font-size: 11px;
+    opacity: 0.9;
+}
+
+#jadwal-agenda-container .small-box .icon {
+    font-size: 60px;
+}
+
+/* Filter styling */
+#filter-bulan {
+    border-radius: 4px;
+    border: 1px solid #d2d6de;
+    height: 34px;
+}
+
+/* Status colors for jadwal agenda */
+.bg-gray {
+    background-color: #95a5a6 !important;
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%) !important;
+}
+
+/* Loading animation */
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Calendar Styles - Adapted from jadwal_gedung */
+.calendar-header {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    padding: 15px;
+    margin: 0;
+    border-radius: 8px 8px 0 0;
+}
+
+.calendar-header h4 {
+    margin: 0;
+    font-weight: bold;
+}
+
+.calendar-table {
+    width: 100%;
+    table-layout: fixed;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+.calendar-table th {
+    background: #f8f9fa;
+    color: #495057;
+    font-weight: bold;
+    text-align: center;
+    padding: 12px 8px;
+    border: 1px solid #dee2e6;
+    font-size: 13px;
+}
+
+.calendar-day {
+    height: 120px;
+    vertical-align: top;
+    padding: 5px;
+    position: relative;
+    border: 1px solid #dee2e6;
+}
+
+.calendar-day.empty {
+    background-color: #f9f9f9;
+}
+
+.calendar-day.available {
+    background-color: #d9edf7; /* Biru untuk kosong */
+    border-color: #bce8f1;
+}
+
+.calendar-day.booked {
+    background-color: #f2dede; /* Merah untuk terisi */
+    border-color: #ebccd1;
+}
+
+.calendar-day.today {
+    border: 2px solid #007bff;
+    box-shadow: inset 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.date-number {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.booking-info {
+    font-size: 11px;
+    line-height: 1.2;
+    max-height: 90px;
+    overflow: hidden;
+}
+
+.booking-item {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 2px 4px;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.booking-item:hover {
+    background-color: rgba(255, 255, 255, 1);
+    border-color: rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.more-bookings {
+    background-color: rgba(108, 117, 125, 0.8) !important;
+    color: white !important;
+    text-align: center;
+    font-style: italic;
+}
+
+.calendar-legend {
+    margin-bottom: 15px;
+}
+
+.legend-item {
+    display: inline-block;
+    margin-right: 15px;
+    font-size: 13px;
+}
+
+.legend-color {
+    vertical-align: middle;
+}
+
+/* Responsive adjustments for calendar */
+@media (max-width: 768px) {
+    .calendar-day {
+        height: 80px;
+        padding: 3px;
+    }
+
+    .date-number {
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+
+    .booking-info {
+        font-size: 10px;
+        max-height: 50px;
+    }
+
+    .booking-item {
+        padding: 1px 2px;
+        margin-bottom: 1px;
+        font-size: 9px;
+    }
+
+    .calendar-table th {
+        padding: 8px 4px;
+        font-size: 11px;
+    }
+
+    #filter-bulan {
+        width: 120px !important;
+        font-size: 12px;
+    }
+
+    .calendar-header h4 {
+        font-size: 18px;
+    }
+
+    .legend-item {
+        font-size: 12px;
+        margin-right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-day {
+        height: 60px;
+        padding: 2px;
+    }
+
+    .date-number {
+        font-size: 10px;
+        margin-bottom: 2px;
+    }
+
+    .booking-info {
+        font-size: 8px;
+        max-height: 35px;
+    }
+
+    .booking-item {
+        padding: 1px;
+        margin-bottom: 1px;
+        font-size: 8px;
+    }
+
+    .calendar-table th {
+        padding: 6px 2px;
+        font-size: 9px;
+    }
+
+    .calendar-header {
+        padding: 10px;
+    }
+
+    .calendar-header h4 {
+        font-size: 16px;
+    }
+
+    .legend-item {
+        font-size: 11px;
+        margin-right: 8px;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .calendar-legend {
+        margin-bottom: 10px;
+    }
+}

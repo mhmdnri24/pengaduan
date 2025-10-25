@@ -62,8 +62,8 @@ class _LandingPageState extends State<LandingPage> {
       builder: (context) {
         return ChangeNotifierProvider<LandingController>.value(
           value: controller,
-          child: Builder(
-            builder: (context) {
+          child: StatefulBuilder(
+            builder: (context, setState) {
         return Padding(
           padding:
               EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -117,6 +117,9 @@ class _LandingPageState extends State<LandingPage> {
                           child: TextField(
                             controller: phoneController,
                             keyboardType: TextInputType.number,
+                            onChanged: (value) {
+                              setState(() {});
+                            },
                             decoration: InputDecoration(
                               hintText: '1234567890123456',
                               contentPadding: const EdgeInsets.symmetric(
@@ -151,7 +154,7 @@ class _LandingPageState extends State<LandingPage> {
                           child: Consumer<LandingController>(
                             builder: (context, controller, child) {
                               return ElevatedButton.icon(
-                                onPressed: controller.isSending
+                                onPressed: controller.isSending || phoneController.text.length < 16
                                     ? null
                                     : () async {
                                         final localCtx = context;
@@ -201,8 +204,11 @@ class _LandingPageState extends State<LandingPage> {
                                             style: TextStyle(color: Colors.white))
                                         : const Text('Kirim',
                                             style: TextStyle(color: Colors.white))),
-                                style:
-                                    ElevatedButton.styleFrom(backgroundColor: blue),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: phoneController.text.length >= 16 && !controller.isSending
+                                      ? blue
+                                      : Colors.grey,
+                                ),
                               );
                             },
                           ),

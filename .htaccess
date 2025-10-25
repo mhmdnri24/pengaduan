@@ -1,0 +1,15 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+
+Options -Indexes
+
+# Konfigurasi PHP untuk mengatasi error headers already sent
+<IfModule mod_php7.c>
+  php_flag output_buffering on
+  php_flag display_errors off
+  php_value output_handler ob_gzhandler
+</IfModule>
+
+

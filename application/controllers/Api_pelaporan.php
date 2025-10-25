@@ -60,7 +60,7 @@ class Api_pelaporan extends CI_Controller
         http_response_code($status_code);
         echo json_encode([
             'status' => $status_code >= 200 && $status_code < 300 ? 'success' : 'error',
-            'message' => $message,
+            'message' =>1, //$message,
             'data' => $data
         ]);
         exit;
