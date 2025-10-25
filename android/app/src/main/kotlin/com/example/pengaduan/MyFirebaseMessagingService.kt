@@ -13,15 +13,24 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         Log.d(TAG, "From: ${remoteMessage.from}")
         Log.d(TAG, "onMessageReceived data=${remoteMessage.data}")
 
-        // Start the BubbleOverlayService when a message is received
-        // Try to extract a count from the data payload (if supplied)
-        val dataCount = remoteMessage.data["count"]?.toIntOrNull() ?: 1
-
-        val intent = Intent(this, BubbleOverlayService::class.java).apply {
-            action = BubbleOverlayService.ACTION_SHOW
-            putExtra(BubbleOverlayService.EXTRA_COUNT, dataCount)
+        // Extract ID from data payload
+        // Priority: id -> body -> fallback to "1"
+        var complaintId = remoteMessage.data["id"]
+        if (complaintId.isNullOrEmpty()) {
+            complaintId = remoteMessage.data["body"]
         }
-        Log.d(TAG, "Starting BubbleOverlayService with count=$dataCount")
+        if (complaintId.isNullOrEmpty()) {
+            complaintId = "1" // fallback
+        }
+
+        Log.d(TAG, "Extracted complaint ID: $complaintId")
+
+        // Start the BubbleOverlayService with ID
+        val intent = Intent(this, BubbleOverlayService::class.java).apply {
+            action = BubbleOverlayService.ACTION_SHOW_WITH_ID
+            putExtra(BubbleOverlayService.EXTRA_ID, complaintId)
+        }
+        Log.d(TAG, "Starting BubbleOverlayService with ID=$complaintId")
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             Log.d(TAG, "Using startForegroundService")

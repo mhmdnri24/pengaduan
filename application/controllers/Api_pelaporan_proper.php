@@ -450,7 +450,7 @@ class Api_pelaporan_proper extends api
 
                 $this->db->insert('pelaporan_history', $history_data);
 
-                $this->send_test();
+                $notif = $this->send_test($insert_id);
                 
                 $this->send_response(201, 'Pelaporan berhasil dibuat', [
                     'id' => $insert_id,
@@ -458,7 +458,8 @@ class Api_pelaporan_proper extends api
                     'status' => 'LAPOR',
                     'kategori' => $kategori->pelaporan_nama,
                     'files_uploaded' => count($uploaded_files),
-                    'created_at' => date('Y-m-d H:i:s')
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'notif'=>$notif
                 ]);
             } else {
                 $this->send_response(500, 'Gagal membuat pelaporan');
@@ -668,7 +669,7 @@ class Api_pelaporan_proper extends api
         $this->send_response(200, 'API Pelaporan test berhasil', $data);
     }
 
-    public function send_test()
+    public function send_test($insert_id=0)
     {
 
         $this->load->helper('fcm_helper');
@@ -685,11 +686,12 @@ class Api_pelaporan_proper extends api
             'data' => [
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                 'status' => 'done',
+                
                 'screen' => 'Notification',
                 'timestamp' => date('c'),
                 'count' => '4',
                 'title' => '🚨 Pengaduan Baru',
-                'body' => '27',
+                'body' =>strval($insert_id),
             ],
             'android' => [
                 'priority' => 'high'

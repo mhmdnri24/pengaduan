@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'icon_tile.dart';
 import '../pages/add_complaint_page.dart';
+import '../pages/emergency_page.dart';
 
 class IconGrid extends StatelessWidget {
   final bool isDesktop;
@@ -38,11 +39,10 @@ class IconGrid extends StatelessWidget {
             ),
             accentColor: Colors.red,
             onTap: () {
-              // Add emergency functionality here
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fitur Darurat akan segera hadir'),
-                  duration: Duration(seconds: 2),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EmergencyPage(),
                 ),
               );
             },

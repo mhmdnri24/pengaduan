@@ -42,9 +42,11 @@ class BubbleOverlayService : Service() {
         private const val CHANNEL_ID = "bubble_overlay_channel"
         private const val METHOD_CHANNEL = "bubble_overlay"
         const val ACTION_SHOW = "com.example.pengaduan.action.SHOW_BUBBLE"
+        const val ACTION_SHOW_WITH_ID = "com.example.pengaduan.action.SHOW_BUBBLE_WITH_ID"
         const val ACTION_HIDE = "com.example.pengaduan.action.HIDE_BUBBLE"
         const val ACTION_UPDATE = "com.example.pengaduan.action.UPDATE_BUBBLE"
         const val EXTRA_COUNT = "extra_count"
+        const val EXTRA_ID = "extra_id"
         
         fun startService(context: Context) {
             val intent = Intent(context, BubbleOverlayService::class.java)
@@ -81,6 +83,11 @@ class BubbleOverlayService : Service() {
                     val count = intent.getIntExtra(EXTRA_COUNT, 0)
                     android.util.Log.d("BubbleOverlayService", "ACTION_SHOW count=$count")
                     showBubble(count)
+                }
+                ACTION_SHOW_WITH_ID -> {
+                    val id = intent.getStringExtra(EXTRA_ID) ?: "1"
+                    android.util.Log.d("BubbleOverlayService", "ACTION_SHOW_WITH_ID id=$id")
+                    showBubbleWithId(id)
                 }
                 ACTION_HIDE -> {
                     android.util.Log.d("BubbleOverlayService", "ACTION_HIDE")
@@ -390,21 +397,26 @@ class BubbleOverlayService : Service() {
     private fun sendBubbleClickToFlutter() {
         android.util.Log.d("BubbleOverlayService", "sendBubbleClickToFlutter called")
         android.util.Log.d("BubbleOverlayService", "complaintId: $complaintId")
-        android.util.Log.d("BubbleOverlayService", "methodChannel available: ${methodChannel != null}")
         
-        // Send the complaint ID back to Flutter via MethodChannel
         complaintId?.let { id ->
+            // Launch MainActivity with the complaint ID
+            val intent = Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra("complaint_id", id)
+                putExtra("open_detail", true)
+            }
+            
             try {
-                methodChannel?.invokeMethod("onBubbleClick", mapOf("id" to id))
-                android.util.Log.d("BubbleOverlayService", "Successfully sent ID to Flutter: $id")
+                startActivity(intent)
+                android.util.Log.d("BubbleOverlayService", "Successfully opened app with ID: $id")
             } catch (e: Exception) {
-                android.util.Log.e("BubbleOverlayService", "Error sending ID to Flutter", e)
+                android.util.Log.e("BubbleOverlayService", "Error opening app", e)
             }
         } ?: run {
             android.util.Log.w("BubbleOverlayService", "No complaint ID available to send")
         }
         
-        // Hide bubble after sending the event
+        // Hide bubble after opening the app
         hideBubble()
     }
 

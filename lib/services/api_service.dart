@@ -304,4 +304,64 @@ class ApiService {
       return ApiResponse(success: false, error: 'Network error: $e');
     }
   }
+
+  /// Submit emergency report to API
+  Future<ApiResponse<Map<String, dynamic>>> postEmergencyReport({
+    required String kategori,
+    required String alamat,
+    required String pelaporNama,
+    required String pelaporTelepon,
+    required String pelaporNik,
+    required String pelaporAlamat,
+    List<File>? foto,
+  }) async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/create');
+      var request = http.MultipartRequest('POST', uri);
+
+      // Add headers
+      request.headers.addAll(_headers);
+
+      // Add form fields with emergency-specific values
+      request.fields.addAll({
+        'judul': 'Darurat',
+        'deskripsi': 'Laporan darurat - ${kategori}',
+        'alamat': alamat,
+        'kategori': kategori,
+        'pelapor_nama': pelaporNama,
+        'pelapor_telepon': pelaporTelepon,
+        'pelapor_nik': pelaporNik,
+        'pelapor_alamat': pelaporAlamat,
+        'jenis_pelaporan': 'DARURAT',
+      });
+
+      // Add photo files if provided
+      if (foto != null && foto.isNotEmpty) {
+        for (int i = 0; i < foto.length && i < 3; i++) {
+          var file = foto[i];
+          var fileName = 'foto_${i + 1}.jpg';
+          var multipartFile = await http.MultipartFile.fromPath(
+            'foto',
+            file.path,
+            filename: fileName,
+          );
+          request.files.add(multipartFile);
+        }
+      }
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var responseData = json.decode(response.body);
+        return ApiResponse(success: true, data: responseData);
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
 }

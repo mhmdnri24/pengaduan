@@ -1,0 +1,16 @@
+{
+    "mcpServers": {
+      "zai-mcp-server": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+          "-y",
+          "@z_ai/mcp-server"
+        ],
+        "env": {
+          "Z_AI_API_KEY": "2bcca8afb06d459287ad5772d7598082.n2oFXs4cNUQLvj93",
+          "Z_AI_MODE": "ZAI"
+        }
+      }
+    }
+  }

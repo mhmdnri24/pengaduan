@@ -217,6 +217,36 @@ $config['hak_akses'] = [
         'admin.master_pedagang.delete' => 'Hapus Data'
     ],
 
+    //Modul Master Retribusi
+    'Master Retribusi' => [
+        'admin.master_retribusi.view' => 'Lihat Data',
+        'admin.master_retribusi.add' => 'Tambah Data',
+        'admin.master_retribusi.update' => 'Edit Data',
+        'admin.master_retribusi.delete' => 'Hapus Data'
+    ],
+
+    //Modul Target Retribusi
+    'Target Retribusi' => [
+        'admin.target_retribusi.view' => 'Lihat Data',
+        'admin.target_retribusi.add' => 'Tambah Data',
+        'admin.target_retribusi.update' => 'Edit Data',
+        'admin.target_retribusi.delete' => 'Hapus Data'
+    ],
+
+    //Modul Realisasi Retribusi
+    'Realisasi Retribusi' => [
+        'admin.realisasi_retribusi.view' => 'Lihat Data',
+        'admin.realisasi_retribusi.add' => 'Tambah Data',
+        'admin.realisasi_retribusi.update' => 'Edit Data',
+        'admin.realisasi_retribusi.delete' => 'Hapus Data'
+    ],
+
+    //Modul Laporan Retribusi
+    'Laporan Retribusi' => [
+        'admin.laporan_retribusi.view' => 'Lihat Laporan',
+        'admin.laporan_retribusi.export' => 'Export Data'
+    ],
+
     //Modul Pelaporan
     'Pelaporan' => [
         'admin.pelaporan.view' => 'Lihat Data',

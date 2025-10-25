@@ -20,6 +20,11 @@ class BubbleOverlayService {
           final String id = call.arguments['id'] as String;
           _navigateToDetail(id);
           break;
+        case 'openComplaintDetail':
+          final String id = call.arguments['id'] as String;
+          print('Received openComplaintDetail with ID: $id');
+          _navigateToDetail(id);
+          break;
         case 'onPermissionError':
           final String error = call.arguments['error'] as String;
           _handlePermissionError(error);

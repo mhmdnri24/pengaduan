@@ -203,6 +203,9 @@ $autoload['model'] = array(
     'retribusi_pasar/retribusi_pasar_m',
     'retribusi_pasar/retribusi_tarif_m',
     
+    //master retribusi
+    'master_retribusi/master_retribusi_m',
+    
     //slider
     'slider/slider_m'
 );

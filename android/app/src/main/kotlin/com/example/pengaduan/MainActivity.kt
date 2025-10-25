@@ -12,11 +12,13 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "bubble_overlay"
     private val OVERLAY_PERMISSION_REQUEST_CODE = 1234
+    private var methodChannel: MethodChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+        methodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+        methodChannel?.setMethodCallHandler { call, result ->
             when (call.method) {
                 "startService" -> {
                     BubbleOverlayService.startService(this)
@@ -79,11 +81,32 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Handle deep link from bubble tap
-        val route = intent.getStringExtra("route")
-        if (route == "/complaints") {
-            // The route will be handled by Flutter's routing system
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        intent?.let {
+            // Handle complaint detail from bubble overlay
+            if (it.getBooleanExtra("open_detail", false)) {
+                val complaintId = it.getStringExtra("complaint_id")
+                if (!complaintId.isNullOrEmpty()) {
+                    android.util.Log.d("MainActivity", "Opening detail for complaint ID: $complaintId")
+                    // Send to Flutter via MethodChannel
+                    methodChannel?.invokeMethod("openComplaintDetail", mapOf("id" to complaintId))
+                }
+            }
+            
+            // Handle deep link from bubble tap (legacy)
+            val route = it.getStringExtra("route")
+            if (route == "/complaints") {
+                // The route will be handled by Flutter's routing system
+            }
         }
     }
 
