@@ -35,7 +35,7 @@ class ComplaintService {
   /// Initialize the service
   Future<void> initialize() async {
     // Start the bubble overlay service
-    await BubbleOverlayService.instance.startService();
+    // BubbleOverlayService is now initialized in main.dart
 
     // Listen for new complaints and show bubble
     _newComplaintController.stream.listen((complaint) {
@@ -180,8 +180,7 @@ class ComplaintService {
   /// Show bubble for new complaint
   Future<void> _showBubbleForNewComplaint() async {
     final pendingCount = pendingComplaintsCount;
-    await BubbleOverlayService.instance
-        .showBubble(complaintCount: pendingCount);
+    await BubbleOverlayService.showBubbleWithId('new');
   }
 
   /// Update complaint status
@@ -214,14 +213,13 @@ class ComplaintService {
       _complaintsController.add(List.unmodifiable(_complaints));
 
       // Update bubble count
-      await BubbleOverlayService.instance
-          .updateComplaintCount(pendingComplaintsCount);
+      // Bubble count update is now handled by FCM
     }
   }
 
   /// Hide bubble overlay
   Future<void> hideBubble() async {
-    await BubbleOverlayService.instance.hideBubble();
+    await BubbleOverlayService.hideBubble();
   }
 
   /// Dispose resources

@@ -1,13 +1,17 @@
 package com.example.pengaduan
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "bubble_overlay"
+    private val OVERLAY_PERMISSION_REQUEST_CODE = 1234
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -59,6 +63,13 @@ class MainActivity : FlutterActivity() {
                     }
                     result.success(true)
                 }
+                "checkOverlayPermission" -> {
+                    result.success(canDrawOverlays())
+                }
+                "requestOverlayPermission" -> {
+                    requestOverlayPermission()
+                    result.success(true)
+                }
                 else -> {
                     result.notImplemented()
                 }
@@ -73,6 +84,41 @@ class MainActivity : FlutterActivity() {
         val route = intent.getStringExtra("route")
         if (route == "/complaints") {
             // The route will be handled by Flutter's routing system
+        }
+    }
+
+    private fun canDrawOverlays(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Settings.canDrawOverlays(this)
+        } else {
+            true
+        }
+    }
+
+    private fun requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
+                startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Settings.canDrawOverlays(this)) {
+                    // Permission granted
+                    android.util.Log.d("MainActivity", "Overlay permission granted")
+                } else {
+                    // Permission denied
+                    android.util.Log.w("MainActivity", "Overlay permission denied")
+                }
+            }
         }
     }
 }

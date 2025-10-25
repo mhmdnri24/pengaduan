@@ -10,11 +10,13 @@ import 'dart:io';
 import 'services/complaint_service.dart';
 import 'services/bubble_overlay_service.dart';
 import 'services/session_service.dart';
+import 'services/fcm_handler.dart';
 import 'screens/splash_screen.dart';
 import 'pages/dashboard_page.dart';
 import 'pages/landing_page.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
+import 'pages/detail_pengaduan_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +26,11 @@ void main() async {
 
   // Initialize the complaint service
   await ComplaintService.instance.initialize();
+  
+  // Check overlay permission on Android
+  if (Platform.isAndroid) {
+    await _checkOverlayPermission();
+  }
 
   // Request notification permissions (Android auto-grants but keep for completeness)
   FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -48,36 +55,51 @@ void main() async {
       .getInitialMessage()
       .then((RemoteMessage? message) async {
     if (message != null) {
-      // Use native service to show bubble (native will play sound)
-      try {
-        await platform.invokeMethod('showBubble', {'count': 1});
-      } catch (e) {
-        // Fallback to existing Flutter helper if native channel isn't available
-        await BubbleOverlayService.instance.showBubble(complaintCount: 1);
+      // Extract ID from message data
+      String? id = message.data['id'];
+      if (id == null) {
+        id = message.data['body'];
       }
+      if (id == null || id.isEmpty) {
+        id = '1'; // fallback ID
+      }
+      
+      // Use showBubbleWithId to ensure complaintId is stored
+      await BubbleOverlayService.showBubbleWithId(id);
     }
   });
 
   // Foreground message handler: show bubble immediately
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    // Use native service to show bubble and play sound
-    try {
-      await platform.invokeMethod('showBubble', {'count': 1});
-    } catch (e) {
-      await BubbleOverlayService.instance.showBubble(complaintCount: 1);
-      // optional: keep Dart audio as extra feedback when app is foreground
-      await playNotificationSound();
+    // Extract ID from message data
+    String? id = message.data['id'];
+    if (id == null) {
+      id = message.data['body'];
     }
+    if (id == null || id.isEmpty) {
+      id = '1'; // fallback ID
+    }
+    
+    // Use showBubbleWithId to ensure complaintId is stored
+    await BubbleOverlayService.showBubbleWithId(id);
+    // optional: keep Dart audio as extra feedback when app is foreground
+    await playNotificationSound();
   });
 
   // When app in background but opened via notification tap
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-    try {
-      await platform.invokeMethod('showBubble', {'count': 1});
-    } catch (e) {
-      await BubbleOverlayService.instance.showBubble(complaintCount: 1);
-      await playNotificationSound();
+    // Extract ID from message data
+    String? id = message.data['id'];
+    if (id == null) {
+      id = message.data['body'];
     }
+    if (id == null || id.isEmpty) {
+      id = '1'; // fallback ID
+    }
+    
+    // Use showBubbleWithId to ensure complaintId is stored
+    await BubbleOverlayService.showBubbleWithId(id);
+    await playNotificationSound();
   });
 
   runApp(const MyApp());
@@ -97,10 +119,18 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // We cannot call UI code here. Instead, attempt to start the Android service via MethodChannel
   // This will work on Android if the app has permission and service setup.
   try {
-    final dataCount = int.tryParse(message.data['count'] ?? '') ?? 1;
-    // Use MethodChannel to invoke native start/show
+    // Extract ID from message data
+    String? id = message.data['id'];
+    if (id == null) {
+      id = message.data['body'];
+    }
+    if (id == null || id.isEmpty) {
+      id = '1'; // fallback ID
+    }
+    
+    // Use MethodChannel to invoke native start/show with ID
     const platform = MethodChannel('bubble_overlay');
-    await platform.invokeMethod('showBubble', {'count': dataCount});
+    await platform.invokeMethod('showBubbleWithId', {'id': id});
   } catch (e) {
     // Background isolate might not have platform channel bound; fall back to nothing
   }
@@ -211,11 +241,18 @@ Future<void> _saveDeviceId(String deviceId) async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   static const String _title = 'Complaint Management App';
+  
+  // Global navigator key for navigation
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
+    // Initialize FCM handler
+    FCMHandler.initialize();
+    
     return MaterialApp(
       title: _title,
+      navigatorKey: navigatorKey, // Use the global navigator key
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         scaffoldBackgroundColor: const Color(0xFFF6F8FB),
@@ -229,7 +266,39 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegisterPage(),
         '/dashboard': (context) => const DashboardPage(),
         '/complaints': (context) => const DashboardPage(), // Redirect to dashboard for now
+        '/detail': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          final String id = args?['id'] ?? '';
+          return DetailPengaduanPage(complaintId: id);
+        },
+      },
+      builder: (context, child) {
+        // Initialize bubble overlay service after MaterialApp is built
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          BubbleOverlayService.initialize(navigatorKey);
+        });
+        return child!;
       },
     );
+  }
+}
+
+// Check overlay permission on Android
+Future<void> _checkOverlayPermission() async {
+  try {
+    const platform = MethodChannel('bubble_overlay');
+    
+    // Check if permission is already granted
+    final bool hasPermission = await platform.invokeMethod('checkOverlayPermission');
+    
+    if (!hasPermission) {
+      print('Overlay permission not granted, requesting...');
+      // Request permission
+      await platform.invokeMethod('requestOverlayPermission');
+    } else {
+      print('Overlay permission already granted');
+    }
+  } catch (e) {
+    print('Overlay permission check failed: $e');
   }
 }

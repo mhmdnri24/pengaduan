@@ -685,11 +685,11 @@ class Api_pelaporan_proper extends api
             'data' => [
                 'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                 'status' => 'done',
-                'screen' => 'overlay_test',
+                'screen' => 'Notification',
                 'timestamp' => date('c'),
                 'count' => '4',
                 'title' => '🚨 Pengaduan Baru',
-                'body' => 'Ada pengaduan masuk dari ERHA - Test Background (data-only)',
+                'body' => '27',
             ],
             'android' => [
                 'priority' => 'high'

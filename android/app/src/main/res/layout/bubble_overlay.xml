@@ -1,49 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/bubble_container"
-    android:layout_width="140dp"
-    android:layout_height="140dp"
-    android:layout_gravity="center"
-    android:background="@drawable/bubble_outer_blue"
-    android:clipToPadding="false">
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:layout_weight="1"
+    android:orientation="vertical"
+    android:background="@drawable/emergency_bubble_background"
+    android:padding="16dp"
+    android:elevation="12dp"
+    android:clipToPadding="false"
+    android:minWidth="280dp"
+    android:minHeight="400dp">
 
-    <!-- Inner white circle centered inside outer blue circle -->
-    <FrameLayout
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_gravity="center"
-        android:background="@drawable/bubble_inner_white"
-        android:elevation="3dp">
+    <!-- Header with close button and title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
 
-            <!-- Close icon at top-left inside inner circle -->
-            <ImageView
-                android:id="@+id/bubble_close"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="top|start"
-                android:layout_marginStart="6dp"
-                android:layout_marginTop="6dp"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                android:contentDescription="Close bubble"
-                android:background="@drawable/close_button_background_blue"
-                android:padding="3dp" />
+        <!-- Title -->
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Pengaduan"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center" />
 
-            <!-- Only Open button remains -->
-            <TextView
-                android:id="@+id/bubble_open"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:layout_gravity="center"
-                android:background="@drawable/open_button_background_blue"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:gravity="center"
-                android:text="Open"
-                android:includeFontPadding="false"
-                android:minWidth="64dp"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+        <!-- Close button -->
+        <ImageView
+            android:id="@+id/bubble_close"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="Close bubble"
+            android:background="@drawable/close_button_background_blue"
+            android:padding="3dp" />
+    </LinearLayout>
 
-        </FrameLayout>
-</FrameLayout>
+    <!-- Content area with icon and count -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- Emergency Icon -->
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@android:drawable/ic_dialog_alert"
+            android:contentDescription="Emergency icon"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/emergency_icon_background"
+            android:padding="16dp" />
+
+        <!-- Count badge -->
+        <TextView
+            android:id="@+id/badge_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/badge_background_blue"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:text="0"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:minWidth="24dp"
+            android:gravity="center"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!-- Footer with open button -->
+    <TextView
+        android:id="@+id/bubble_open"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:background="@drawable/open_button_background_blue"
+        android:gravity="center"
+        android:text="Buka"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false" />
+
+</LinearLayout>

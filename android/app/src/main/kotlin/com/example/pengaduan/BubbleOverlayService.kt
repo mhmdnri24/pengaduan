@@ -14,8 +14,10 @@ import android.media.AudioManager
 import android.media.AudioFocusRequest
 import android.net.Uri
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.ImageView
 import android.widget.TextView
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -28,6 +30,7 @@ class BubbleOverlayService : Service() {
     private var bubbleView: View? = null
     private var isBubbleVisible = false
     private var complaintCount = 0
+    private var complaintId: String? = null // Store the complaint ID
     private var flutterEngine: FlutterEngine? = null
     private var methodChannel: MethodChannel? = null
     private var mediaPlayer: MediaPlayer? = null
@@ -159,6 +162,15 @@ class BubbleOverlayService : Service() {
         methodChannel = MethodChannel(flutterEngine!!.dartExecutor.binaryMessenger, METHOD_CHANNEL).apply {
             setMethodCallHandler { call, result ->
                 when (call.method) {
+                    "showBubbleWithId" -> {
+                        val id = call.argument<String>("id")
+                        if (id != null) {
+                            showBubbleWithId(id)
+                            result.success(true)
+                        } else {
+                            result.error("INVALID_ID", "ID is required", null)
+                        }
+                    }
                     "showBubble" -> {
                         val count = call.argument<Int>("count") ?: 0
                         showBubble(count)
@@ -173,15 +185,52 @@ class BubbleOverlayService : Service() {
                         updateComplaintCount(count)
                         result.success(true)
                     }
+                    "openOverlaySettings" -> {
+                        openOverlaySettings()
+                        result.success(true)
+                    }
                     else -> result.notImplemented()
                 }
             }
         }
     }
 
+    fun showBubbleWithId(id: String) {
+        if (isBubbleVisible) {
+            // Update existing bubble with new ID
+            complaintId = id
+            return
+        }
+
+        // Check if overlay permission is granted
+        if (!canDrawOverlays()) {
+            android.util.Log.w("BubbleOverlayService", "Overlay permission not granted")
+            // Send error to Flutter
+            methodChannel?.invokeMethod("onPermissionError", mapOf("error" to "OVERLAY_PERMISSION_DENIED"))
+            return
+        }
+
+        complaintId = id
+        complaintCount = 1 // Set count to 1 for new complaint
+        createBubbleView()
+        addBubbleToWindow()
+        isBubbleVisible = true
+        // Play a short notification sound from the native side so it works
+        // even when the app is backgrounded.
+        playNotificationSound()
+    }
+
     fun showBubble(count: Int) {
         if (isBubbleVisible) {
             updateComplaintCount(count)
+            return
+        }
+
+        // Check if overlay permission is granted
+        if (!canDrawOverlays()) {
+            android.util.Log.w("BubbleOverlayService", "Overlay permission not granted")
+            // Send error to Flutter
+            methodChannel?.invokeMethod("onPermissionError", mapOf("error" to "OVERLAY_PERMISSION_DENIED"))
             return
         }
 
@@ -220,7 +269,7 @@ class BubbleOverlayService : Service() {
         val inflater = LayoutInflater.from(this)
         bubbleView = inflater.inflate(R.layout.bubble_overlay, null)
         
-    val bubbleContainer = bubbleView!!.findViewById<FrameLayout>(R.id.bubble_container)
+    val bubbleContainer = bubbleView!!.findViewById<View>(R.id.bubble_container)
     val openButton = bubbleView!!.findViewById<TextView>(R.id.bubble_open)
     // Try to find close button by id if present
     val closeId = resources.getIdentifier("bubble_close", "id", packageName)
@@ -231,22 +280,12 @@ class BubbleOverlayService : Service() {
         
         // Set up click listener
         bubbleContainer.setOnClickListener {
-            openComplaintScreen()
+            sendBubbleClickToFlutter()
         }
 
-        // Open app button: launch MainActivity and hide bubble
+        // Open app button: send ID to Flutter and hide bubble
         openButton?.setOnClickListener {
-            try {
-                val intent = Intent(this, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    putExtra("route", "/complaints")
-                    putExtra("complaint_count", complaintCount)
-                }
-                startActivity(intent)
-            } catch (e: Exception) {
-                android.util.Log.e("BubbleOverlayService", "Failed to open app", e)
-            }
-            hideBubble()
+            sendBubbleClickToFlutter()
         }
 
         // Close button: hide bubble and stop the service
@@ -295,13 +334,22 @@ class BubbleOverlayService : Service() {
         layoutParams?.let { params ->
             val displayMetrics = resources.displayMetrics
             val screenWidth = displayMetrics.widthPixels
-            val bubbleWidth = bubbleView?.width ?: 100
+            val screenHeight = displayMetrics.heightPixels
+            val bubbleWidth = bubbleView?.width ?: (screenWidth * 0.75).toInt()
+            val bubbleHeight = bubbleView?.height ?: (screenHeight * 0.75).toInt()
             
-            // Snap to left or right edge
+            // For large bubble, snap to center or edges
             if (params.x < screenWidth / 2) {
                 params.x = 0
             } else {
                 params.x = screenWidth - bubbleWidth
+            }
+            
+            // Keep bubble within screen bounds vertically
+            if (params.y < 0) {
+                params.y = 0
+            } else if (params.y + bubbleHeight > screenHeight) {
+                params.y = screenHeight - bubbleHeight
             }
             
             windowManager?.updateViewLayout(bubbleView, params)
@@ -309,9 +357,17 @@ class BubbleOverlayService : Service() {
     }
 
     private fun addBubbleToWindow() {
+        val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+        
+        // Calculate 3/4 of screen size
+        val bubbleWidth = (screenWidth * 0.75).toInt()
+        val bubbleHeight = (screenHeight * 0.75).toInt()
+        
         val layoutParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
+            bubbleWidth,
+            bubbleHeight,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {
@@ -323,12 +379,33 @@ class BubbleOverlayService : Service() {
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = Gravity.TOP or Gravity.START
+            gravity = Gravity.CENTER
             x = 0
-            y = 200
+            y = 0
         }
 
         windowManager?.addView(bubbleView, layoutParams)
+    }
+
+    private fun sendBubbleClickToFlutter() {
+        android.util.Log.d("BubbleOverlayService", "sendBubbleClickToFlutter called")
+        android.util.Log.d("BubbleOverlayService", "complaintId: $complaintId")
+        android.util.Log.d("BubbleOverlayService", "methodChannel available: ${methodChannel != null}")
+        
+        // Send the complaint ID back to Flutter via MethodChannel
+        complaintId?.let { id ->
+            try {
+                methodChannel?.invokeMethod("onBubbleClick", mapOf("id" to id))
+                android.util.Log.d("BubbleOverlayService", "Successfully sent ID to Flutter: $id")
+            } catch (e: Exception) {
+                android.util.Log.e("BubbleOverlayService", "Error sending ID to Flutter", e)
+            }
+        } ?: run {
+            android.util.Log.w("BubbleOverlayService", "No complaint ID available to send")
+        }
+        
+        // Hide bubble after sending the event
+        hideBubble()
     }
 
     private fun openComplaintScreen() {
@@ -455,6 +532,24 @@ class BubbleOverlayService : Service() {
             }
         } catch (e: Exception) {
             android.util.Log.e("BubbleOverlayService", "Failed to play notification sound", e)
+        }
+    }
+
+    private fun canDrawOverlays(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Settings.canDrawOverlays(this)
+        } else {
+            true // For older versions, assume permission is granted
+        }
+    }
+
+    fun openOverlaySettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
+                data = Uri.parse("package:$packageName")
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            startActivity(intent)
         }
     }
 }
