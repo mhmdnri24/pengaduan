@@ -154,7 +154,7 @@ class ApiService {
       } else {
         return ApiResponse(
             success: false,
-            error: 'HTTP ${response.statusCode}: ${response.body}');
+            error: response.body);
       }
     } catch (e) {
       return ApiResponse(success: false, error: 'Network error: $e');
@@ -355,6 +355,30 @@ class ApiService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         var responseData = json.decode(response.body);
         return ApiResponse(success: true, data: responseData);
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
+  /// Get pengaturan data from API
+  Future<ApiResponse<Map<String, dynamic>>> getPengaturan() async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/pengaturan');
+      var response = await http.get(uri, headers: _headers);
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+        
+        if (responseData is Map<String, dynamic> && responseData['status'] == 'success') {
+          return ApiResponse(success: true, data: responseData['data']);
+        } else {
+          return ApiResponse(success: false, error: 'Invalid response format');
+        }
       } else {
         return ApiResponse(
             success: false,

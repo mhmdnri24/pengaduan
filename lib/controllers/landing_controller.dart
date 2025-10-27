@@ -164,11 +164,19 @@ class LandingController extends ChangeNotifier {
       print('Body: ${resp.body}');
 
       if (resp.statusCode == 200 || resp.statusCode == 201) {
-        return SendOtpResult(true, 'OTP dikirim ke NIK $nik');
+        final Map<String, dynamic> body = jsonDecode(resp.body) as Map<String, dynamic>;
+        if (body['status'] == 'success') {
+          return SendOtpResult(true, body['message']);
+        } else {
+          return SendOtpResult(false, body['message']);
+        }
+      }else{
+          final Map<String, dynamic> body = jsonDecode(resp.body) as Map<String, dynamic>;
+         return SendOtpResult(
+          false, body['message']);
       }
 
-      return SendOtpResult(
-          false, 'Gagal mengirim OTP: ${resp.statusCode} - ${resp.body}');
+     
     } catch (e) {
       return SendOtpResult(false, 'Terjadi kesalahan: $e');
     } finally {

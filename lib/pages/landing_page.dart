@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import '../controllers/landing_controller.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
 import '../services/api_service.dart';
+import '../config/api_config.dart';
 import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -16,11 +20,26 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
   final controller = LandingController();
   static const blue = Color(0xFF2D62F2);
+  String? logoUrl;
 
   @override
   void initState() {
     super.initState();
     _checkSession();
+    _loadPengaturan();
+  }
+
+  Future<void> _loadPengaturan() async {
+    try {
+      final result = await ApiService.instance.getPengaturan();
+      if (result.success && result.data != null && mounted) {
+        setState(() {
+          logoUrl = result.data!['logo'] as String?;
+        });
+      }
+    } catch (e) {
+      // ignore error
+    }
   }
 
   @override
@@ -46,7 +65,12 @@ class _LandingPageState extends State<LandingPage> {
       isScrollControlled: true,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       builder: (context) {
-        return const RegisterStepperModal();
+        return RegisterStepperModal(
+          onLoginPressed: () {
+            Navigator.of(context).pop(); // Hide register modal
+            _goToLogin(context); // Show login modal
+          },
+        );
       },
     );
   }
@@ -117,6 +141,7 @@ class _LandingPageState extends State<LandingPage> {
                           child: TextField(
                             controller: phoneController,
                             keyboardType: TextInputType.number,
+                            maxLength: 16,
                             onChanged: (value) {
                               setState(() {});
                             },
@@ -160,24 +185,18 @@ class _LandingPageState extends State<LandingPage> {
                                         final localCtx = context;
 
                                         final result = await controller.sendOtp();
+                                       
 
+            
                                         if (!mounted) return;
 
                                         if (mounted) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(result.message),
-                                              behavior: SnackBarBehavior
-                                                  .floating, // 👈 penting!
-                                              margin: const EdgeInsets.only(
-                                                bottom:
-                                                    10.0, // jarak dari bawah (atur sesuai tinggi FAB + BottomAppBar)
-                                                right: 16.0,
-                                                left: 16.0,
-                                              ),
-                                            ),
-                                          );
+                                        QuickAlert.show(
+                                          context: context,
+                                          type: QuickAlertType.error,
+                                          title: "Error",
+                                          text:result.message,
+                                        );
                                         }
 
                                         if (result.success) {
@@ -412,19 +431,43 @@ class _LandingPageState extends State<LandingPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 40),
+              const SizedBox(height: 1),
 
-              // Ikon gedung di tengah
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withOpacity(0.5)),
-                ),
-                padding: const EdgeInsets.all(24),
-                child: const Icon(
-                  Icons.account_balance,
-                  size: 50,
-                  color: Colors.white,
+              // Logo di tengah
+              ClipOval(
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  padding: const EdgeInsets.all(8),
+                  child: logoUrl != null
+                      ? Image.network(
+                          logoUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.account_balance,
+                                size: 64,
+                                color: Colors.blue,
+                              ),
+                            );
+                          },
+                        )
+                      : Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.account_balance,
+                            size: 64,
+                            color: Colors.blue,
+                          ),
+                        ),
                 ),
               ),
 
@@ -460,18 +503,21 @@ class _LandingPageState extends State<LandingPage> {
               const SizedBox(height: 40),
 
               // Tombol Daftar
-              SizedBox(
-                width: 250,
+             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                 SizedBox(
+                // width: 250,
                 height: 48,
                 child: ElevatedButton.icon(
                   onPressed: () => _goToRegister(context),
-                  icon: const Icon(Icons.person_add_alt, color: Colors.white),
+                  icon: const Icon(Icons.person_add_alt, color: Colors.black),
                   label: const Text(
-                    'Daftar Sekarang',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    'Daftar',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,color: Colors.black),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(0.15),
+                    backgroundColor: Colors.white.withOpacity(1),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -480,11 +526,11 @@ class _LandingPageState extends State<LandingPage> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(width: 16),
 
               // Tombol Masuk (border putih)
               SizedBox(
-                width: 250,
+                // width: 250,
                 height: 48,
                 child: OutlinedButton.icon(
                   onPressed: () => _goToLogin(context),
@@ -502,6 +548,8 @@ class _LandingPageState extends State<LandingPage> {
                   ),
                 ),
               ),
+              ]
+             )
             ],
           ),
         ),
@@ -513,7 +561,8 @@ class _LandingPageState extends State<LandingPage> {
 }
 
 class RegisterStepperModal extends StatefulWidget {
-  const RegisterStepperModal({Key? key}) : super(key: key);
+  final VoidCallback? onLoginPressed;
+  const RegisterStepperModal({Key? key, this.onLoginPressed}) : super(key: key);
 
   @override
   State<RegisterStepperModal> createState() => _RegisterStepperModalState();
@@ -625,6 +674,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
     print(_idCardPhoto);
     if (_agreeToTerms && _selfiePhoto != null && _idCardPhoto != null) {
       // Show loading indicator
+      if (!mounted) return;
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -651,12 +701,11 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
         String nik = _nikController.text.trim();
         if (nik.length != 16) {
           Navigator.of(context).pop(); // Close loading dialog
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('NIK harus 16 digit'),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.red,
-            ),
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: "Error",
+            text: "NIK harus 16 digit",
           );
           return;
         }
@@ -664,12 +713,11 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
         // Validate phone number length (should be 10-13 digits after formatting)
         if (phoneNumber.length < 10 || phoneNumber.length > 13) {
           Navigator.of(context).pop(); // Close loading dialog
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Nomor telepon tidak valid'),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.red,
-            ),
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: "Error",
+            text: "Nomor telepon tidak valid",
           );
           return;
         }
@@ -683,30 +731,44 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
         );
 
         // Close loading dialog
-        Navigator.of(context).pop();
+       Navigator.of(context).pop();
         print(response.data);
         print(response.success);
 
-        if (response.success && response.data != null) {
+        if (response.success && response.data != null) {          
           // Close registration modal
           Navigator.of(context).pop();
           
           // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.data!['message'] ?? 'Registrasi berhasil!'),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.green,
-            ),
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.success,
+            title: "Berhasil",
+            text: response.data!['message'] ?? 'Registrasi berhasil!',
           );
         } else {
           // Show error message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.error ?? 'Terjadi kesalahan saat registrasi'),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.red,
-            ),
+          print(response.error);
+          String errorMessage = 'Terjadi kesalahan saat registrasi';
+
+          // Parse the error response to extract the message
+          if (response.error != null) {
+            try {
+              final errorData = json.decode(response.error!);
+              if (errorData is Map && errorData.containsKey('message')) {
+                errorMessage = errorData['message'];
+              }
+            } catch (e) {
+              // If parsing fails, use the original error
+              errorMessage = response.error!;
+            }
+          }
+
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: "Error",
+            text: errorMessage,
           );
         }
       } catch (e) {
@@ -714,21 +776,19 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
         Navigator.of(context).pop();
         
         // Show error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Terjadi kesalahan: $e'),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.red,
-          ),
-        );
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: "Error",
+            text: 'Terjadi kesalahan: $e',
+          );
       }
     }else{
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Silahkan isi semua data'),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.red,
-        ),
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: "Perhatian",
+        text: 'Silahkan isi semua data',
       );
     }
   }
@@ -918,13 +978,15 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
           // Login link
           Center(
             child: RichText(
-              text: const TextSpan(
-                style: TextStyle(color: Colors.grey),
+              text: TextSpan(
+                style: const TextStyle(color: Colors.grey),
                 children: [
-                  TextSpan(text: 'Sudah punya akun? '),
+                  const TextSpan(text: 'Sudah punya akun? '),
                   TextSpan(
                     text: 'Masuk di sini',
-                    style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = widget.onLoginPressed,
                   ),
                 ],
               ),
@@ -1040,13 +1102,15 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
           // Login link
           Center(
             child: RichText(
-              text: const TextSpan(
-                style: TextStyle(color: Colors.grey),
+              text: TextSpan(
+                style: const TextStyle(color: Colors.grey),
                 children: [
-                  TextSpan(text: 'Sudah punya akun? '),
+                  const TextSpan(text: 'Sudah punya akun? '),
                   TextSpan(
                     text: 'Masuk di sini',
-                    style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = widget.onLoginPressed,
                   ),
                 ],
               ),
@@ -1302,13 +1366,15 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
           // Login link
           Center(
             child: RichText(
-              text: const TextSpan(
-                style: TextStyle(color: Colors.grey),
+              text: TextSpan(
+                style: const TextStyle(color: Colors.grey),
                 children: [
-                  TextSpan(text: 'Sudah punya akun? '),
+                  const TextSpan(text: 'Sudah punya akun? '),
                   TextSpan(
                     text: 'Masuk di sini',
-                    style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = widget.onLoginPressed,
                   ),
                 ],
               ),
@@ -1436,7 +1502,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                       ),
                     ),
                     child: const Text(
-                      'Daftar Akun Saya',
+                      'Daftar',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -1453,13 +1519,15 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
           // Login link
           Center(
             child: RichText(
-              text: const TextSpan(
-                style: TextStyle(color: Colors.grey),
+              text: TextSpan(
+                style: const TextStyle(color: Colors.grey),
                 children: [
-                  TextSpan(text: 'Sudah punya akun? '),
+                  const TextSpan(text: 'Sudah punya akun? '),
                   TextSpan(
                     text: 'Masuk di sini',
-                    style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = widget.onLoginPressed,
                   ),
                 ],
               ),

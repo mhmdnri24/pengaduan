@@ -27,6 +27,7 @@ dependencies:
   rename_app: ^1.6.5
   device_info_plus: ^10.1.0
   provider: ^6.1.1
+  quickalert: ^1.1.0
 
 dev_dependencies:
   flutter_test:
