@@ -40,8 +40,8 @@ class ApiService {
     required String pelaporAlamat,
     required String lat,
     required String lng,
+    required String masId,
     List<File>? foto,
-    
   }) async {
     try {
       var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/create');
@@ -60,8 +60,9 @@ class ApiService {
         'pelapor_telepon': pelaporTelepon,
         'pelapor_nik': pelaporNik,
         'pelapor_alamat': pelaporAlamat,
-        'latitude':lat,
-        'longitude':lng,
+        'latitude': lat,
+        'longitude': lng,
+        'masyarakat_id': masId,
       });
 
       // Add photo files if provided
@@ -117,12 +118,14 @@ class ApiService {
 
       // Validate files exist
       if (!await fotoProfil.exists()) {
-        return ApiResponse(success: false, error: 'Profile photo file not found');
+        return ApiResponse(
+            success: false, error: 'Profile photo file not found');
       }
       if (!await fotoKtp.exists()) {
-        return ApiResponse(success: false, error: 'ID card photo file not found');
+        return ApiResponse(
+            success: false, error: 'ID card photo file not found');
       }
-      
+
       print('Profile photo path: ${fotoProfil.path}');
       print('ID card photo path: ${fotoKtp.path}');
       print('Profile photo exists: ${await fotoProfil.exists()}');
@@ -146,20 +149,18 @@ class ApiService {
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
-      
+
       print('Status Code: ${response.statusCode}');
       print('Response Body: ${response.body}');
       print('Request Headers: ${request.headers}');
       print('Request Fields: ${request.fields}');
       // print('Request Files: ${request.files.map((f) => f.field + ': ' + f.filename).toList()}');
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         var responseData = json.decode(response.body);
         return ApiResponse(success: true, data: responseData);
       } else {
-        return ApiResponse(
-            success: false,
-            error: response.body);
+        return ApiResponse(success: false, error: response.body);
       }
     } catch (e) {
       return ApiResponse(success: false, error: 'Network error: $e');
@@ -218,10 +219,12 @@ class ApiService {
     }
   }
 
-  Future<ApiResponse<Map<String, dynamic>>> getComplaintHistory(String complaintId) async {
+  Future<ApiResponse<Map<String, dynamic>>> getComplaintHistory(
+      String complaintId) async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/pelaporan_history/$complaintId');
-      
+      var uri = Uri.parse(
+          '${ApiConfig.baseUrl}/pelaporan/pelaporan_history/$complaintId');
+
       var response = await http.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
@@ -244,12 +247,12 @@ class ApiService {
   }) async {
     try {
       var uri = Uri.parse('${ApiConfig.baseUrl}/device/insert_or_update');
-      
+
       var request = http.MultipartRequest('POST', uri);
-      
+
       // Add headers
       request.headers.addAll(_headers);
-      
+
       // Add form fields
       request.fields['masyarakat_id'] = masyarakatId;
       request.fields['fcm_token'] = fcmToken;
@@ -278,17 +281,18 @@ class ApiService {
     required String createdBy,
   }) async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/$pelaporanId/create_comment');
-      
+      var uri = Uri.parse(
+          '${ApiConfig.baseUrl}/pelaporan/$pelaporanId/create_comment');
+
       var request = http.MultipartRequest('POST', uri);
-      
+
       // Add headers
       request.headers.addAll(_headers);
-      
+
       // Add form fields
       request.fields['comment'] = comment;
       request.fields['created_by'] = createdBy;
-      
+
       // Add rating if provided
       if (rating != null) {
         request.fields['rating'] = rating.toString();
@@ -321,6 +325,7 @@ class ApiService {
     List<File>? foto,
     required String latitude,
     required String longitude,
+    required String masId,
   }) async {
     try {
       var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/create');
@@ -342,6 +347,7 @@ class ApiService {
         'jenis_pelaporan': 'DARURAT',
         'latitude': latitude,
         'longitude': longitude,
+        'masyarakat_id': masId,
       });
 
       // Add photo files if provided
@@ -365,9 +371,9 @@ class ApiService {
         var responseData = json.decode(response.body);
         return ApiResponse(success: true, data: responseData);
       } else {
-        return ApiResponse(
-            success: false,
-            error: 'HTTP ${response.statusCode}: ${response.body}');
+        print(response.body);
+        var resError = json.decode(response.body);
+        return ApiResponse(success: false, error: resError['message']);
       }
     } catch (e) {
       return ApiResponse(success: false, error: 'Network error: $e');
@@ -382,8 +388,9 @@ class ApiService {
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
-        
-        if (responseData is Map<String, dynamic> && responseData['status'] == 'success') {
+
+        if (responseData is Map<String, dynamic> &&
+            responseData['status'] == 'success') {
           return ApiResponse(success: true, data: responseData['data']);
         } else {
           return ApiResponse(success: false, error: 'Invalid response format');

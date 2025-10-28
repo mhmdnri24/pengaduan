@@ -19,7 +19,8 @@ class EmergencyService {
   }
 
   /// Stream of all emergencies
-  Stream<List<Complaint>> get emergenciesStream => _emergenciesController.stream;
+  Stream<List<Complaint>> get emergenciesStream =>
+      _emergenciesController.stream;
 
   /// Stream of new emergencies
   Stream<Complaint> get newEmergencyStream => _newEmergencyController.stream;
@@ -55,6 +56,7 @@ class EmergencyService {
     required String pelaporAlamat,
     required String lat,
     required String lng,
+    required String masId,
     List<File>? foto,
   }) async {
     try {
@@ -69,6 +71,7 @@ class EmergencyService {
         foto: foto,
         latitude: lat,
         longitude: lng,
+        masId: masId,
       );
 
       if (apiResponse.success && apiResponse.data != null) {

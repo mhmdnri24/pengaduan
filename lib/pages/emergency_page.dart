@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/emergency_service.dart';
+import 'package:quickalert/quickalert.dart';
 
 class EmergencyPage extends StatefulWidget {
   const EmergencyPage({Key? key}) : super(key: key);
@@ -16,20 +17,21 @@ class _EmergencyPageState extends State<EmergencyPage> {
   bool _isLoadingLocation = false;
   String _detectedLocation = '';
   String _address = '';
-  
+
   // User data from session
   String? userName;
   String? userNik;
+  String? masId;
   String? userPhone;
   String? userPhotoUrl;
   String? lat;
   String? lng;
-  
+
   // Loading and error states
   bool isLoading = false;
   bool isLoadingUserData = true;
   String? errorMessage;
-  
+
   // Emergency category selection
   String? selectedEmergencyCategory;
 
@@ -48,9 +50,13 @@ class _EmergencyPageState extends State<EmergencyPage> {
         setState(() {
           userName = prefs.getString('user_name');
           userNik = prefs.getString('user_nik');
+          masId = prefs.getString('user_id');
           userPhone = prefs.getString('user_phone');
           userPhotoUrl = prefs.getString('user_photo_url');
           isLoadingUserData = false;
+
+          print(masId);
+          print(userPhone);
         });
       }
     } catch (e) {
@@ -79,7 +85,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
         // Permissions are denied forever
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Izin lokasi ditolak permanen. Silakan aktifkan di pengaturan.'),
+            content: Text(
+                'Izin lokasi ditolak permanen. Silakan aktifkan di pengaturan.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -125,13 +132,15 @@ class _EmergencyPageState extends State<EmergencyPage> {
     }
   }
 
-  Future<void> _getAddressFromCoordinates(double latitude, double longitude) async {
+  Future<void> _getAddressFromCoordinates(
+      double latitude, double longitude) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
         String address = '';
-        
+
         // Build address from placemark
         if (place.street != null && place.street!.isNotEmpty) {
           address += place.street!;
@@ -144,7 +153,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
           if (address.isNotEmpty) address += ', ';
           address += place.locality!;
         }
-        if (place.administrativeArea != null && place.administrativeArea!.isNotEmpty) {
+        if (place.administrativeArea != null &&
+            place.administrativeArea!.isNotEmpty) {
           if (address.isNotEmpty) address += ', ';
           address += place.administrativeArea!;
         }
@@ -154,7 +164,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
         }
 
         setState(() {
-          _address = address.isNotEmpty ? address : 'Alamat tidak dapat dideteksi';
+          _address =
+              address.isNotEmpty ? address : 'Alamat tidak dapat dideteksi';
         });
       } else {
         setState(() {
@@ -243,8 +254,10 @@ class _EmergencyPageState extends State<EmergencyPage> {
         alamat: _address.isNotEmpty ? _address : 'Lokasi tidak dapat dideteksi',
         pelaporNama: userName!,
         pelaporTelepon: userPhone!,
+        masId: masId!,
         pelaporNik: userNik!,
-        pelaporAlamat: _address.isNotEmpty ? _address : 'Lokasi tidak dapat dideteksi',
+        pelaporAlamat:
+            _address.isNotEmpty ? _address : 'Lokasi tidak dapat dideteksi',
         lat: lat ?? '',
         lng: lng ?? '',
       );
@@ -252,9 +265,20 @@ class _EmergencyPageState extends State<EmergencyPage> {
       if (!mounted) return;
 
       if (response.success && response.data != null) {
-        _showSuccess('Sinyal darurat telah dikirim! Tim akan segera diberitahu.');
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: "Sukses",
+          text: 'Sinyal darurat telah dikirim! Tim akan segera diberitahu.',
+        );
       } else {
-        _showError(response.error ?? 'Gagal mengirim sinyal darurat');
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Error",
+          text: response.error,
+        );
+        // _showError(response.error ?? 'Gagal mengirim sinyal darurat');
       }
     } catch (e) {
       if (mounted) {
@@ -366,7 +390,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
                     ),
                     IconButton(
                       onPressed: () => setState(() => errorMessage = null),
-                      icon: const Icon(Icons.close, color: Colors.red, size: 20),
+                      icon:
+                          const Icon(Icons.close, color: Colors.red, size: 20),
                     ),
                   ],
                 ),
@@ -424,7 +449,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.green,
                       borderRadius: BorderRadius.circular(20),
@@ -457,7 +483,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.red.shade50,
                     borderRadius: BorderRadius.circular(12),
@@ -526,7 +553,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
             ),
 
             const SizedBox(height: 12),
-            
+
             // Helper text
             Container(
               padding: const EdgeInsets.all(12),
@@ -537,11 +564,12 @@ class _EmergencyPageState extends State<EmergencyPage> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, size: 16, color: Colors.blue.shade700),
+                  Icon(Icons.info_outline,
+                      size: 16, color: Colors.blue.shade700),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      selectedEmergencyCategory != null 
+                      selectedEmergencyCategory != null
                           ? 'Kategori terpilih: ${_getCategoryDisplayName(selectedEmergencyCategory!)}'
                           : 'Pilih salah satu jenis keadaan darurat di atas',
                       style: TextStyle(
@@ -610,7 +638,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.gps_fixed, size: 16, color: Colors.grey),
+                        const Icon(Icons.gps_fixed,
+                            size: 16, color: Colors.grey),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -632,7 +661,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: _isLoadingLocation ? null : _getCurrentLocation,
+                      onPressed:
+                          _isLoadingLocation ? null : _getCurrentLocation,
                       icon: _isLoadingLocation
                           ? const SizedBox(
                               width: 16,
@@ -643,10 +673,14 @@ class _EmergencyPageState extends State<EmergencyPage> {
                               ),
                             )
                           : const Icon(Icons.my_location),
-                      label: Text(_isLoadingLocation ? 'Memuat...' : 'Gunakan Lokasi Saat Ini',style:TextStyle(
-                      // Ubah warna teks menjadi putih sesuai permintaan
-                      color: Colors.white,
-                      )),
+                      label: Text(
+                          _isLoadingLocation
+                              ? 'Memuat...'
+                              : 'Gunakan Lokasi Saat Ini',
+                          style: TextStyle(
+                            // Ubah warna teks menjadi putih sesuai permintaan
+                            color: Colors.white,
+                          )),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2E5C9A),
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -667,7 +701,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.location_on, size: 16, color: Colors.blue),
+                          const Icon(Icons.location_on,
+                              size: 16, color: Colors.blue),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Column(
@@ -860,7 +895,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
                         color: isLoading ? Colors.grey : Colors.red,
                         boxShadow: [
                           BoxShadow(
-                            color: (isLoading ? Colors.grey : Colors.red).withOpacity(0.4),
+                            color: (isLoading ? Colors.grey : Colors.red)
+                                .withOpacity(0.4),
                             blurRadius: 20,
                             spreadRadius: 5,
                           ),
@@ -915,7 +951,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
     required Color backgroundColor,
   }) {
     final bool isSelected = selectedEmergencyCategory == key;
-    
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -928,16 +964,18 @@ class _EmergencyPageState extends State<EmergencyPage> {
           color: isSelected ? color.withOpacity(0.1) : backgroundColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? color : borderColor, 
+            color: isSelected ? color : borderColor,
             width: isSelected ? 2.5 : 1.5,
           ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 8,
-              spreadRadius: 1,
-            ),
-          ] : null,
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: color.withOpacity(0.3),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1004,4 +1042,3 @@ class _EmergencyPageState extends State<EmergencyPage> {
     );
   }
 }
-

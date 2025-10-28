@@ -341,7 +341,7 @@ class Api_masyarakat extends api
                     $input_data = $this->input->post();
                 }
 
-                $allowed_fields = ['nama_lengkap', 'no_telpon', 'tempat_lahir', 'tanggal_lahir', 'id_kecamatan', 'id_kelurahan'];
+                $allowed_fields = ['nama_lengkap', 'no_telpon', 'tempat_lahir', 'tanggal_lahir', 'id_kecamatan', 'id_kelurahan','alamat'];
 
                 foreach ($allowed_fields as $field) {
                     $value = $input_data[$field] ?? null;

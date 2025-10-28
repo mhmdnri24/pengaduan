@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'dart:io';
 import '../services/complaint_service.dart';
+import 'package:quickalert/quickalert.dart';
 
 class AddComplaintPage extends StatefulWidget {
   final bool showAppBar;
@@ -33,6 +34,7 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
   String? userPhotoUrl;
   String? lat;
   String? lng;
+  String? masId;
 
   // Loading and error states
   bool isLoading = false;
@@ -64,6 +66,7 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
           userName = prefs.getString('user_name');
           userNik = prefs.getString('user_nik');
           userPhone = prefs.getString('user_phone');
+          masId = prefs.getString('user_id');
           userPhotoUrl = prefs.getString('user_photo_url');
           isLoadingUserData = false;
         });
@@ -514,12 +517,18 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
         foto: imageFiles.isNotEmpty ? imageFiles : null,
         lat: lat ?? '',
         lng: lng ?? '',
+        masId: masId!,
       );
 
       if (!mounted) return;
 
       if (response.success && response.data != null) {
-        _showSuccess('Laporan berhasil dikirim');
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: "Sukses",
+          text: 'Laporan berhasil dikirim',
+        );
 
         // Clear form
         _clearForm();
@@ -531,11 +540,21 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
           }
         });
       } else {
-        _showError(response.error ?? 'Gagal mengirim laporan');
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Error",
+          text: response.error ?? 'Laporan gagal dikirim',
+        );
       }
     } catch (e) {
       if (mounted) {
-        _showError('Terjadi kesalahan: $e');
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Error",
+          text: 'Terjadi kesalahan: $e',
+        );
       }
     } finally {
       if (mounted) {
@@ -599,390 +618,88 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
       backgroundColor: const Color(0xFFF6F8FB),
       resizeToAvoidBottomInset: true,
       extendBody: true,
-      appBar: widget.showAppBar ? AppBar(
-        elevation: 0,
-        backgroundColor: const Color(0xFF1C3FAA), // Dominant blue color
-        foregroundColor: Colors.white,
-        title: const Text(
-          'Buat Laporan',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios),
-          style: IconButton.styleFrom(
-            backgroundColor: Colors.white.withOpacity(0.2),
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              // Add help functionality here
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Bantuan: Isi semua field yang diperlukan untuk membuat laporan'),
-                  duration: Duration(seconds: 3),
-                ),
-              );
-            },
-            icon: const Icon(Icons.help_outline),
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(0.2),
+      appBar: widget.showAppBar
+          ? AppBar(
+              elevation: 0,
+              backgroundColor: const Color(0xFF1C3FAA), // Dominant blue color
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+              title: const Text(
+                'Buat Laporan',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                  color: Colors.white,
+                ),
               ),
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ) : null,
+              centerTitle: true,
+              leading: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back_ios),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.white.withOpacity(0.2),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    // Add help functionality here
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                            'Bantuan: Isi semua field yang diperlukan untuk membuat laporan'),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.help_outline),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.white.withOpacity(0.2),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+            )
+          : null,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10),
         child: Column(
           children: [
-          // Error message display
-          if (errorMessage != null)
-            Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.shade200),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      errorMessage!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => setState(() => errorMessage = null),
-                    icon: const Icon(Icons.close, color: Colors.red, size: 20),
-                  ),
-                ],
-              ),
-            ),
-          Card(
-            color: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 0.3,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    const Icon(Icons.label, color: Colors.blue),
-                    const SizedBox(width: 8),
-                    const Text('Kategori Laporan',
-                        style: TextStyle(fontWeight: FontWeight.w600))
-                  ]),
-                  const SizedBox(height: 12),
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.4,
-                    children: [
-                      _buildCategoryTile('infrastruktur', Icons.account_balance,
-                          Colors.green, 'Infrastruktur'),
-                      _buildCategoryTile('lingkungan', Icons.eco,
-                          Colors.green.shade700, 'Lingkungan'),
-                      _buildCategoryTile('keamanan', Icons.security,
-                          Colors.orange, 'Keamanan'),
-                      _buildCategoryTile(
-                          'layanan', Icons.group, Colors.blue, 'Layanan'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Card(
-            color: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 0.3,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Judul Laporan',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: titleController,
-                      textInputAction: TextInputAction.next,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      textCapitalization: TextCapitalization.sentences,
-                      keyboardType: TextInputType.text,
-                      toolbarOptions: const ToolbarOptions(
-                        copy: false,
-                        cut: false,
-                        paste: false,
-                        selectAll: false,
-                      ),
-                      decoration: InputDecoration(
-                          hintText: 'Masukkan judul laporan yang jelas',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFFD0D0D0))),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFFD0D0D0))),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFF2255EE), width: 2))),
-                    ),
-                  ]),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Card(
-            color: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 0.3,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Deskripsi Lengkap',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: descriptionController,
-                      maxLines: 6,
-                      textInputAction: TextInputAction.done,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      textCapitalization: TextCapitalization.sentences,
-                      keyboardType: TextInputType.multiline,
-                      toolbarOptions: const ToolbarOptions(
-                        copy: false,
-                        cut: false,
-                        paste: false,
-                        selectAll: false,
-                      ),
-                      onChanged: (v) =>
-                          setState(() => descriptionCount = v.length),
-                      decoration: InputDecoration(
-                          hintText:
-                              'Jelaskan detail masalah yang ingin dilaporkan...',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFFD0D0D0))),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFFD0D0D0))),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFF2255EE), width: 2))),
-                    ),
-                    const SizedBox(height: 8),
-                    Text('$descriptionCount/500 karakter',
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 12)),
-                  ]),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Card(
-            color: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 0.3,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Lokasi Kejadian',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: locationController,
-                      textInputAction: TextInputAction.done,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      textCapitalization: TextCapitalization.sentences,
-                      keyboardType: TextInputType.text,
-                      toolbarOptions: const ToolbarOptions(
-                        copy: false,
-                        cut: false,
-                        paste: false,
-                        selectAll: false,
-                      ),
-                      decoration: InputDecoration(
-                          hintText: 'Masukkan alamat lengkap',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFFD0D0D0))),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFFD0D0D0))),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFF2255EE), width: 2))),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: isLoadingLocation ? null : _getCurrentLocation,
-                      icon: isLoadingLocation
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Icon(Icons.my_location),
-                      label: Text(
-                        isLoadingLocation
-                            ? 'Mendapatkan Lokasi...'
-                            : 'Gunakan Lokasi Saat Ini',
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side:
-                            BorderSide(color: Colors.blue.shade700, width: 1.5),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        foregroundColor: Colors.blue.shade700,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14, horizontal: 14),
-                      ),
-                    ),
-                  ]),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Card(
-            color: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 0.3,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Foto Pendukung',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 12),
-                    Row(children: _buildPhotoWidgets()),
-                    const SizedBox(height: 8),
-                    const Text(
-                        'Maksimal 3 foto, ukuran maksimal 5MB per foto\nTekan untuk memilih dari kamera atau galeri',
-                        style: TextStyle(color: Colors.grey, fontSize: 12)),
-                  ]),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Card(
-            color: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 0.3,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Tingkat Urgensi',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 12),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                              child: _urgencyButton(
-                                  'low', 'Rendah', Colors.green)),
-                          const SizedBox(width: 12),
-                          Expanded(
-                              child: _urgencyButton(
-                                  'medium', 'Sedang', Colors.amber)),
-                          const SizedBox(width: 12),
-                          Expanded(
-                              child:
-                                  _urgencyButton('high', 'Tinggi', Colors.red)),
-                        ]),
-                  ]),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // User data loading or info card
-          if (isLoadingUserData)
-            Card(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              elevation: 0.3,
-              child: const Padding(
-                padding: EdgeInsets.all(20),
+            // Error message display
+            if (errorMessage != null)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.blue,
+                    const Icon(Icons.error_outline, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        errorMessage!,
+                        style: const TextStyle(color: Colors.red),
                       ),
                     ),
-                    SizedBox(width: 12),
-                    Text(
-                      'Memuat data pengguna...',
-                      style: TextStyle(color: Colors.grey),
+                    IconButton(
+                      onPressed: () => setState(() => errorMessage = null),
+                      icon:
+                          const Icon(Icons.close, color: Colors.red, size: 20),
                     ),
                   ],
                 ),
               ),
-            )
-          else if (userName != null)
             Card(
               color: Colors.white,
               shape: RoundedRectangleBorder(
@@ -993,156 +710,466 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.person, color: Colors.blue),
-                        const SizedBox(width: 8),
-                        const Text('Informasi Pelapor',
-                            style: TextStyle(fontWeight: FontWeight.w600)),
-                      ],
-                    ),
+                    Row(children: [
+                      const Icon(Icons.label, color: Colors.blue),
+                      const SizedBox(width: 8),
+                      const Text('Kategori Laporan',
+                          style: TextStyle(fontWeight: FontWeight.w600))
+                    ]),
                     const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.person_outline,
-                                  size: 20, color: Colors.grey),
-                              const SizedBox(width: 8),
-                              Text(
-                                userName!,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(Icons.phone,
-                                  size: 20, color: Colors.grey),
-                              const SizedBox(width: 8),
-                              Text(userPhone!),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(Icons.credit_card,
-                                  size: 20, color: Colors.grey),
-                              const SizedBox(width: 8),
-                              Text(userNik!),
-                            ],
-                          ),
-                        ],
-                      ),
+                    GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.4,
+                      children: [
+                        _buildCategoryTile(
+                            'infrastruktur',
+                            Icons.account_balance,
+                            Colors.green,
+                            'Infrastruktur'),
+                        _buildCategoryTile('lingkungan', Icons.eco,
+                            Colors.green.shade700, 'Lingkungan'),
+                        _buildCategoryTile('keamanan', Icons.security,
+                            Colors.orange, 'Keamanan'),
+                        _buildCategoryTile(
+                            'layanan', Icons.group, Colors.blue, 'Layanan'),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
 
-          // Card(
-          //   color: Colors.white,
-          //   shape:
-          //       RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          //   elevation: 1,
-          //   child: Padding(
-          //     padding: const EdgeInsets.all(14),
-          //     child: Row(children: [
-          //       Checkbox(
-          //           value: anonymous,
-          //           onChanged: (v) => setState(() => anonymous = v ?? false)),
-          //       const SizedBox(width: 8),
-          //       const Expanded(
-          //           child: Text(
-          //               'Laporan Anonim\nIdentitas Anda akan disembunyikan dari publik',
-          //               style: TextStyle(color: Colors.black87))),
-          //     ]),
-          //   ),
-          // ),
+            const SizedBox(height: 12),
 
-          const SizedBox(height: 12),
+            Card(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              elevation: 0.3,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Judul Laporan',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: titleController,
+                        textInputAction: TextInputAction.next,
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        textCapitalization: TextCapitalization.sentences,
+                        keyboardType: TextInputType.text,
+                        toolbarOptions: const ToolbarOptions(
+                          copy: false,
+                          cut: false,
+                          paste: false,
+                          selectAll: false,
+                        ),
+                        decoration: InputDecoration(
+                            hintText: 'Masukkan judul laporan yang jelas',
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    const BorderSide(color: Color(0xFFD0D0D0))),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    const BorderSide(color: Color(0xFFD0D0D0))),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFF2255EE), width: 2))),
+                      ),
+                    ]),
+              ),
+            ),
 
-          const SizedBox(height: 18),
+            const SizedBox(height: 12),
 
-          // Buttons
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 0),
-            child: Column(children: [
-              // Gradient submit button
-              InkWell(
-                onTap: isLoading
-                    ? null
-                    : () {
-                        if (_validateForm()) {
-                          _submitComplaint();
-                        }
-                      },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  height: 54,
-                  decoration: BoxDecoration(
-                    gradient: isLoading
-                        ? LinearGradient(colors: [
-                            Colors.grey.shade400,
-                            Colors.grey.shade600
-                          ])
-                        : const LinearGradient(
-                            colors: [Color(0xFF2255EE), Color(0xFF4285F4)]),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                          offset: Offset(0, 4))
+            Card(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              elevation: 0.3,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Deskripsi Lengkap',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: descriptionController,
+                        maxLines: 6,
+                        textInputAction: TextInputAction.done,
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        textCapitalization: TextCapitalization.sentences,
+                        keyboardType: TextInputType.multiline,
+                        toolbarOptions: const ToolbarOptions(
+                          copy: false,
+                          cut: false,
+                          paste: false,
+                          selectAll: false,
+                        ),
+                        onChanged: (v) =>
+                            setState(() => descriptionCount = v.length),
+                        decoration: InputDecoration(
+                            hintText:
+                                'Jelaskan detail masalah yang ingin dilaporkan...',
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    const BorderSide(color: Color(0xFFD0D0D0))),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    const BorderSide(color: Color(0xFFD0D0D0))),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFF2255EE), width: 2))),
+                      ),
+                      const SizedBox(height: 8),
+                      Text('$descriptionCount/500 karakter',
+                          style: const TextStyle(
+                              color: Colors.grey, fontSize: 12)),
+                    ]),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            Card(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              elevation: 0.3,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Lokasi Kejadian',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: locationController,
+                        textInputAction: TextInputAction.done,
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        textCapitalization: TextCapitalization.sentences,
+                        keyboardType: TextInputType.text,
+                        toolbarOptions: const ToolbarOptions(
+                          copy: false,
+                          cut: false,
+                          paste: false,
+                          selectAll: false,
+                        ),
+                        decoration: InputDecoration(
+                            hintText: 'Masukkan alamat lengkap',
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    const BorderSide(color: Color(0xFFD0D0D0))),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    const BorderSide(color: Color(0xFFD0D0D0))),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFF2255EE), width: 2))),
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed:
+                            isLoadingLocation ? null : _getCurrentLocation,
+                        icon: isLoadingLocation
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.my_location),
+                        label: Text(
+                          isLoadingLocation
+                              ? 'Mendapatkan Lokasi...'
+                              : 'Gunakan Lokasi Saat Ini',
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                              color: Colors.blue.shade700, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          foregroundColor: Colors.blue.shade700,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 14, horizontal: 14),
+                        ),
+                      ),
+                    ]),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            Card(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              elevation: 0.3,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Foto Pendukung',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 12),
+                      Row(children: _buildPhotoWidgets()),
+                      const SizedBox(height: 8),
+                      const Text(
+                          'Maksimal 3 foto, ukuran maksimal 5MB per foto\nTekan untuk memilih dari kamera atau galeri',
+                          style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    ]),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            Card(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              elevation: 0.3,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Tingkat Urgensi',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 12),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                                child: _urgencyButton(
+                                    'low', 'Rendah', Colors.green)),
+                            const SizedBox(width: 12),
+                            Expanded(
+                                child: _urgencyButton(
+                                    'medium', 'Sedang', Colors.amber)),
+                            const SizedBox(width: 12),
+                            Expanded(
+                                child: _urgencyButton(
+                                    'high', 'Tinggi', Colors.red)),
+                          ]),
+                    ]),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // User data loading or info card
+            if (isLoadingUserData)
+              Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 0.3,
+                child: const Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        'Memuat data pengguna...',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ],
                   ),
-                  child: Center(
-                      child: isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                  color: Colors.white, strokeWidth: 2))
-                          : const Row(
-                              mainAxisSize: MainAxisSize.min,
+                ),
+              )
+            else if (userName != null)
+              Card(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                elevation: 0.3,
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.person, color: Colors.blue),
+                          const SizedBox(width: 8),
+                          const Text('Informasi Pelapor',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
                               children: [
-                                  Icon(Icons.send, color: Colors.white),
-                                  SizedBox(width: 8),
-                                  Text('Kirim Laporan',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold))
-                                ])),
+                                const Icon(Icons.person_outline,
+                                    size: 20, color: Colors.grey),
+                                const SizedBox(width: 8),
+                                Text(
+                                  userName!,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                const Icon(Icons.phone,
+                                    size: 20, color: Colors.grey),
+                                const SizedBox(width: 8),
+                                Text(userPhone!),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                const Icon(Icons.credit_card,
+                                    size: 20, color: Colors.grey),
+                                const SizedBox(width: 8),
+                                Text(userNik!),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade200,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const SizedBox(
-                    width: double.infinity,
+
+            // Card(
+            //   color: Colors.white,
+            //   shape:
+            //       RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            //   elevation: 1,
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(14),
+            //     child: Row(children: [
+            //       Checkbox(
+            //           value: anonymous,
+            //           onChanged: (v) => setState(() => anonymous = v ?? false)),
+            //       const SizedBox(width: 8),
+            //       const Expanded(
+            //           child: Text(
+            //               'Laporan Anonim\nIdentitas Anda akan disembunyikan dari publik',
+            //               style: TextStyle(color: Colors.black87))),
+            //     ]),
+            //   ),
+            // ),
+
+            const SizedBox(height: 12),
+
+            const SizedBox(height: 18),
+
+            // Buttons
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 0),
+              child: Column(children: [
+                // Gradient submit button
+                InkWell(
+                  onTap: isLoading
+                      ? null
+                      : () {
+                          if (_validateForm()) {
+                            _submitComplaint();
+                          }
+                        },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    height: 54,
+                    decoration: BoxDecoration(
+                      gradient: isLoading
+                          ? LinearGradient(colors: [
+                              Colors.grey.shade400,
+                              Colors.grey.shade600
+                            ])
+                          : const LinearGradient(
+                              colors: [Color(0xFF2255EE), Color(0xFF4285F4)]),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4))
+                      ],
+                    ),
                     child: Center(
-                        child: Text('Simpan Sebagai Draft',
-                            style: TextStyle(color: Colors.black54)))),
-              ),
-              const SizedBox(height: 24),
-            ]),
-          ),
+                        child: isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2))
+                            : const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                    Icon(Icons.send, color: Colors.white),
+                                    SizedBox(width: 8),
+                                    Text('Kirim Laporan',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold))
+                                  ])),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.grey.shade200,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 20),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const SizedBox(
+                      width: double.infinity,
+                      child: Center(
+                          child: Text('Simpan Sebagai Draft',
+                              style: TextStyle(color: Colors.black54)))),
+                ),
+                const SizedBox(height: 24),
+              ]),
+            ),
           ],
         ),
       ),

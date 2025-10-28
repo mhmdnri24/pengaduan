@@ -323,6 +323,8 @@ class Api_pelaporan_proper extends api
     public function create()
     {
         try {
+
+            $jenis_pelaporan = $this->input->post('jenis_pelaporan') ?? "REGULAR";
             // Get POST data
             $data = [
                 'judul' => $this->input->post('judul'),
@@ -331,6 +333,7 @@ class Api_pelaporan_proper extends api
                 'lokasi_lat' => $this->input->post('latitude'),
                 'lokasi_lng' => $this->input->post('longitude'),
                 'kategori' => $this->input->post('kategori'),
+                'jenis_pelaporan' => $jenis_pelaporan,
                 'masyarakat_id' => $this->input->post('masyarakat_id') ?? null,
                 'status' => 'LAPOR',
                 'prioritas' => $this->input->post('prioritas') ?: 'SEDANG',
@@ -450,7 +453,7 @@ class Api_pelaporan_proper extends api
 
                 $this->db->insert('pelaporan_history', $history_data);
 
-                $notif = $this->send_test($insert_id);
+                $notif = $jenis_pelaporan == 'DARURAT' ? $this->send_test($insert_id,$this->input->post('masyarakat_id')) : null;
                 
                 $this->send_response(201, 'Pelaporan berhasil dibuat', [
                     'id' => $insert_id,
@@ -669,7 +672,7 @@ class Api_pelaporan_proper extends api
         $this->send_response(200, 'API Pelaporan test berhasil', $data);
     }
 
-    public function send_test($insert_id=0)
+    public function send_test($insert_id=0,$mas_id=null)
     {
 
         $this->load->helper('fcm_helper');
@@ -677,7 +680,13 @@ class Api_pelaporan_proper extends api
             // 'fqWq_meMTbqxLFBs0UnZEh:APA91bGyvhaB-Y_9N6o5qEah1jrtUX5PwgPeqZpzbWditx-9Rsc-ci5Zeq25m6-DjJ1gppOLDq_He0yhPr4WweWq6LY6K9gw-gCmErfHL1hxiwJ1_1YNyNE'
         ];
         
-        $devices = $this->db->select('fcm_token')->from('api_device')->get()->result();
+        $devices = $this->db
+        ->select('fcm_token')
+        ->from('api_device')
+        ->where('masyarakat_id <>', $mas_id)
+        ->get()
+        ->result();
+
         foreach ($devices as $device) {
             $tokens[] = $device->fcm_token;
         }

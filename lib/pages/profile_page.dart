@@ -56,6 +56,45 @@ class _ProfilePageState extends State<ProfilePage> {
         context, MaterialPageRoute(builder: (context) => const LandingPage()));
   }
 
+  Widget _infoItem({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 20,
+          color: Colors.grey[600],
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,15 +189,44 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Informasi Akun',
-                                style: TextStyle(fontWeight: FontWeight.w600)),
-                            const SizedBox(height: 8),
-                            Text(userName ?? '-',
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600)),
-                            const SizedBox(height: 6),
-                            Text('Telp: ${userPhone ?? '-'}',
-                                style: const TextStyle(color: Colors.grey)),
+                            Row(
+                              children: const [
+                                Icon(Icons.person_outline,
+                                    color: Color(0xFF2255EE), size: 20),
+                                SizedBox(width: 8),
+                                Text('Informasi Akun',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    )),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            _infoItem(
+                              icon: Icons.badge_outlined,
+                              label: 'Nama Lengkap',
+                              value: userName ?? '-',
+                            ),
+                            const Divider(height: 16),
+                            _infoItem(
+                              icon: Icons.credit_card_outlined,
+                              label: 'NIK',
+                              value: userNik ?? '-',
+                            ),
+                            const Divider(height: 16),
+                            _infoItem(
+                              icon: Icons.phone_outlined,
+                              label: 'No. Telepon',
+                              value: userPhone ?? '-',
+                            ),
+                            if (deviceId != null) ...[
+                              const Divider(height: 16),
+                              _infoItem(
+                                icon: Icons.phone_android_outlined,
+                                label: 'ID Perangkat',
+                                value: deviceId!,
+                              ),
+                            ],
                           ],
                         ),
                       ),

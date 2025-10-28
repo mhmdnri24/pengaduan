@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/services.dart';
+import 'package:quickalert/quickalert.dart';
 
 import '../config/api_config.dart';
 
@@ -247,7 +248,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return prefs.getString('session_token') ?? prefs.getString('token');
   }
 
-  Future<void> _saveProfile() async {
+  Future<void> _saveProfile(BuildContext context) async {
+    if (!mounted) return;
+
     final nama = namaController.text.trim();
     final noTelp = phoneController.text.trim();
     final tempat = tempatController.text.trim();
@@ -260,15 +263,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final idKel = selectedKelurahanId ?? selectedKelurahan ?? '16.73.01.1001';
 
     if (nama.isEmpty || noTelp.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nama dan no. telpon wajib diisi')));
+      if (!mounted) return;
+      await QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: "Peringatan",
+        text: 'Nama dan no. telpon wajib diisi',
+      );
       return;
     }
 
     final token = await _getAuthToken();
     if (token == null || token.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Token tidak ditemukan. Silakan login ulang')));
+      if (!mounted) return;
+      await QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Error",
+        text: 'Token tidak ditemukan. Silakan login ulang',
+      );
       return;
     }
 
@@ -314,21 +327,43 @@ class _EditProfilePageState extends State<EditProfilePage> {
         } catch (_) {
           // ignore parse errors
         }
-
+        print(resp.statusCode);
+        // if (!mounted) return;
+        print(1);
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //     const SnackBar(content: Text('Profil berhasil diperbarui')));
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profil berhasil diperbarui')));
+        await QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: "Sukses",
+          text: 'Profil berhasil diperbarui',
+        );
+        if (!mounted) return;
         Navigator.pop(context);
         return;
       }
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Gagal memperbarui profil: ${resp.statusCode}')));
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //     content: Text('Gagal memperbarui profil: ${resp.statusCode}')));
+
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Gagal",
+        text: 'Gagal memperbarui profil: ${resp.statusCode}',
+      );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Terjadi kesalahan: $e')));
+      // ScaffoldMessenger.of(context)
+      //     .showSnackBar(SnackBar(content: Text('Terjadi kesalahan: $e')));
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Error",
+        text: 'Terjadi kesalahan: $e',
+      );
     } finally {
       if (mounted) setState(() => isSaving = false);
     }
@@ -383,19 +418,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
         padding: const EdgeInsets.all(14),
         children: [
           // === Progress Header ===
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text('Langkah 2 dari 2', style: TextStyle(color: Colors.grey)),
-              Text('Hampir selesai!', style: TextStyle(color: Colors.blue)),
-            ],
-          ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: const [
+          //     Text('Langkah 2 dari 2', style: TextStyle(color: Colors.grey)),
+          //     Text('Hampir selesai!', style: TextStyle(color: Colors.blue)),
+          //   ],
+          // ),
           const SizedBox(height: 8),
-          LinearProgressIndicator(
-            value: 1,
-            color: Colors.blue.shade700,
-            backgroundColor: Colors.blue.shade100,
-          ),
+          // LinearProgressIndicator(
+          //   value: 1,
+          //   color: Colors.blue.shade700,
+          //   backgroundColor: Colors.blue.shade100,
+          // ),
           const SizedBox(height: 25),
 
           // === Welcome Section ===
@@ -753,7 +788,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               'Simpan & Lanjutkan',
               style: TextStyle(color: Colors.white),
             ),
-            onPressed: isSaving ? null : _saveProfile,
+            onPressed: isSaving ? null : () => _saveProfile(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               padding: const EdgeInsets.symmetric(vertical: 16),

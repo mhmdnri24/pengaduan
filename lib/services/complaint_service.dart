@@ -67,8 +67,6 @@ class ComplaintService {
         search: search,
       );
 
-     
-
       if (apiResponse.success && apiResponse.data != null) {
         return ApiResponse(success: true, data: apiResponse.data);
       } else {
@@ -92,9 +90,9 @@ class ComplaintService {
     required String pelaporAlamat,
     required String lat,
     required String lng,
+    required String masId,
     List<File>? foto,
   }) async {
-
     print('Foto: 1');
     try {
       // Submit to API
@@ -108,10 +106,11 @@ class ComplaintService {
         pelaporNik: pelaporNik,
         pelaporAlamat: pelaporAlamat,
         foto: foto,
-        lat:lat,
-        lng:lng,
+        lat: lat,
+        lng: lng,
+        masId: masId,
       );
- print('API Response: ${apiResponse.data}');
+      print('API Response: ${apiResponse.data}');
       if (apiResponse.success && apiResponse.data != null) {
         // Create complaint object from API response
         var complaint = Complaint(
