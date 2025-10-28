@@ -38,7 +38,10 @@ class ApiService {
     required String pelaporTelepon,
     required String pelaporNik,
     required String pelaporAlamat,
+    required String lat,
+    required String lng,
     List<File>? foto,
+    
   }) async {
     try {
       var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/create');
@@ -57,6 +60,8 @@ class ApiService {
         'pelapor_telepon': pelaporTelepon,
         'pelapor_nik': pelaporNik,
         'pelapor_alamat': pelaporAlamat,
+        'latitude':lat,
+        'longitude':lng,
       });
 
       // Add photo files if provided
@@ -314,6 +319,8 @@ class ApiService {
     required String pelaporNik,
     required String pelaporAlamat,
     List<File>? foto,
+    required String latitude,
+    required String longitude,
   }) async {
     try {
       var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/create');
@@ -333,6 +340,8 @@ class ApiService {
         'pelapor_nik': pelaporNik,
         'pelapor_alamat': pelaporAlamat,
         'jenis_pelaporan': 'DARURAT',
+        'latitude': latitude,
+        'longitude': longitude,
       });
 
       // Add photo files if provided

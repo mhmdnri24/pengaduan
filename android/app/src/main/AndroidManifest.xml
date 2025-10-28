@@ -46,6 +46,11 @@
         <!-- Default notification channel metadata for FirebaseMessaging -->
         <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="overlay_channel"/>
 
+        <!-- Google Maps API Key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDJ4iWc7ZwOnWBY047JO-0XLBD10VuPj6o"/>
+
         <!-- Firebase Messaging Service -->
         <service android:name=".MyFirebaseMessagingService" android:exported="true">
             <intent-filter>

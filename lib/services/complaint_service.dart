@@ -90,6 +90,8 @@ class ComplaintService {
     required String pelaporTelepon,
     required String pelaporNik,
     required String pelaporAlamat,
+    required String lat,
+    required String lng,
     List<File>? foto,
   }) async {
 
@@ -106,6 +108,8 @@ class ComplaintService {
         pelaporNik: pelaporNik,
         pelaporAlamat: pelaporAlamat,
         foto: foto,
+        lat:lat,
+        lng:lng,
       );
  print('API Response: ${apiResponse.data}');
       if (apiResponse.success && apiResponse.data != null) {

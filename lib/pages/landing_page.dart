@@ -308,25 +308,20 @@ class _LandingPageState extends State<LandingPage> {
                                   setState(() => verifying = true);
 
                                   final result = await controller.verifyOtp(code);
-
+                                  print(result);
+                                 
                                   if (!mounted) return;
 
                                   setState(() => verifying = false);
 
                                   if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(result.message),
-                                        behavior: SnackBarBehavior
-                                            .floating, // 👈 penting!
-                                        margin: const EdgeInsets.only(
-                                          bottom:
-                                              80.0, // jarak dari bawah (atur sesuai tinggi FAB + BottomAppBar)
-                                          right: 16.0,
-                                          left: 16.0,
-                                        ),
-                                      ),
-                                    );
+                                     QuickAlert.show(
+                                    context: context,
+                                    type: QuickAlertType.error,
+                                    title: "Error",
+                                    text: result.message,
+                                  );
+
                                   }
 
                                   if (result.success) {

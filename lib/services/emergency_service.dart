@@ -53,6 +53,8 @@ class EmergencyService {
     required String pelaporTelepon,
     required String pelaporNik,
     required String pelaporAlamat,
+    required String lat,
+    required String lng,
     List<File>? foto,
   }) async {
     try {
@@ -65,6 +67,8 @@ class EmergencyService {
         pelaporNik: pelaporNik,
         pelaporAlamat: pelaporAlamat,
         foto: foto,
+        latitude: lat,
+        longitude: lng,
       );
 
       if (apiResponse.success && apiResponse.data != null) {

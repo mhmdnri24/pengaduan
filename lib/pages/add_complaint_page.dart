@@ -31,6 +31,8 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
   String? userNik;
   String? userPhone;
   String? userPhotoUrl;
+  String? lat;
+  String? lng;
 
   // Loading and error states
   bool isLoading = false;
@@ -50,6 +52,7 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
   void initState() {
     super.initState();
     _loadUserData();
+    _getCurrentLocation();
   }
 
   Future<void> _loadUserData() async {
@@ -425,6 +428,11 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
         desiredAccuracy: LocationAccuracy.high,
       );
 
+      setState(() {
+        lat = position.latitude.toString();
+        lng = position.longitude.toString();
+      });
+
       // Get address from coordinates
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
@@ -504,6 +512,8 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
         pelaporAlamat:
             locationController.text.trim(), // Use same address as location
         foto: imageFiles.isNotEmpty ? imageFiles : null,
+        lat: lat ?? '',
+        lng: lng ?? '',
       );
 
       if (!mounted) return;
@@ -545,6 +555,8 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
     selectedImages.clear();
     descriptionCount = 0;
     anonymous = false;
+    lat = null;
+    lng = null;
   }
 
   Widget _urgencyButton(String key, String label, Color color) {

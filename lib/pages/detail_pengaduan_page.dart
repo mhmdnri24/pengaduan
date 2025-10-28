@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pengaduan/config/api_config.dart';
 import 'package:pengaduan/components/progress_timeline.dart';
 import 'package:pengaduan/services/api_service.dart';
@@ -20,7 +21,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
   bool _loading = true;
   String? _error;
   Map<String, dynamic>? _data;
-  
+
   // Progress timeline data
   bool _historyLoading = false;
   String? _historyError;
@@ -65,10 +66,10 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
         final body = json.decode(resp.body) as Map<String, dynamic>;
         if (body['status'] == 'success' && body['data'] != null) {
           final data = body['data'] as Map<String, dynamic>;
-          
+
           // Extract comments from the response
           final commentsList = data['comments'] as List<dynamic>? ?? [];
-          
+
           setState(() {
             _data = data;
             _comments = commentsList.cast<Map<String, dynamic>>();
@@ -104,21 +105,23 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
     });
 
     try {
-      final response = await ApiService.instance.getComplaintHistory(widget.complaintId);
-      
+      final response =
+          await ApiService.instance.getComplaintHistory(widget.complaintId);
+
       if (response.success && response.data != null) {
         final data = response.data!;
         if (data['status'] == 'success' && data['data'] != null) {
           final historyData = data['data'] as Map<String, dynamic>;
           final historyList = historyData['history'] as List<dynamic>? ?? [];
-          
+
           setState(() {
             _history = historyList.cast<Map<String, dynamic>>();
             _historyLoading = false;
           });
         } else {
           setState(() {
-            _historyError = data['message']?.toString() ?? 'Failed to load history';
+            _historyError =
+                data['message']?.toString() ?? 'Failed to load history';
             _historyLoading = false;
           });
         }
@@ -151,7 +154,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
     try {
       // Get user_id from session
       final userId = await SessionService.instance.getUserId();
-        
+
       if (userId == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -169,8 +172,8 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
 
       final response = await ApiService.instance.createComment(
         pelaporanId: widget.complaintId,
-        comment: _commentController.text.trim().isNotEmpty 
-            ? _commentController.text.trim() 
+        comment: _commentController.text.trim().isNotEmpty
+            ? _commentController.text.trim()
             : 'Rating: $_selectedRating bintang',
         rating: _selectedRating,
         createdBy: userId,
@@ -185,7 +188,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
             ),
           );
         }
-        
+
         // Reset form and refresh data
         if (mounted) {
           setState(() {
@@ -199,7 +202,8 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Gagal mengirim rating: ${response.error ?? 'Unknown error'}'),
+              content: Text(
+                  'Gagal mengirim rating: ${response.error ?? 'Unknown error'}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -257,10 +261,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [
-              CircularProgressIndicator(),
-              SizedBox(height: 8)
-            ],
+            children: const [CircularProgressIndicator(), SizedBox(height: 8)],
           ),
         ),
       );
@@ -390,7 +391,18 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
                       children: [
                         Expanded(child: _infoText('Tanggal Laporan', tanggal)),
                         const SizedBox(width: 12),
-                        Expanded(child: _infoText('Lokasi', lokasi)),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => _showLocationMap(data),
+                            child: Row(
+                              children: [
+                                Expanded(child: _infoText('Lokasi', lokasi)),
+                                const Icon(Icons.map,
+                                    size: 20, color: Color(0xFF1C3FAA)),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -432,7 +444,8 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
         if (_comments.isEmpty)
           Card(
             color: Colors.grey[50],
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Center(
@@ -461,8 +474,8 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
                 userName: comment['created_by_name']?.toString() ?? 'Anonim',
                 date: comment['created_at_formatted']?.toString() ?? '',
                 message: comment['comment']?.toString() ?? '',
-                rating: comment['rating'] != null 
-                    ? int.tryParse(comment['rating'].toString()) 
+                rating: comment['rating'] != null
+                    ? int.tryParse(comment['rating'].toString())
                     : null,
               )),
         const SizedBox(height: 20),
@@ -512,8 +525,8 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
                         });
                       },
                       child: Icon(
-                        index < _selectedRating 
-                            ? Icons.star_rounded 
+                        index < _selectedRating
+                            ? Icons.star_rounded
                             : Icons.star_border_rounded,
                         color: Colors.amber,
                         size: 28,
@@ -561,7 +574,8 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
                                 height: 16,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -588,6 +602,85 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showLocationMap(Map<String, dynamic> data) {
+    final double? lat = double.tryParse(data['lokasi_lat']?.toString() ?? '');
+    final double? lng = double.tryParse(data['lokasi_lng']?.toString() ?? '');
+
+    if (lat == null || lng == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Lokasi tidak tersedia'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Lokasi Pengaduan',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.5,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(16),
+                ),
+                child: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(lat, lng),
+                    zoom: 15,
+                  ),
+                  markers: {
+                    Marker(
+                      markerId: const MarkerId('complaint_location'),
+                      position: LatLng(lat, lng),
+                      infoWindow: InfoWindow(
+                        title: data['judul']?.toString() ?? 'Lokasi Pengaduan',
+                        snippet: data['alamat']?.toString(),
+                      ),
+                    ),
+                  },
+                  zoomControlsEnabled: true,
+                  mapType: MapType.normal,
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -666,8 +759,8 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
                   ),
                   ...List.generate(5, (index) {
                     return Icon(
-                      index < rating 
-                          ? Icons.star_rounded 
+                      index < rating
+                          ? Icons.star_rounded
                           : Icons.star_border_rounded,
                       color: Colors.amber,
                       size: 14,

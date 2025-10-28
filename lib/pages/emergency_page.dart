@@ -22,6 +22,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
   String? userNik;
   String? userPhone;
   String? userPhotoUrl;
+  String? lat;
+  String? lng;
   
   // Loading and error states
   bool isLoading = false;
@@ -101,6 +103,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
       setState(() {
         _currentPosition = position;
+        lat = position.latitude.toString();
+        lng = position.longitude.toString();
         _detectedLocation = '${position.latitude}, ${position.longitude}';
       });
 
@@ -241,6 +245,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
         pelaporTelepon: userPhone!,
         pelaporNik: userNik!,
         pelaporAlamat: _address.isNotEmpty ? _address : 'Lokasi tidak dapat dideteksi',
+        lat: lat ?? '',
+        lng: lng ?? '',
       );
 
       if (!mounted) return;
