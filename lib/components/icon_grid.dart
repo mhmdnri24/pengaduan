@@ -3,6 +3,8 @@ import 'package:quickalert/quickalert.dart';
 import 'icon_tile.dart';
 import '../pages/add_complaint_page.dart';
 import '../pages/emergency_page.dart';
+import '../pages/news_page.dart';
+import '../pages/news_list_page.dart';
 
 class IconGrid extends StatelessWidget {
   final bool isDesktop;
@@ -76,14 +78,11 @@ class IconGrid extends StatelessWidget {
             ),
             accentColor: Colors.teal,
             onTap: () {
-              // Add news functionality here
-              QuickAlert.show(
-                context: context,
-                type: QuickAlertType.info,
-                title: "Segera Hadir",
-                text: 'Fitur Berita akan segera hadir',
-                autoCloseDuration: const Duration(seconds: 2),
-                showConfirmBtn: false,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NewsPage(),
+                ),
               );
             },
           ),

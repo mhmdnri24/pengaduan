@@ -794,9 +794,9 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                                     color: color,
                                     borderColor: color.withOpacity(0.35),
                                     backgroundColor: color.withOpacity(0.06),
-                                    selected: selectedCategory == id,
-                                    onTap: () =>
-                                        setState(() => selectedCategory = id),
+                                    selected: selectedCategory == title,
+                                    onTap: () => setState(
+                                        () => selectedCategory = title),
                                   );
                                 }).toList()
                               : [

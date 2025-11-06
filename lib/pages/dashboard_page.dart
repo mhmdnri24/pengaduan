@@ -302,7 +302,7 @@ class _DashboardPageState extends State<DashboardPage> {
           // Purple info card replaced by reusable PurpleSlider component
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: PurpleSlider(itemCount: 3),
+            child: PurpleSlider(),
           ),
 
           const SizedBox(height: 12),

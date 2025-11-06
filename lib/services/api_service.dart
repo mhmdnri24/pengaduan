@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import '../models/complaint.dart';
+import '../models/slider.dart';
 
 class ApiResponse<T> {
   final bool success;
@@ -427,6 +428,47 @@ class ApiService {
         if (responseData is Map<String, dynamic> &&
             responseData['status'] == 'success') {
           return ApiResponse(success: true, data: responseData['data']);
+        } else {
+          return ApiResponse(success: false, error: 'Invalid response format');
+        }
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
+  /// Get active sliders from API
+  Future<ApiResponse<SliderResponse>> getActiveSliders({
+    required String masyarakatId,
+    required String fcmToken,
+    required String deviceId,
+  }) async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/slider/active');
+      var request = http.MultipartRequest('GET', uri);
+
+      // Add headers
+      request.headers.addAll(_headers);
+
+      // Add form fields
+      request.fields['masyarakat_id'] = masyarakatId;
+      request.fields['fcm_token'] = fcmToken;
+      request.fields['device_id'] = deviceId;
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+
+        if (responseData is Map<String, dynamic> &&
+            responseData['status'] == 'success') {
+          final sliderResponse = SliderResponse.fromJson(responseData);
+          return ApiResponse(success: true, data: sliderResponse);
         } else {
           return ApiResponse(success: false, error: 'Invalid response format');
         }

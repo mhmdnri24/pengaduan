@@ -631,9 +631,9 @@ class _EmergencyPageState extends State<EmergencyPage> {
                             color: color,
                             borderColor: color.withOpacity(0.35),
                             backgroundColor: color.withOpacity(0.06),
-                            selected: selectedEmergencyCategory == id,
-                            onTap: () =>
-                                setState(() => selectedEmergencyCategory = id),
+                            selected: selectedEmergencyCategory == title,
+                            onTap: () => setState(
+                                () => selectedEmergencyCategory = title),
                           );
                         }).toList()
                       : [
