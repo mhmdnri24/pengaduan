@@ -22,6 +22,37 @@ class ApiService {
     return _instance!;
   }
 
+  /// Get list of pelaporan kategori
+  Future<ApiResponse<List<Map<String, dynamic>>>> getCategories() async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/kategori');
+      var response = await http.get(uri, headers: _headers);
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+        if (responseData is Map<String, dynamic> &&
+            responseData['status'] == 'success' &&
+            responseData['data'] != null) {
+          final data = responseData['data'] as Map<String, dynamic>;
+          final List<dynamic> kategori =
+              data['kategori'] as List<dynamic>? ?? [];
+          final parsed = kategori
+              .map<Map<String, dynamic>>(
+                  (e) => Map<String, dynamic>.from(e as Map))
+              .toList();
+          return ApiResponse(success: true, data: parsed);
+        }
+        return ApiResponse(success: false, error: 'Invalid response format');
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
   Map<String, String> get _headers => {
         'X-API-Key': ApiConfig.apiKey,
         'Origin': ApiConfig.origin,
@@ -173,11 +204,13 @@ class ApiService {
     String? status,
     String? kategori,
     String? search,
+    String? userId,
   }) async {
     try {
       var queryParams = {
         'page': page.toString(),
         'limit': limit.toString(),
+        'masyarakat_id': userId ?? '',
       };
 
       if (status != null && status.isNotEmpty) {
@@ -205,6 +238,7 @@ class ApiService {
           // Parse the complete response structure
           var complaintListResponse =
               ComplaintListResponse.fromJson(responseData);
+          print(complaintListResponse);
           return ApiResponse(success: true, data: complaintListResponse);
         } else {
           return ApiResponse(success: false, error: 'Invalid response format');
@@ -369,6 +403,7 @@ class ApiService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         var responseData = json.decode(response.body);
+        print(responseData);
         return ApiResponse(success: true, data: responseData);
       } else {
         print(response.body);

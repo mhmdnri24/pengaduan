@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -17,8 +18,14 @@ class _RegisterPageState extends State<RegisterPage> {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
       final masked = '*' * (_password.length.clamp(0, 6));
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Terima kasih, $_name! ($_email, pwd: $masked)')));
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.success,
+        title: "Terima Kasih",
+        text: '$_name ($_email, pwd: $masked)',
+        autoCloseDuration: const Duration(seconds: 2),
+        showConfirmBtn: false,
+      );
       Navigator.of(context).pushReplacementNamed('/dashboard');
     }
   }

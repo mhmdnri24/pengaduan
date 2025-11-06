@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,8 +18,14 @@ class _LoginPageState extends State<LoginPage> {
       _formKey.currentState?.save();
       // For now just navigate to dashboard and show a small confirmation
       final masked = '*' * (_password.length.clamp(0, 6));
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Masuk sebagai $_email (pwd: $masked)')));
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.success,
+        title: "Masuk",
+        text: 'Masuk sebagai $_email (pwd: $masked)',
+        autoCloseDuration: const Duration(seconds: 2),
+        showConfirmBtn: false,
+      );
       Navigator.of(context).pushReplacementNamed('/dashboard');
     }
   }

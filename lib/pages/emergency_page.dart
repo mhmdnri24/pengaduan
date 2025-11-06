@@ -4,6 +4,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/emergency_service.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:pengaduan/services/api_service.dart';
+import '../components/emergency_card.dart';
 
 class EmergencyPage extends StatefulWidget {
   const EmergencyPage({Key? key}) : super(key: key);
@@ -34,12 +36,36 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
   // Emergency category selection
   String? selectedEmergencyCategory;
+  // Categories loaded from API
+  List<Map<String, dynamic>> _categories = [];
+  bool _isLoadingCategories = true;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
     _getCurrentLocation();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    setState(() => _isLoadingCategories = true);
+    try {
+      final res = await ApiService.instance.getCategories();
+      if (res.success && res.data != null) {
+        final list = res.data!;
+        if (mounted) {
+          setState(() {
+            _categories = list;
+            _isLoadingCategories = false;
+          });
+        }
+      } else {
+        if (mounted) setState(() => _isLoadingCategories = false);
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingCategories = false);
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -83,22 +109,21 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
       if (permission == LocationPermission.deniedForever) {
         // Permissions are denied forever
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Izin lokasi ditolak permanen. Silakan aktifkan di pengaturan.'),
-            backgroundColor: Colors.red,
-          ),
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Izin Ditolak",
+          text: 'Izin lokasi ditolak permanen. Silakan aktifkan di pengaturan.',
         );
         return;
       }
 
       if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Izin lokasi ditolak.'),
-            backgroundColor: Colors.red,
-          ),
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Izin Ditolak",
+          text: 'Izin lokasi ditolak.',
         );
         return;
       }
@@ -119,11 +144,11 @@ class _EmergencyPageState extends State<EmergencyPage> {
       await _getAddressFromCoordinates(position.latitude, position.longitude);
     } catch (e) {
       print('Error getting location: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal mendapatkan lokasi: $e'),
-          backgroundColor: Colors.red,
-        ),
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Error",
+        text: 'Gagal mendapatkan lokasi: $e',
       );
     } finally {
       setState(() {
@@ -182,11 +207,11 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
   Future<void> _sendEmergencyReport() async {
     if (_currentPosition == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Lokasi belum terdeteksi. Mohon tunggu...'),
-          backgroundColor: Colors.orange,
-        ),
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: "Lokasi belum siap",
+        text: 'Lokasi belum terdeteksi. Mohon tunggu...',
       );
       return;
     }
@@ -246,7 +271,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
       isLoading = true;
       errorMessage = null;
     });
-
+    print("Kat: ${selectedEmergencyCategory ?? 'null'}");
     try {
       // Submit emergency report
       var response = await EmergencyService.instance.submitEmergencyReport(
@@ -263,6 +288,8 @@ class _EmergencyPageState extends State<EmergencyPage> {
       );
 
       if (!mounted) return;
+
+      print(response);
 
       if (response.success && response.data != null) {
         QuickAlert.show(
@@ -297,14 +324,22 @@ class _EmergencyPageState extends State<EmergencyPage> {
     setState(() {
       errorMessage = message;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.error,
+      title: "Error",
+      text: message,
     );
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.success,
+      title: "Berhasil",
+      text: message,
+      autoCloseDuration: const Duration(seconds: 2),
+      showConfirmBtn: false,
     );
   }
 
@@ -321,6 +356,57 @@ class _EmergencyPageState extends State<EmergencyPage> {
       default:
         return 'Tidak Diketahui';
     }
+  }
+
+  String _getSelectedCategoryName(String id) {
+    try {
+      final found = _categories.firstWhere(
+          (c) => c['pelaporan_id']?.toString() == id,
+          orElse: () => {});
+      if (found.isNotEmpty) return found['pelaporan_nama']?.toString() ?? id;
+    } catch (_) {}
+    // fallback to legacy mapping
+    return _getCategoryDisplayName(id);
+  }
+
+  // Return a style (color/icon) for known categories, otherwise pick from palette by index
+  Map<String, dynamic> _getCategoryStyle(String name, int index) {
+    final lower = name.toLowerCase();
+    if (lower.contains('infrastruktur')) {
+      return {'color': Colors.green.shade700, 'icon': Icons.account_balance};
+    }
+    if (lower.contains('lingkungan')) {
+      return {'color': Colors.green, 'icon': Icons.eco};
+    }
+    if (lower.contains('keamanan')) {
+      return {'color': Colors.orange, 'icon': Icons.security};
+    }
+    if (lower.contains('layanan')) {
+      return {'color': Colors.blue, 'icon': Icons.group};
+    }
+
+    // palette fallback
+    final palette = [
+      Colors.indigo,
+      Colors.teal,
+      Colors.purple,
+      Colors.cyan,
+      Colors.amber,
+      Colors.brown,
+      Colors.pink,
+    ];
+    final color = palette[index % palette.length];
+    final icons = [
+      Icons.report_problem,
+      Icons.home_repair_service,
+      Icons.water,
+      Icons.local_fire_department,
+      Icons.health_and_safety,
+      Icons.build,
+      Icons.support_agent,
+    ];
+    final icon = icons[index % icons.length];
+    return {'color': color, 'icon': icon};
   }
 
   @override
@@ -504,52 +590,102 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
             const SizedBox(height: 16),
 
-            // Grid Categories
+            // Grid Categories (loaded from API)
             GridView.count(
+              crossAxisCount: 2,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 1.3,
-              children: [
-                _buildEmergencyCard(
-                  key: 'medis',
-                  icon: Icons.medical_services,
-                  title: 'Medis',
-                  subtitle: 'Kecelakaan, serangan jantung, stroke',
-                  color: Colors.red,
-                  borderColor: Colors.red.shade100,
-                  backgroundColor: Colors.red.shade50,
-                ),
-                _buildEmergencyCard(
-                  key: 'kebakaran',
-                  icon: Icons.local_fire_department,
-                  title: 'Kebakaran',
-                  subtitle: 'Kebakaran rumah, gedung, hutan',
-                  color: Colors.orange,
-                  borderColor: Colors.orange.shade100,
-                  backgroundColor: Colors.orange.shade50,
-                ),
-                _buildEmergencyCard(
-                  key: 'keamanan',
-                  icon: Icons.person,
-                  title: 'Keamanan',
-                  subtitle: 'Pencurian, perampokan, kekerasan',
-                  color: Colors.blue,
-                  borderColor: Colors.blue.shade100,
-                  backgroundColor: Colors.blue.shade50,
-                ),
-                _buildEmergencyCard(
-                  key: 'bencana',
-                  icon: Icons.warning,
-                  title: 'Bencana Alam',
-                  subtitle: 'Banjir, gempa, tanah longsor',
-                  color: Colors.green,
-                  borderColor: Colors.green.shade100,
-                  backgroundColor: Colors.green.shade50,
-                ),
-              ],
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.4,
+              children: _isLoadingCategories
+                  ? [
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        alignment: Alignment.center,
+                        child: const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator()),
+                      )
+                    ]
+                  : (_categories.isNotEmpty
+                      ? _categories.asMap().entries.map((entry) {
+                          final idx = entry.key;
+                          final item = entry.value;
+                          final id = (item['pelaporan_id'] ?? item['id'] ?? '')
+                              .toString();
+                          final title =
+                              (item['pelaporan_nama'] ?? item['nama'] ?? '')
+                                  .toString();
+                          final subtitle =
+                              (item['created_at_formatted'] ?? '').toString();
+                          final style = _getCategoryStyle(title, idx);
+                          final Color color = style['color'] as Color;
+                          final IconData iconData = style['icon'] as IconData;
+                          return EmergencyCard(
+                            id: id,
+                            title: title,
+                            subtitle: subtitle,
+                            icon: iconData,
+                            color: color,
+                            borderColor: color.withOpacity(0.35),
+                            backgroundColor: color.withOpacity(0.06),
+                            selected: selectedEmergencyCategory == id,
+                            onTap: () =>
+                                setState(() => selectedEmergencyCategory = id),
+                          );
+                        }).toList()
+                      : [
+                          EmergencyCard(
+                            id: 'medis',
+                            title: 'Medis',
+                            subtitle: 'Kecelakaan, serangan jantung, stroke',
+                            icon: Icons.medical_services,
+                            color: Colors.red,
+                            borderColor: Colors.red.withOpacity(0.35),
+                            backgroundColor: Colors.red.withOpacity(0.06),
+                            selected: selectedEmergencyCategory == 'medis',
+                            onTap: () => setState(
+                                () => selectedEmergencyCategory = 'medis'),
+                          ),
+                          EmergencyCard(
+                            id: 'kebakaran',
+                            title: 'Kebakaran',
+                            subtitle: 'Kebakaran rumah, gedung, hutan',
+                            icon: Icons.local_fire_department,
+                            color: Colors.orange,
+                            borderColor: Colors.orange.withOpacity(0.35),
+                            backgroundColor: Colors.orange.withOpacity(0.06),
+                            selected: selectedEmergencyCategory == 'kebakaran',
+                            onTap: () => setState(
+                                () => selectedEmergencyCategory = 'kebakaran'),
+                          ),
+                          EmergencyCard(
+                            id: 'keamanan',
+                            title: 'Keamanan',
+                            subtitle: 'Pencurian, perampokan, kekerasan',
+                            icon: Icons.security,
+                            color: Colors.blue,
+                            borderColor: Colors.blue.withOpacity(0.35),
+                            backgroundColor: Colors.blue.withOpacity(0.06),
+                            selected: selectedEmergencyCategory == 'keamanan',
+                            onTap: () => setState(
+                                () => selectedEmergencyCategory = 'keamanan'),
+                          ),
+                          EmergencyCard(
+                            id: 'bencana',
+                            title: 'Bencana Alam',
+                            subtitle: 'Banjir, gempa, tanah longsor',
+                            icon: Icons.warning,
+                            color: Colors.green,
+                            borderColor: Colors.green.withOpacity(0.35),
+                            backgroundColor: Colors.green.withOpacity(0.06),
+                            selected: selectedEmergencyCategory == 'bencana',
+                            onTap: () => setState(
+                                () => selectedEmergencyCategory = 'bencana'),
+                          ),
+                        ]),
             ),
 
             const SizedBox(height: 12),
@@ -570,7 +706,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
                   Expanded(
                     child: Text(
                       selectedEmergencyCategory != null
-                          ? 'Kategori terpilih: ${_getCategoryDisplayName(selectedEmergencyCategory!)}'
+                          ? 'Kategori terpilih: ${_getSelectedCategoryName(selectedEmergencyCategory!)}'
                           : 'Pilih salah satu jenis keadaan darurat di atas',
                       style: TextStyle(
                         fontSize: 12,
@@ -735,121 +871,6 @@ class _EmergencyPageState extends State<EmergencyPage> {
             ),
 
             const SizedBox(height: 24),
-
-            // User data loading or info card
-            if (isLoadingUserData)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Text(
-                      'Memuat data pengguna...',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-              )
-            else if (userName != null)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.person, color: Colors.blue),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Informasi Pelapor',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.person_outline,
-                                  size: 20, color: Colors.grey),
-                              const SizedBox(width: 8),
-                              Text(
-                                userName!,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(Icons.phone,
-                                  size: 20, color: Colors.grey),
-                              const SizedBox(width: 8),
-                              Text(userPhone!),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(Icons.credit_card,
-                                  size: 20, color: Colors.grey),
-                              const SizedBox(width: 8),
-                              Text(userNik!),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            const SizedBox(height: 24),
-
             // Tombol Darurat
             Container(
               padding: const EdgeInsets.all(20),
@@ -935,107 +956,6 @@ class _EmergencyPageState extends State<EmergencyPage> {
             ),
 
             const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmergencyCard({
-    required String key,
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required Color borderColor,
-    required Color backgroundColor,
-  }) {
-    final bool isSelected = selectedEmergencyCategory == key;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedEmergencyCategory = key;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : backgroundColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? color : borderColor,
-            width: isSelected ? 2.5 : 1.5,
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: color.withOpacity(0.3),
-                    blurRadius: 8,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : null,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isSelected ? color : color,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isSelected ? color : Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Flexible(
-              child: Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: isSelected ? color.withOpacity(0.8) : Colors.grey[700],
-                  height: 1.2,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (isSelected) ...[
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    size: 12,
-                    color: color,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Dipilih',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ],
         ),
       ),

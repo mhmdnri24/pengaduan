@@ -11,6 +11,9 @@ import '../components/banner.dart';
 import '../components/purple_slider.dart';
 // import '../services/complaint_service.dart';
 import 'history_page.dart';
+import 'package:pengaduan/services/session_service.dart';
+import 'notifications_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Constants for better maintainability
 class DashboardConstants {
@@ -26,7 +29,7 @@ class DashboardConstants {
   static const int notificationCount = 3;
   static const String avatarUrl = "assets/images/profile.jpeg";
   static const String backIcon = "assets/images/back-arrow.png";
-  static const String userName = "Edy Tama Kusumajaya";
+  static const String userName = "Pengguna";
   static const String searchHint = "Cari layanan atau informasi...";
 }
 
@@ -40,15 +43,50 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
+  String? _userName;
 
   @override
   void initState() {
     super.initState();
+    _loadUserNameFromSession();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  Future<void> _loadUserNameFromSession() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Try multiple sources and keys to be robust across flows
+      String? nameFromPrefs = prefs.getString('user_name');
+      nameFromPrefs ??= prefs.getString('nama_lengkap');
+
+      final dynamic nameFromSession =
+          await SessionService.instance.getFromSession('user_name');
+      String? name = (nameFromSession is String && nameFromSession.isNotEmpty)
+          ? nameFromSession
+          : nameFromPrefs;
+
+      if (name == null || name.isEmpty) {
+        name = DashboardConstants.userName;
+      }
+
+      // Debug log to help trace where name was loaded from
+      debugPrint(
+          'Dashboard: nameFromPrefs=${prefs.getString('user_name')}, nameFromSession=$nameFromSession, resolvedName=$name');
+      if (!mounted) return;
+      setState(() {
+        _userName = name;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _userName = DashboardConstants.userName;
+      });
+    }
   }
 
   void _onItemTapped(int index) {
@@ -64,7 +102,7 @@ class _DashboardPageState extends State<DashboardPage> {
       case 1:
         return "Histori";
       case 2:
-        return "Layanan";
+        return "Notif";
       case 3:
         return "Profile";
       case 4:
@@ -81,7 +119,7 @@ class _DashboardPageState extends State<DashboardPage> {
       case 1:
         return Icons.history;
       case 2:
-        return Icons.grid_view;
+        return Icons.notifications;
       case 3:
         return Icons.person;
       case 4:
@@ -96,59 +134,71 @@ class _DashboardPageState extends State<DashboardPage> {
     final isDesktop = MediaQuery.of(context).size.width >=
         DashboardConstants.desktopBreakpoint;
 
-    return Scaffold(
-      key: _scaffoldKey,
-      resizeToAvoidBottomInset: false,
-      appBar: Navbar(
-        title: _getTitle(),
-        notificationCount: DashboardConstants.notificationCount,
-        iconic: _getIcon(),
-      ),
-      drawer: isDesktop
-          ? null
-          : Sidebar(
-              onItemSelected: (i) => setState(() => _selectedIndex = i),
-              selectedIndex: _selectedIndex),
-      body: Row(
-        children: [
-          if (isDesktop)
-            SizedBox(
-              width: DashboardConstants.sidebarWidth,
-              child: Sidebar(
+    return WillPopScope(
+      onWillPop: () async {
+        if (_selectedIndex != 0) {
+          setState(() {
+            _selectedIndex = 0;
+          });
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        resizeToAvoidBottomInset: false,
+        appBar: Navbar(
+          title: _getTitle(),
+          notificationCount: DashboardConstants.notificationCount,
+          iconic: _getIcon(),
+        ),
+        drawer: isDesktop
+            ? null
+            : Sidebar(
                 onItemSelected: (i) => setState(() => _selectedIndex = i),
                 selectedIndex: _selectedIndex,
               ),
+        body: Row(
+          children: [
+            if (isDesktop)
+              SizedBox(
+                width: DashboardConstants.sidebarWidth,
+                child: Sidebar(
+                  onItemSelected: (i) => setState(() => _selectedIndex = i),
+                  selectedIndex: _selectedIndex,
+                ),
+              ),
+            Expanded(
+              child: _getBodyContent(isDesktop),
+            )
+          ],
+        ),
+        bottomNavigationBar: BottomAppBar(
+          color: DashboardConstants.primaryColor,
+          shape: const CircularNotchedRectangle(),
+          notchMargin: DashboardConstants.borderRadius,
+          child: SizedBox(
+            height: DashboardConstants.bottomNavHeight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildTabItem(Icons.home, "Home", 0),
+                _buildTabItem(Icons.history, "Histori", 1),
+                const SizedBox(width: 48), // ruang untuk FAB
+                _buildTabItem(Icons.notifications, "Notif", 2),
+                _buildTabItem(Icons.person, "Profile", 3),
+              ],
             ),
-          Expanded(
-            child: _getBodyContent(isDesktop),
-          )
-        ],
-      ),
-      bottomNavigationBar: BottomAppBar(
-        color: DashboardConstants.primaryColor,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: DashboardConstants.borderRadius,
-        child: SizedBox(
-          height: DashboardConstants.bottomNavHeight,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildTabItem(Icons.home, "Home", 0),
-              _buildTabItem(Icons.history, "Histori", 1),
-              const SizedBox(width: 48), // ruang untuk FAB
-              _buildTabItem(Icons.grid_view, "Layanan", 2),
-              _buildTabItem(Icons.person, "Profile", 3),
-            ],
           ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _onItemTapped(DashboardConstants.fabIndex),
-        backgroundColor: DashboardConstants.primaryColor,
-        shape: const CircleBorder(),
-        child: Icon(Icons.add,
-            size: DashboardConstants.fabSize, color: Colors.white),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _onItemTapped(DashboardConstants.fabIndex),
+          backgroundColor: DashboardConstants.primaryColor,
+          shape: const CircleBorder(),
+          child: Icon(Icons.add,
+              size: DashboardConstants.fabSize, color: Colors.white),
+        ),
       ),
     );
   }
@@ -184,7 +234,7 @@ class _DashboardPageState extends State<DashboardPage> {
       case 1:
         return _buildHistoryContent();
       case 2:
-        return _buildServicesContent(isDesktop);
+        return _buildServicesContent();
       case 3:
         return _buildProfileContent();
       case 4:
@@ -223,7 +273,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 10),
-                    const BannerCard(name: DashboardConstants.userName),
+                    BannerCard(name: _userName ?? DashboardConstants.userName),
                     // const SizedBox(height: 25),
                     // TextField(
                     //   decoration: InputDecoration(
@@ -305,11 +355,11 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildServicesContent(bool isDesktop) {
+  Widget _buildServicesContent() {
     return SingleChildScrollView(
       child: Column(
         children: [
-          IconGrid(isDesktop: isDesktop),
+          NotificationsPage(),
         ],
       ),
     );

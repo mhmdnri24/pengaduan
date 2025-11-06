@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 import 'icon_tile.dart';
 import '../pages/add_complaint_page.dart';
 import '../pages/emergency_page.dart';
@@ -76,33 +77,35 @@ class IconGrid extends StatelessWidget {
             accentColor: Colors.teal,
             onTap: () {
               // Add news functionality here
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fitur Berita akan segera hadir'),
-                  duration: Duration(seconds: 2),
-                ),
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.info,
+                title: "Segera Hadir",
+                text: 'Fitur Berita akan segera hadir',
+                autoCloseDuration: const Duration(seconds: 2),
+                showConfirmBtn: false,
               );
             },
           ),
-          IconTile(
-            icon: Icons.qr_code,
-            label: 'H.Komoditas',
-            gradient: LinearGradient(
-              colors: [Color(0xFFFFA726), Color(0xFFFB8C00)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            accentColor: Colors.orange,
-            onTap: () {
-              // Add commodity functionality here
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fitur Harga Komoditas akan segera hadir'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            },
-          ),
+          // IconTile(
+          //   icon: Icons.qr_code,
+          //   label: 'H.Komoditas',
+          //   gradient: LinearGradient(
+          //     colors: [Color(0xFFFFA726), Color(0xFFFB8C00)],
+          //     begin: Alignment.topLeft,
+          //     end: Alignment.bottomRight,
+          //   ),
+          //   accentColor: Colors.orange,
+          //   onTap: () {
+          //     // Add commodity functionality here
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       const SnackBar(
+          //         content: Text('Fitur Harga Komoditas akan segera hadir'),
+          //         duration: Duration(seconds: 2),
+          //       ),
+          //     );
+          //   },
+          // ),
           IconTile(
             icon: Icons.group,
             label: 'Fas.Umum',
@@ -114,11 +117,13 @@ class IconGrid extends StatelessWidget {
             accentColor: Colors.green,
             onTap: () {
               // Add public facilities functionality here
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fitur Fasilitas Umum akan segera hadir'),
-                  duration: Duration(seconds: 2),
-                ),
+              QuickAlert.show(
+                context: context,
+                type: QuickAlertType.info,
+                title: "Segera Hadir",
+                text: 'Fitur Fasilitas Umum akan segera hadir',
+                autoCloseDuration: const Duration(seconds: 2),
+                showConfirmBtn: false,
               );
             },
           ),

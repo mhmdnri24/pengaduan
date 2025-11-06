@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../models/complaint.dart';
 import './detail_pengaduan_page.dart';
@@ -36,10 +37,13 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<void> _loadComplaints({int? page}) async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
+
+    var userId = prefs.getString('user_id');
 
     try {
       final pageToLoad = page ?? _currentPage;
@@ -61,10 +65,10 @@ class _HistoryPageState extends State<HistoryPage> {
       }
 
       final response = await ApiService.instance.getComplaints(
-        page: pageToLoad,
-        limit: _itemsPerPage,
-        status: statusFilter,
-      );
+          page: pageToLoad,
+          limit: _itemsPerPage,
+          status: statusFilter,
+          userId: userId);
 
       if (response.success && response.data != null) {
         setState(() {
@@ -112,10 +116,13 @@ class _HistoryPageState extends State<HistoryPage> {
 
   Future<void> _loadCounts() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      var userId = prefs.getString('user_id');
       // Get total count
       final totalResponse = await ApiService.instance.getComplaints(
         page: 1,
         limit: 1,
+        userId: userId,
       );
 
       // Get proses count
@@ -123,6 +130,7 @@ class _HistoryPageState extends State<HistoryPage> {
         page: 1,
         limit: 1,
         status: 'PROSES',
+        userId: userId,
       );
 
       // Get selesai count
@@ -130,6 +138,7 @@ class _HistoryPageState extends State<HistoryPage> {
         page: 1,
         limit: 1,
         status: 'SELESAI',
+        userId: userId,
       );
 
       setState(() {
@@ -177,6 +186,18 @@ class _HistoryPageState extends State<HistoryPage> {
         ],
       ),
       const SizedBox(height: 16),
+      // Row(
+      //   mainAxisAlignment: MainAxisAlignment.end,
+      //   children: [
+      //     IconButton(
+      //       icon: const Icon(Icons.refresh, color: Color(0xFF1C3FAA)),
+      //       onPressed: () {
+      //         _loadComplaints();
+      //       },
+      //     ),
+      //   ],
+      // ),
+      const SizedBox(height: 8),
       _tabBar(),
       const SizedBox(height: 16),
     ];

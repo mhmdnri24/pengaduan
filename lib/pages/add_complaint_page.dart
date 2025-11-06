@@ -7,6 +7,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'dart:io';
 import '../services/complaint_service.dart';
+import '../services/api_service.dart';
+import '../components/emergency_card.dart';
 import 'package:quickalert/quickalert.dart';
 
 class AddComplaintPage extends StatefulWidget {
@@ -19,6 +21,8 @@ class AddComplaintPage extends StatefulWidget {
 
 class _AddComplaintPageState extends State<AddComplaintPage> {
   String? selectedCategory;
+  List<Map<String, dynamic>> _categories = [];
+  bool _isLoadingCategories = false;
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
@@ -54,7 +58,68 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
   void initState() {
     super.initState();
     _loadUserData();
+    _fetchCategories();
     _getCurrentLocation();
+  }
+
+  Future<void> _fetchCategories() async {
+    setState(() => _isLoadingCategories = true);
+    try {
+      final res = await ApiService.instance.getCategories();
+      if (res.success && res.data != null) {
+        final list = res.data!;
+        if (mounted) {
+          setState(() {
+            _categories = list;
+            _isLoadingCategories = false;
+          });
+        }
+      } else {
+        if (mounted) setState(() => _isLoadingCategories = false);
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingCategories = false);
+    }
+  }
+
+  // Return a style (color/icon) for known categories, otherwise pick from palette by index
+  Map<String, dynamic> _getCategoryStyle(String name, int index) {
+    final lower = name.toLowerCase();
+    if (lower.contains('infrastruktur')) {
+      return {'color': Colors.green.shade700, 'icon': Icons.account_balance};
+    }
+    if (lower.contains('lingkungan')) {
+      return {'color': Colors.green, 'icon': Icons.eco};
+    }
+    if (lower.contains('keamanan')) {
+      return {'color': Colors.orange, 'icon': Icons.security};
+    }
+    if (lower.contains('layanan')) {
+      return {'color': Colors.blue, 'icon': Icons.group};
+    }
+
+    // palette fallback
+    final palette = [
+      Colors.indigo,
+      Colors.teal,
+      Colors.purple,
+      Colors.cyan,
+      Colors.amber,
+      Colors.brown,
+      Colors.pink,
+    ];
+    final color = palette[index % palette.length];
+    final icons = [
+      Icons.report_problem,
+      Icons.home_repair_service,
+      Icons.water,
+      Icons.local_fire_department,
+      Icons.health_and_safety,
+      Icons.build,
+      Icons.support_agent,
+    ];
+    final icon = icons[index % icons.length];
+    return {'color': color, 'icon': icon};
   }
 
   Future<void> _loadUserData() async {
@@ -79,47 +144,6 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
         });
       }
     }
-  }
-
-  Widget _buildCategoryTile(
-      String key, IconData icon, Color iconBg, String label) {
-    final bool active = selectedCategory == key;
-    return GestureDetector(
-      onTap: () => setState(() => selectedCategory = key),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: active ? Colors.blue.shade700 : Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-                color: const Color.fromARGB(31, 177, 174, 174),
-                blurRadius: 6,
-                offset: Offset(0, 2))
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              height: 48,
-              width: 48,
-              decoration: BoxDecoration(
-                color: iconBg,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: Colors.white),
-            ),
-            const SizedBox(height: 8),
-            Text(label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _photoPlaceholder() {
@@ -349,14 +373,20 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
     setState(() {
       errorMessage = message;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.error,
+      title: "Error",
+      text: message,
     );
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.green),
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.success,
+      title: "Berhasil",
+      text: message,
     );
   }
 
@@ -634,9 +664,9 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
               centerTitle: true,
               leading: IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios),
+                icon: const Icon(Icons.arrow_back),
                 style: IconButton.styleFrom(
-                  backgroundColor: Colors.white.withOpacity(0.2),
+                  // backgroundColor: Colors.white.withOpacity(0.2),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -647,12 +677,14 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                 IconButton(
                   onPressed: () {
                     // Add help functionality here
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                            'Bantuan: Isi semua field yang diperlukan untuk membuat laporan'),
-                        duration: Duration(seconds: 3),
-                      ),
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.info,
+                      title: "Bantuan",
+                      text:
+                          'Isi semua field yang diperlukan untuk membuat laporan',
+                      autoCloseDuration: const Duration(seconds: 3),
+                      showConfirmBtn: false,
                     );
                   },
                   icon: const Icon(Icons.help_outline),
@@ -724,19 +756,107 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
                       childAspectRatio: 1.4,
-                      children: [
-                        _buildCategoryTile(
-                            'infrastruktur',
-                            Icons.account_balance,
-                            Colors.green,
-                            'Infrastruktur'),
-                        _buildCategoryTile('lingkungan', Icons.eco,
-                            Colors.green.shade700, 'Lingkungan'),
-                        _buildCategoryTile('keamanan', Icons.security,
-                            Colors.orange, 'Keamanan'),
-                        _buildCategoryTile(
-                            'layanan', Icons.group, Colors.blue, 'Layanan'),
-                      ],
+                      children: _isLoadingCategories
+                          ? [
+                              Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 20),
+                                alignment: Alignment.center,
+                                child: const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator()),
+                              )
+                            ]
+                          : (_categories.isNotEmpty
+                              ? _categories.asMap().entries.map((entry) {
+                                  final idx = entry.key;
+                                  final item = entry.value;
+                                  final id =
+                                      (item['pelaporan_id'] ?? item['id'] ?? '')
+                                          .toString();
+                                  final title = (item['pelaporan_nama'] ??
+                                          item['nama'] ??
+                                          '')
+                                      .toString();
+                                  final subtitle =
+                                      (item['created_at_formatted'] ?? '')
+                                          .toString();
+                                  final style = _getCategoryStyle(title, idx);
+                                  final Color color = style['color'] as Color;
+                                  final IconData iconData =
+                                      style['icon'] as IconData;
+                                  return EmergencyCard(
+                                    id: id,
+                                    title: title,
+                                    subtitle: subtitle,
+                                    icon: iconData,
+                                    color: color,
+                                    borderColor: color.withOpacity(0.35),
+                                    backgroundColor: color.withOpacity(0.06),
+                                    selected: selectedCategory == id,
+                                    onTap: () =>
+                                        setState(() => selectedCategory = id),
+                                  );
+                                }).toList()
+                              : [
+                                  EmergencyCard(
+                                    id: 'infrastruktur',
+                                    title: 'Infrastruktur',
+                                    subtitle:
+                                        'Jalan rusak, lampu mati, drainase',
+                                    icon: Icons.account_balance,
+                                    color: Colors.green.shade700,
+                                    borderColor:
+                                        Colors.green.shade700.withOpacity(0.35),
+                                    backgroundColor:
+                                        Colors.green.shade700.withOpacity(0.06),
+                                    selected:
+                                        selectedCategory == 'infrastruktur',
+                                    onTap: () => setState(() =>
+                                        selectedCategory = 'infrastruktur'),
+                                  ),
+                                  EmergencyCard(
+                                    id: 'lingkungan',
+                                    title: 'Lingkungan',
+                                    subtitle: 'Sampah, pencemaran, taman',
+                                    icon: Icons.eco,
+                                    color: Colors.green,
+                                    borderColor: Colors.green.withOpacity(0.35),
+                                    backgroundColor:
+                                        Colors.green.withOpacity(0.06),
+                                    selected: selectedCategory == 'lingkungan',
+                                    onTap: () => setState(
+                                        () => selectedCategory = 'lingkungan'),
+                                  ),
+                                  EmergencyCard(
+                                    id: 'keamanan',
+                                    title: 'Keamanan',
+                                    subtitle: 'Kriminalitas, ketertiban',
+                                    icon: Icons.security,
+                                    color: Colors.orange,
+                                    borderColor:
+                                        Colors.orange.withOpacity(0.35),
+                                    backgroundColor:
+                                        Colors.orange.withOpacity(0.06),
+                                    selected: selectedCategory == 'keamanan',
+                                    onTap: () => setState(
+                                        () => selectedCategory = 'keamanan'),
+                                  ),
+                                  EmergencyCard(
+                                    id: 'layanan',
+                                    title: 'Layanan',
+                                    subtitle: 'Pelayanan publik, administrasi',
+                                    icon: Icons.group,
+                                    color: Colors.blue,
+                                    borderColor: Colors.blue.withOpacity(0.35),
+                                    backgroundColor:
+                                        Colors.blue.withOpacity(0.06),
+                                    selected: selectedCategory == 'layanan',
+                                    onTap: () => setState(
+                                        () => selectedCategory = 'layanan'),
+                                  ),
+                                ]),
                     ),
                   ],
                 ),
@@ -980,196 +1100,112 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
 
             const SizedBox(height: 12),
 
-            // User data loading or info card
-            if (isLoadingUserData)
-              Card(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                elevation: 0.3,
-                child: const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Text(
-                        'Memuat data pengguna...',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else if (userName != null)
-              Card(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                elevation: 0.3,
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.person, color: Colors.blue),
-                          const SizedBox(width: 8),
-                          const Text('Informasi Pelapor',
-                              style: TextStyle(fontWeight: FontWeight.w600)),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.person_outline,
-                                    size: 20, color: Colors.grey),
-                                const SizedBox(width: 8),
-                                Text(
-                                  userName!,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                const Icon(Icons.phone,
-                                    size: 20, color: Colors.grey),
-                                const SizedBox(width: 8),
-                                Text(userPhone!),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                const Icon(Icons.credit_card,
-                                    size: 20, color: Colors.grey),
-                                const SizedBox(width: 8),
-                                Text(userNik!),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-            // Card(
-            //   color: Colors.white,
-            //   shape:
-            //       RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            //   elevation: 1,
-            //   child: Padding(
-            //     padding: const EdgeInsets.all(14),
-            //     child: Row(children: [
-            //       Checkbox(
-            //           value: anonymous,
-            //           onChanged: (v) => setState(() => anonymous = v ?? false)),
-            //       const SizedBox(width: 8),
-            //       const Expanded(
-            //           child: Text(
-            //               'Laporan Anonim\nIdentitas Anda akan disembunyikan dari publik',
-            //               style: TextStyle(color: Colors.black87))),
-            //     ]),
-            //   ),
-            // ),
-
-            const SizedBox(height: 12),
-
-            const SizedBox(height: 18),
-
             // Buttons
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 0),
-              child: Column(children: [
-                // Gradient submit button
-                InkWell(
-                  onTap: isLoading
-                      ? null
-                      : () {
-                          if (_validateForm()) {
-                            _submitComplaint();
-                          }
-                        },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    height: 54,
-                    decoration: BoxDecoration(
-                      gradient: isLoading
-                          ? LinearGradient(colors: [
-                              Colors.grey.shade400,
-                              Colors.grey.shade600
-                            ])
-                          : const LinearGradient(
-                              colors: [Color(0xFF2255EE), Color(0xFF4285F4)]),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 4))
-                      ],
-                    ),
-                    child: Center(
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                    color: Colors.white, strokeWidth: 2))
-                            : const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                    Icon(Icons.send, color: Colors.white),
-                                    SizedBox(width: 8),
-                                    Text('Kirim Laporan',
-                                        style: TextStyle(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 48,
+                      child: Material(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        shadowColor: Colors.black12,
+                        elevation: isLoading ? 0 : 3,
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: isLoading
+                                ? LinearGradient(colors: [
+                                    Colors.grey.shade400,
+                                    Colors.grey.shade600
+                                  ])
+                                : const LinearGradient(colors: [
+                                    Color(0xFF2255EE),
+                                    Color(0xFF4285F4)
+                                  ]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: InkWell(
+                            onTap: isLoading
+                                ? null
+                                : () {
+                                    if (_validateForm()) {
+                                      _submitComplaint();
+                                    }
+                                  },
+                            borderRadius: BorderRadius.circular(12),
+                            splashColor: Colors.white24,
+                            highlightColor: Colors.white10,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                              child: isLoading
+                                  ? const Center(
+                                      child: SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
                                             color: Colors.white,
-                                            fontWeight: FontWeight.bold))
-                                  ])),
+                                            strokeWidth: 2),
+                                      ),
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: const [
+                                        Icon(Icons.send,
+                                            size: 18, color: Colors.white),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Kirim Laporan',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade200,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 16, horizontal: 20),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SizedBox(
+                      height: 48,
+                      child: OutlinedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.save_outlined,
+                            size: 18, color: Colors.black54),
+                        label: const Text(
+                          'Simpan Draft',
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.grey.shade100,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 14),
+                          side:
+                              BorderSide(color: Colors.grey.shade300, width: 1),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                  child: const SizedBox(
-                      width: double.infinity,
-                      child: Center(
-                          child: Text('Simpan Sebagai Draft',
-                              style: TextStyle(color: Colors.black54)))),
-                ),
-                const SizedBox(height: 24),
-              ]),
+                ],
+              ),
             ),
+            const SizedBox(height: 24),
           ],
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../controllers/landing_controller.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:quickalert/quickalert.dart';
 import 'dart:io';
 
 class LandingPage extends StatefulWidget {
@@ -152,19 +153,19 @@ class _LandingPageState extends State<LandingPage> {
                                     if (!mounted) return;
 
                                     if (mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: Text(result.message),
-                                          behavior: SnackBarBehavior
-                                              .floating, // 👈 penting!
-                                          margin: const EdgeInsets.only(
-                                            bottom:
-                                                10.0, // jarak dari bawah (atur sesuai tinggi FAB + BottomAppBar)
-                                            right: 16.0,
-                                            left: 16.0,
-                                          ),
-                                        ),
+                                      await QuickAlert.show(
+                                        context: context,
+                                        type: result.success
+                                            ? QuickAlertType.success
+                                            : QuickAlertType.error,
+                                        title: result.success
+                                            ? "Berhasil"
+                                            : "Gagal",
+                                        text: result.message,
+                                        autoCloseDuration: result.success
+                                            ? const Duration(seconds: 2)
+                                            : null,
+                                        showConfirmBtn: !result.success,
                                       );
                                     }
 
@@ -272,18 +273,19 @@ class _LandingPageState extends State<LandingPage> {
                                   setState(() => verifying = false);
 
                                   if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(result.message),
-                                        behavior: SnackBarBehavior
-                                            .floating, // 👈 penting!
-                                        margin: const EdgeInsets.only(
-                                          bottom:
-                                              80.0, // jarak dari bawah (atur sesuai tinggi FAB + BottomAppBar)
-                                          right: 16.0,
-                                          left: 16.0,
-                                        ),
-                                      ),
+                                    await QuickAlert.show(
+                                      context: context,
+                                      type: result.success
+                                          ? QuickAlertType.success
+                                          : QuickAlertType.error,
+                                      title: result.success
+                                          ? "Berhasil"
+                                          : "Gagal",
+                                      text: result.message,
+                                      autoCloseDuration: result.success
+                                          ? const Duration(seconds: 2)
+                                          : null,
+                                      showConfirmBtn: !result.success,
                                     );
                                   }
 
@@ -567,8 +569,11 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error mengambil foto: $e')),
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Error",
+        text: 'Error mengambil foto: $e',
       );
     }
   }
@@ -585,8 +590,11 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error mengambil foto: $e')),
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Error",
+        text: 'Error mengambil foto: $e',
       );
     }
   }
@@ -595,11 +603,13 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
     if (_agreeToTerms && _selfiePhoto != null && _idCardPhoto != null) {
       // TODO: Implement registration logic
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registrasi berhasil!'),
-          behavior: SnackBarBehavior.floating,
-        ),
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.success,
+        title: "Berhasil",
+        text: 'Registrasi berhasil!',
+        autoCloseDuration: const Duration(seconds: 2),
+        showConfirmBtn: false,
       );
     }
   }

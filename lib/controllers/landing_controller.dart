@@ -164,19 +164,18 @@ class LandingController extends ChangeNotifier {
       print('Body: ${resp.body}');
 
       if (resp.statusCode == 200 || resp.statusCode == 201) {
-        final Map<String, dynamic> body = jsonDecode(resp.body) as Map<String, dynamic>;
+        final Map<String, dynamic> body =
+            jsonDecode(resp.body) as Map<String, dynamic>;
         if (body['status'] == 'success') {
           return SendOtpResult(true, body['message']);
         } else {
           return SendOtpResult(false, body['message']);
         }
-      }else{
-          final Map<String, dynamic> body = jsonDecode(resp.body) as Map<String, dynamic>;
-         return SendOtpResult(
-          false, body['message']);
+      } else {
+        final Map<String, dynamic> body =
+            jsonDecode(resp.body) as Map<String, dynamic>;
+        return SendOtpResult(false, body['message']);
       }
-
-     
     } catch (e) {
       return SendOtpResult(false, 'Terjadi kesalahan: $e');
     } finally {
@@ -331,7 +330,8 @@ class LandingController extends ChangeNotifier {
       print(deviceId);
 
       if (userId != null && fcmToken != null && deviceId != null) {
-        print('Registering device: userId=$userId, fcmToken=$fcmToken, deviceId=$deviceId');
+        print(
+            'Registering device: userId=$userId, fcmToken=$fcmToken, deviceId=$deviceId');
 
         final response = await ApiService.instance.registerDevice(
           masyarakatId: userId,
@@ -345,7 +345,8 @@ class LandingController extends ChangeNotifier {
           print('Failed to register device: ${response.error}');
         }
       } else {
-        print('Missing session data for device registration: userId=$userId, fcmToken=$fcmToken, deviceId=$deviceId');
+        print(
+            'Missing session data for device registration: userId=$userId, fcmToken=$fcmToken, deviceId=$deviceId');
       }
     } catch (e) {
       print('Error registering device: $e');
@@ -371,6 +372,11 @@ class LandingController extends ChangeNotifier {
     if (data.containsKey('nama_lengkap'))
       await prefs.setString(
           'user_name', data['nama_lengkap']?.toString() ?? '');
+    // Also save to SessionService storage for consistency
+    if (data.containsKey('nama_lengkap')) {
+      await SessionService.instance
+          .saveToSession('user_name', data['nama_lengkap']?.toString() ?? '');
+    }
     if (data.containsKey('nik'))
       await prefs.setString('user_nik', data['nik']?.toString() ?? '');
     if (data.containsKey('no_telpon'))
@@ -379,7 +385,7 @@ class LandingController extends ChangeNotifier {
       await prefs.setString(
           'user_photo_url', data['foto_profil_url']?.toString() ?? '');
     if (token != null) await prefs.setBool('is_logged_in', true);
-    
+
     // Save to session service as well
     if (data.containsKey('id')) {
       await SessionService.instance.saveUserId(data['id'].toString());

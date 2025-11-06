@@ -775,42 +775,54 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
           const SizedBox(height: 30),
 
-          // === Buttons ===
-          ElevatedButton.icon(
-            icon: isSaving
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white))
-                : const Icon(Icons.save_alt, color: Colors.white),
-            label: const Text(
-              'Simpan & Lanjutkan',
-              style: TextStyle(color: Colors.white),
-            ),
-            onPressed: isSaving ? null : () => _saveProfile(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            icon: const Icon(Icons.arrow_forward),
-            label: const Text(
-              'Lewati untuk Sekarang',
-              style: TextStyle(color: Colors.black),
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
+          // === Buttons - Horizontal Layout ===
+          Row(
+            children: [
+              // Simpan & Lanjutkan Button
+              Expanded(
+                child: ElevatedButton.icon(
+                  icon: isSaving
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white))
+                      : const Icon(Icons.save_alt, color: Colors.white),
+                  label: const Text(
+                    'Simpan',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: isSaving ? null : () => _saveProfile(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              // Lewati untuk Sekarang Button
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text(
+                    'Lewati',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 30),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 import '../models/complaint.dart';
 import '../services/complaint_service.dart';
 import 'complaint_detail_screen.dart';
@@ -92,14 +93,14 @@ class _ComplaintsListScreenState extends State<ComplaintsListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final messenger = ScaffoldMessenger.of(context);
           await _complaintService.simulateNewComplaint();
-          messenger.showSnackBar(
-            const SnackBar(
-              content:
-                  Text('New complaint simulated! Check the bubble overlay.'),
-              duration: Duration(seconds: 2),
-            ),
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.info,
+            title: "Simulasi",
+            text: 'New complaint simulated! Check the bubble overlay.',
+            autoCloseDuration: const Duration(seconds: 2),
+            showConfirmBtn: false,
           );
         },
         tooltip: 'Simulate New Complaint',

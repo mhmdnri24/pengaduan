@@ -37,6 +37,8 @@ class ProgressTimeline extends StatelessWidget {
       );
     }
 
+    print(history.length);
+
     if (history.isEmpty) {
       return Card(
         color: Colors.grey.shade50,
@@ -83,7 +85,7 @@ class ProgressTimeline extends StatelessWidget {
               final index = entry.key;
               final item = entry.value;
               final isLast = index == history.length - 1;
-              
+
               return _buildTimelineItem(
                 item: item,
                 isLast: isLast,
@@ -103,31 +105,34 @@ class ProgressTimeline extends StatelessWidget {
   }) {
     final keterangan = item['keterangan']?.toString() ?? '';
     final statusBaru = item['status_baru']?.toString() ?? '';
-    final updatedBy = item['updated_by']?.toString() ?? '';
+    final updatedBy = item['created_by_name']?.toString() ?? '';
     final updatedAt = item['updated_at_formatted']?.toString() ?? '';
-    
+
     // Map status to appropriate icons and colors
     final statusInfo = _getStatusInfo(statusBaru);
-    
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Timeline indicator
         Column(
           children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: isCompleted ? statusInfo['color'] : Colors.grey.shade300,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                statusInfo['icon'],
-                color: Colors.white,
-                size: 14,
-              ),
-            ),
+            if (keterangan.isNotEmpty) ...[
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color:
+                      isCompleted ? statusInfo['color'] : Colors.grey.shade300,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  statusInfo['icon'],
+                  color: Colors.white,
+                  size: 14,
+                ),
+              )
+            ],
             if (!isLast)
               Container(
                 width: 2,
@@ -161,7 +166,7 @@ class ProgressTimeline extends StatelessWidget {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  if (updatedBy.isNotEmpty) ...[
+                  if (updatedBy.isNotEmpty && keterangan.isNotEmpty) ...[
                     Text(
                       updatedBy,
                       style: GoogleFonts.poppins(
@@ -180,13 +185,15 @@ class ProgressTimeline extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                   ],
-                  Text(
-                    updatedAt,
-                    style: GoogleFonts.poppins(
-                      fontSize: 11,
-                      color: Colors.grey.shade600,
+                  if (updatedAt.isNotEmpty && keterangan.isNotEmpty) ...[
+                    Text(
+                      updatedAt,
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
-                  ),
+                  ]
                 ],
               ),
               if (!isLast) const SizedBox(height: 16),

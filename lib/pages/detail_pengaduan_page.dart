@@ -8,6 +8,7 @@ import 'package:pengaduan/config/api_config.dart';
 import 'package:pengaduan/components/progress_timeline.dart';
 import 'package:pengaduan/services/api_service.dart';
 import 'package:pengaduan/services/session_service.dart';
+import 'package:quickalert/quickalert.dart';
 
 class DetailPengaduanPage extends StatefulWidget {
   final String complaintId;
@@ -113,6 +114,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
         if (data['status'] == 'success' && data['data'] != null) {
           final historyData = data['data'] as Map<String, dynamic>;
           final historyList = historyData['history'] as List<dynamic>? ?? [];
+          print(historyData);
 
           setState(() {
             _history = historyList.cast<Map<String, dynamic>>();
@@ -141,8 +143,11 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
 
   Future<void> _submitRating() async {
     if (_selectedRating == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Silakan pilih rating terlebih dahulu')),
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: "Perhatian",
+        text: 'Silakan pilih rating terlebih dahulu',
       );
       return;
     }
@@ -157,11 +162,11 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
 
       if (userId == null) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Session tidak valid. Silakan login kembali.'),
-              backgroundColor: Colors.red,
-            ),
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: "Session Tidak Valid",
+            text: 'Silakan login kembali.',
           );
         }
         setState(() {
@@ -181,11 +186,13 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
 
       if (response.success) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Rating berhasil dikirim!'),
-              backgroundColor: Colors.green,
-            ),
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.success,
+            title: "Berhasil",
+            text: 'Rating berhasil dikirim!',
+            autoCloseDuration: const Duration(seconds: 2),
+            showConfirmBtn: false,
           );
         }
 
@@ -200,22 +207,21 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
         }
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  'Gagal mengirim rating: ${response.error ?? 'Unknown error'}'),
-              backgroundColor: Colors.red,
-            ),
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: "Gagal",
+            text: 'Gagal mengirim rating: ${response.error ?? 'Unknown error'}',
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Error",
+          text: 'Error: $e',
         );
       }
     } finally {
@@ -246,6 +252,15 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: () {
+              _fetchDetail();
+              _fetchHistory();
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10),
@@ -295,6 +310,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
     final kategori = data['nama_kategori']?.toString() ??
         (data['kategori']?.toString() ?? '-');
     final fotoUrl = data['foto_url']?.toString();
+    final filesList = (data['files'] as List?) ?? [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,40 +348,74 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
                     borderRadius: BorderRadius.circular(12),
                     child: Image.network(
                       fotoUrl,
-                      height: 160,
+                      height: 200,
                       width: double.infinity,
                       fit: BoxFit.cover,
                       errorBuilder: (c, e, s) => Container(
-                        height: 160,
+                        height: 200,
                         color: Colors.grey[200],
                         child: const Center(child: Icon(Icons.broken_image)),
                       ),
                     ),
                   ),
                   const SizedBox(height: 12),
-                ] else if ((data['files'] as List?)?.isNotEmpty ?? false) ...[
-                  SizedBox(
-                    height: 100,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: (data['files'] as List).map<Widget>((f) {
-                        final fileUrl = f['file_url']?.toString();
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: fileUrl != null
-                                ? Image.network(fileUrl,
-                                    width: 140, height: 100, fit: BoxFit.cover)
-                                : Container(
-                                    width: 140,
-                                    height: 100,
-                                    color: Colors.grey[200]),
+                ] else if (filesList.isNotEmpty) ...[
+                  // Show first file as full-width image
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Builder(builder: (context) {
+                      final firstUrl = filesList.isNotEmpty
+                          ? (filesList[0]['file_url']?.toString())
+                          : null;
+                      if (firstUrl != null && firstUrl.isNotEmpty) {
+                        return Image.network(
+                          firstUrl,
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
+                          errorBuilder: (c, e, s) => Container(
+                            height: 200,
+                            color: Colors.grey[200],
+                            child:
+                                const Center(child: Icon(Icons.broken_image)),
                           ),
                         );
-                      }).toList(),
-                    ),
+                      }
+                      return Container(
+                        width: double.infinity,
+                        height: 200,
+                        color: Colors.grey[200],
+                        child: const Center(child: Icon(Icons.broken_image)),
+                      );
+                    }),
                   ),
+                  const SizedBox(height: 12),
+                  // If there are more files, show them as thumbnails below
+                  if (filesList.length > 1)
+                    SizedBox(
+                      height: 100,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: filesList.skip(1).map<Widget>((f) {
+                          final fileUrl = f['file_url']?.toString();
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: fileUrl != null
+                                  ? Image.network(fileUrl,
+                                      width: 140,
+                                      height: 100,
+                                      fit: BoxFit.cover)
+                                  : Container(
+                                      width: 140,
+                                      height: 100,
+                                      color: Colors.grey[200]),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
                 ],
                 Text(
                   title,
@@ -393,12 +443,12 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: InkWell(
-                            onTap: () => _showLocationMap(data),
+                            onTap: () {},
                             child: Row(
                               children: [
                                 Expanded(child: _infoText('Lokasi', lokasi)),
-                                const Icon(Icons.map,
-                                    size: 20, color: Color(0xFF1C3FAA)),
+                                // const Icon(Icons.map,
+                                //     size: 20, color: Color(0xFF1C3FAA)),
                               ],
                             ),
                           ),
@@ -422,13 +472,41 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
           ),
         ),
         const SizedBox(height: 20),
-
-        // Progress Timeline
-        ProgressTimeline(
-          history: _history,
-          isLoading: _historyLoading,
-          error: _historyError,
+        // Improved Maps Button
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          child: ElevatedButton.icon(
+            icon: const Icon(Icons.map_outlined, size: 20),
+            label: const Text(
+              'Lihat Lokasi di Peta',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            onPressed: () => _showLocationMap(data),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1C3FAA),
+              foregroundColor: Colors.white,
+              elevation: 2,
+              shadowColor: const Color(0xFF1C3FAA).withOpacity(0.3),
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
         ),
+
+        // Progress Timeline - only show if there's data or loading/error state
+        if ((_history.isNotEmpty || _historyLoading || _historyError != null) &&
+            _history.length > 1)
+          ProgressTimeline(
+            history: _history,
+            isLoading: _historyLoading,
+            error: _historyError,
+          ),
 
         const SizedBox(height: 20),
 
@@ -610,11 +688,11 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
     final double? lng = double.tryParse(data['lokasi_lng']?.toString() ?? '');
 
     if (lat == null || lng == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Lokasi tidak tersedia'),
-          backgroundColor: Colors.orange,
-        ),
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: "Lokasi Tidak Tersedia",
+        text: 'Lokasi tidak tersedia',
       );
       return;
     }

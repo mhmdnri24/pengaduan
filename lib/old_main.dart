@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:quickalert/quickalert.dart';
 import 'services/complaint_service.dart';
 import 'services/bubble_overlay_service.dart';
 import 'screens/complaints_list_screen.dart';
@@ -214,16 +215,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () async {
-                    final messenger = ScaffoldMessenger.of(context);
-                      await _printFcmToken();
-                      debugPrint('Simulating new complaint...');
+                    await _printFcmToken();
+                    debugPrint('Simulating new complaint...');
                     await _complaintService.simulateNewComplaint();
                     if (!mounted) return;
-                    messenger.showSnackBar(
-                      const SnackBar(
-                        content: Text('New complaint simulated! Check the bubble overlay.'),
-                        duration: Duration(seconds: 2),
-                      ),
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.info,
+                      title: "Simulasi",
+                      text: 'New complaint simulated! Check the bubble overlay.',
+                      autoCloseDuration: const Duration(seconds: 2),
+                      showConfirmBtn: false,
                     );
                   },
                   icon: const Icon(Icons.add_alert),

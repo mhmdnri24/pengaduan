@@ -639,8 +639,11 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error mengambil foto: $e')),
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Error",
+        text: 'Error mengambil foto: $e',
       );
     }
   }
@@ -657,8 +660,11 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error mengambil foto: $e')),
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Error",
+        text: 'Error mengambil foto: $e',
       );
     }
   }

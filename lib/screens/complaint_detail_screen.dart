@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 import '../models/complaint.dart';
 
 class ComplaintDetailScreen extends StatelessWidget {
@@ -136,10 +137,13 @@ class ComplaintDetailScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   // Handle complaint action
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Complaint action performed'),
-                    ),
+                  QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.info,
+                    title: "Info",
+                    text: 'Complaint action performed',
+                    autoCloseDuration: const Duration(seconds: 2),
+                    showConfirmBtn: false,
                   );
                 },
                 style: ElevatedButton.styleFrom(
