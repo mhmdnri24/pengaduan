@@ -30,6 +30,9 @@ dependencies:
   quickalert: ^1.1.0
   google_maps_flutter: ^2.13.1
   webview_flutter: ^4.4.2
+  webview_flutter_android: ^3.12.1
+  webview_flutter_wkwebview: ^3.9.4
+  photo_view: ^0.15.0
 
 dev_dependencies:
   flutter_test:

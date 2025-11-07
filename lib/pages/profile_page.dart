@@ -219,14 +219,14 @@ class _ProfilePageState extends State<ProfilePage> {
                               label: 'No. Telepon',
                               value: userPhone ?? '-',
                             ),
-                            if (deviceId != null) ...[
-                              const Divider(height: 16),
-                              _infoItem(
-                                icon: Icons.phone_android_outlined,
-                                label: 'ID Perangkat',
-                                value: deviceId!,
-                              ),
-                            ],
+                            // if (deviceId != null) ...[
+                            //   const Divider(height: 16),
+                            //   _infoItem(
+                            //     icon: Icons.phone_android_outlined,
+                            //     label: 'ID Perangkat',
+                            //     value: deviceId!,
+                            //   ),
+                            // ],
                           ],
                         ),
                       ),

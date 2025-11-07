@@ -17,6 +17,8 @@ import 'pages/landing_page.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/detail_pengaduan_page.dart';
+import 'pages/cctv_list_page.dart';
+import 'pages/cctv_video_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +28,7 @@ void main() async {
 
   // Initialize the complaint service
   await ComplaintService.instance.initialize();
-  
+
   // Check overlay permission on Android
   if (Platform.isAndroid) {
     await _checkOverlayPermission();
@@ -63,7 +65,7 @@ void main() async {
       if (id == null || id.isEmpty) {
         id = '1'; // fallback ID
       }
-      
+
       // Use showBubbleWithId to ensure complaintId is stored
       await BubbleOverlayService.showBubbleWithId(id);
     }
@@ -79,7 +81,7 @@ void main() async {
     if (id == null || id.isEmpty) {
       id = '1'; // fallback ID
     }
-    
+
     // Use showBubbleWithId to ensure complaintId is stored
     await BubbleOverlayService.showBubbleWithId(id);
     // optional: keep Dart audio as extra feedback when app is foreground
@@ -96,7 +98,7 @@ void main() async {
     if (id == null || id.isEmpty) {
       id = '1'; // fallback ID
     }
-    
+
     // Use showBubbleWithId to ensure complaintId is stored
     await BubbleOverlayService.showBubbleWithId(id);
     await playNotificationSound();
@@ -127,7 +129,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     if (id == null || id.isEmpty) {
       id = '1'; // fallback ID
     }
-    
+
     // Use MethodChannel to invoke native start/show with ID
     const platform = MethodChannel('bubble_overlay');
     await platform.invokeMethod('showBubbleWithId', {'id': id});
@@ -159,7 +161,7 @@ Future<void> _saveFcmToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('fcm_token', token);
   }
-  
+
   // Also write to prefs for quick access
   try {
     final prefs = await SharedPreferences.getInstance();
@@ -167,7 +169,7 @@ Future<void> _saveFcmToken(String token) async {
   } catch (e) {
     debugPrint('Failed to write fcm_token to prefs: $e');
   }
-  
+
   // Save to session storage
   try {
     await SessionService.instance.saveFcmToken(token);
@@ -180,24 +182,24 @@ Future<void> _saveFcmToken(String token) async {
 Future<String?> _getDeviceId() async {
   try {
     final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    
+
     if (Platform.isAndroid) {
       final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       final String deviceId = androidInfo.id;
       debugPrint('Android Device ID: $deviceId');
-      
+
       // Save device ID to secure storage
       await _saveDeviceId(deviceId);
-      
+
       return deviceId;
     } else if (Platform.isIOS) {
       final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       final String deviceId = iosInfo.identifierForVendor ?? 'unknown';
       debugPrint('iOS Device ID: $deviceId');
-      
+
       // Save device ID to secure storage
       await _saveDeviceId(deviceId);
-      
+
       return deviceId;
     } else {
       debugPrint('Unsupported platform for device ID');
@@ -220,7 +222,7 @@ Future<void> _saveDeviceId(String deviceId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('device_id', deviceId);
   }
-  
+
   // Also write to prefs for quick access
   try {
     final prefs = await SharedPreferences.getInstance();
@@ -228,7 +230,7 @@ Future<void> _saveDeviceId(String deviceId) async {
   } catch (e) {
     debugPrint('Failed to write device_id to prefs: $e');
   }
-  
+
   // Save to session storage
   try {
     await SessionService.instance.saveDeviceId(deviceId);
@@ -241,15 +243,16 @@ Future<void> _saveDeviceId(String deviceId) async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   static const String _title = 'Complaint Management App';
-  
+
   // Global navigator key for navigation
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
     // Initialize FCM handler
     FCMHandler.initialize();
-    
+
     return MaterialApp(
       title: _title,
       navigatorKey: navigatorKey, // Use the global navigator key
@@ -265,12 +268,15 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
         '/dashboard': (context) => const DashboardPage(),
-        '/complaints': (context) => const DashboardPage(), // Redirect to dashboard for now
+        '/complaints': (context) =>
+            const DashboardPage(), // Redirect to dashboard for now
         '/detail': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
           final String id = args?['id'] ?? '';
           return DetailPengaduanPage(complaintId: id);
         },
+        '/cctv': (context) => const CctvListPage(),
       },
       builder: (context, child) {
         // Initialize bubble overlay service after MaterialApp is built
@@ -287,10 +293,11 @@ class MyApp extends StatelessWidget {
 Future<void> _checkOverlayPermission() async {
   try {
     const platform = MethodChannel('bubble_overlay');
-    
+
     // Check if permission is already granted
-    final bool hasPermission = await platform.invokeMethod('checkOverlayPermission');
-    
+    final bool hasPermission =
+        await platform.invokeMethod('checkOverlayPermission');
+
     if (!hasPermission) {
       print('Overlay permission not granted, requesting...');
       // Request permission

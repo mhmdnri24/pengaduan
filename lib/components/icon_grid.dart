@@ -5,6 +5,7 @@ import '../pages/add_complaint_page.dart';
 import '../pages/emergency_page.dart';
 import '../pages/news_page.dart';
 import '../pages/news_list_page.dart';
+import '../pages/cctv_list_page.dart';
 
 class IconGrid extends StatelessWidget {
   final bool isDesktop;
@@ -106,8 +107,8 @@ class IconGrid extends StatelessWidget {
           //   },
           // ),
           IconTile(
-            icon: Icons.group,
-            label: 'Fas.Umum',
+            icon: Icons.videocam,
+            label: 'CCTV',
             gradient: LinearGradient(
               colors: [Color(0xFF66BB6A), Color(0xFF43A047)],
               begin: Alignment.topLeft,
@@ -115,14 +116,11 @@ class IconGrid extends StatelessWidget {
             ),
             accentColor: Colors.green,
             onTap: () {
-              // Add public facilities functionality here
-              QuickAlert.show(
-                context: context,
-                type: QuickAlertType.info,
-                title: "Segera Hadir",
-                text: 'Fitur Fasilitas Umum akan segera hadir',
-                autoCloseDuration: const Duration(seconds: 2),
-                showConfirmBtn: false,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CctvListPage(),
+                ),
               );
             },
           ),

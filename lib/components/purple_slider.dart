@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/slider.dart';
 import '../services/session_service.dart';
+import 'full_screen_image.dart';
 
 class PurpleSlider extends StatefulWidget {
   final Duration autoPlayInterval;
@@ -21,6 +22,8 @@ class _PurpleSliderState extends State<PurpleSlider> {
   List<SliderItem> _sliders = [];
   bool _isLoading = true;
   String? _errorMessage;
+  bool _isLightboxVisible = false;
+  int _lightboxIndex = 0;
 
   @override
   void initState() {
@@ -145,23 +148,52 @@ class _PurpleSliderState extends State<PurpleSlider> {
         children: [
           // Background image that fills the entire container
           if (slider.fileUrl.isNotEmpty)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                slider.fileUrl,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
+            GestureDetector(
+              onTap: () {
+                // Filter sliders with non-empty fileUrls
+                final validSliders =
+                    _sliders.where((s) => s.fileUrl.isNotEmpty).toList();
+                if (validSliders.isEmpty) return;
+
+                final imageUrls = validSliders.map((s) => s.fileUrl).toList();
+                final titles = validSliders.map((s) => s.title).toList();
+
+                // Find index of current slider in filtered list
+                final currentIndex =
+                    validSliders.indexWhere((s) => s.fileUrl == slider.fileUrl);
+                if (currentIndex == -1) return;
+
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => FullScreenImage(
+                      imageUrls: imageUrls,
+                      titles: titles,
+                      initialIndex: currentIndex,
+                    ),
+                  ),
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Hero(
+                  tag: 'slider_${slider.fileUrl}',
+                  child: Image.network(
+                    slider.fileUrl,
                     width: double.infinity,
                     height: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: themes[idx].gradient,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  );
-                },
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: themes[idx].gradient,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
             )
           else
@@ -237,33 +269,6 @@ class _PurpleSliderState extends State<PurpleSlider> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.circle,
-                        size: 8,
-                        color: slider.status == 'AKTIF'
-                            ? Colors.greenAccent
-                            : Colors.grey,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        slider.statusFormatted,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              color: Colors.black.withOpacity(0.5),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
@@ -274,9 +279,9 @@ class _PurpleSliderState extends State<PurpleSlider> {
   }
 
   Widget _buildLoadingIndicator() {
-    return const SizedBox(
-      height: 140,
-      child: Center(
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: const Center(
         child: CircularProgressIndicator(color: Colors.blueAccent),
       ),
     );
@@ -284,7 +289,7 @@ class _PurpleSliderState extends State<PurpleSlider> {
 
   Widget _buildErrorMessage() {
     return Container(
-      height: 140,
+      height: MediaQuery.of(context).size.width * 9 / 16, // Match aspect ratio
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -334,40 +339,219 @@ class _PurpleSliderState extends State<PurpleSlider> {
       return _buildErrorMessage();
     }
 
-    return Column(
+    return Stack(
       children: [
-        SizedBox(
-          height: 140,
-          child: PageView.builder(
-            controller: _controller,
-            itemCount: _sliders.length,
-            itemBuilder: _buildSlide,
+        Column(
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 9, // Standard widescreen ratio
+              child: PageView.builder(
+                controller: _controller,
+                itemCount: _sliders.length,
+                itemBuilder: _buildSlide,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(_sliders.length, (i) {
+                final active = i == _page;
+                return GestureDetector(
+                  onTap: () => _controller.animateToPage(i,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.symmetric(horizontal: 6),
+                    width: active ? 14 : 8,
+                    height: active ? 14 : 8,
+                    decoration: BoxDecoration(
+                        color: active
+                            ? Colors.blueAccent
+                            : Colors.blueAccent.withOpacity(0.35),
+                        shape: BoxShape.circle),
+                  ),
+                );
+              }),
+            ),
+          ],
+        ),
+
+        // Lightbox overlay
+        if (_isLightboxVisible) _buildLightbox(),
+      ],
+    );
+  }
+
+  Widget _buildLightbox() {
+    if (_sliders.isEmpty || _lightboxIndex >= _sliders.length) {
+      return const SizedBox.shrink();
+    }
+
+    final slider = _sliders[_lightboxIndex];
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isLightboxVisible = false;
+        });
+      },
+      child: Container(
+        color: Colors.black.withOpacity(0.9),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Close button
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 40, right: 20),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isLightboxVisible = false;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Image
+              if (slider.fileUrl.isNotEmpty)
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.7,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      slider.fileUrl,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.error_outline,
+                              color: Colors.grey,
+                              size: 48,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 20),
+
+              // Navigation buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Previous button
+                  if (_lightboxIndex > 0)
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _lightboxIndex = _lightboxIndex - 1;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+
+                  const SizedBox(width: 40),
+
+                  // Next button
+                  if (_lightboxIndex < _sliders.length - 1)
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _lightboxIndex = _lightboxIndex + 1;
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Title and description
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    Text(
+                      slider.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    if (slider.description.isNotEmpty)
+                      Text(
+                        slider.description,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_sliders.length, (i) {
-            final active = i == _page;
-            return GestureDetector(
-              onTap: () => _controller.animateToPage(i,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                margin: const EdgeInsets.symmetric(horizontal: 6),
-                width: active ? 14 : 8,
-                height: active ? 14 : 8,
-                decoration: BoxDecoration(
-                    color: active
-                        ? Colors.blueAccent
-                        : Colors.blueAccent.withOpacity(0.35),
-                    shape: BoxShape.circle),
-              ),
-            );
-          }),
-        ),
-      ],
+      ),
     );
   }
 }
