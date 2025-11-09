@@ -532,6 +532,7 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
       // Convert XFile images to File objects
       List<File> imageFiles =
           selectedImages.map((xfile) => File(xfile.path)).toList();
+      print('imageFiles.length: ${imageFiles.length}');
 
       // Submit complaint
       var response = await ComplaintService.instance.submitComplaint(

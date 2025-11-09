@@ -99,16 +99,21 @@ class ApiService {
 
       // Add photo files if provided
       if (foto != null && foto.isNotEmpty) {
+        print('Adding ${foto.length} photo files to request');
         for (int i = 0; i < foto.length && i < 3; i++) {
           var file = foto[i];
           var fileName = 'foto_${i + 1}.jpg';
+          var fieldName =
+              'foto_${i + 1}'; // Use different field name for each file
+          print('Adding file ${i + 1}: $fileName with field name: $fieldName');
           var multipartFile = await http.MultipartFile.fromPath(
-            'foto',
+            fieldName,
             file.path,
             filename: fileName,
           );
           request.files.add(multipartFile);
         }
+        print('Total files in request: ${request.files.length}');
       }
 
       var streamedResponse = await request.send();
@@ -387,16 +392,22 @@ class ApiService {
 
       // Add photo files if provided
       if (foto != null && foto.isNotEmpty) {
+        print('Adding ${foto.length} photo files to emergency report request');
         for (int i = 0; i < foto.length && i < 3; i++) {
           var file = foto[i];
           var fileName = 'foto_${i + 1}.jpg';
+          var fieldName =
+              'foto_${i + 1}'; // Use different field name for each file
+          print('Adding file ${i + 1}: $fileName with field name: $fieldName');
           var multipartFile = await http.MultipartFile.fromPath(
-            'foto',
+            fieldName,
             file.path,
             filename: fileName,
           );
           request.files.add(multipartFile);
         }
+        print(
+            'Total files in emergency report request: ${request.files.length}');
       }
 
       var streamedResponse = await request.send();

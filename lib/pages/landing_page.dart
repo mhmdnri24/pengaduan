@@ -88,158 +88,166 @@ class _LandingPageState extends State<LandingPage> {
           value: controller,
           child: StatefulBuilder(
             builder: (context, setState) {
-        return Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.85,
-                  minWidth: 280,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 6),
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [blue.withOpacity(0.9), blue],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
+              return Padding(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.85,
+                        minWidth: 280,
                       ),
-                      child: const Icon(Icons.smartphone,
-                          color: Colors.white, size: 32),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text('Login dengan NIK',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 6),
-                    const Text('Masukkan NIK untuk menerima kode OTP',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.black54)),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: const [
-                        Icon(Icons.badge, color: Colors.black54, size: 18),
-                        SizedBox(width: 8),
-                        Text('NIK',
-                            style: TextStyle(fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: phoneController,
-                            keyboardType: TextInputType.number,
-                            maxLength: 16,
-                            onChanged: (value) {
-                              setState(() {});
-                            },
-                            decoration: InputDecoration(
-                              hintText: '1234567890123456',
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 14),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                      color: Color(0xFFD0D0D0))),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                      color: Color(0xFFD0D0D0))),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 6),
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [blue.withOpacity(0.9), blue],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                             ),
+                            child: const Icon(Icons.smartphone,
+                                color: Colors.white, size: 32),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text('Batal'),
-                            ),
+                          const SizedBox(height: 12),
+                          const Text('Login dengan NIK',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 6),
+                          const Text('Masukkan NIK untuk menerima kode OTP',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.black54)),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: const [
+                              Icon(Icons.badge,
+                                  color: Colors.black54, size: 18),
+                              SizedBox(width: 8),
+                              Text('NIK',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.w600)),
+                            ],
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Consumer<LandingController>(
-                            builder: (context, controller, child) {
-                              return ElevatedButton.icon(
-                                onPressed: controller.isSending || phoneController.text.length < 16
-                                    ? null
-                                    : () async {
-                                        final localCtx = context;
-
-                                        final result = await controller.sendOtp();
-                                       
-
-            
-                                        if (!mounted) return;
-
-                                        if (mounted) {
-                                        QuickAlert.show(
-                                          context: context,
-                                          type: QuickAlertType.error,
-                                          title: "Error",
-                                          text:result.message,
-                                        );
-                                        }
-
-                                        if (result.success) {
-                                          Navigator.of(localCtx).pop();
-                                          _showOtpDialog(localCtx);
-                                        }
-                                      },
-                                icon: controller.isSending
-                                    ? Container(
-                                        width: 18,
-                                        height: 18,
-                                        child: const CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Icon(Icons.send,
-                                        size: 18, color: Colors.white),
-                                label: Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 12.0),
-                                    child: controller.isSending
-                                        ? const Text('Mengirim...',
-                                            style: TextStyle(color: Colors.white))
-                                        : const Text('Kirim',
-                                            style: TextStyle(color: Colors.white))),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: phoneController.text.length >= 16 && !controller.isSending
-                                      ? blue
-                                      : Colors.grey,
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: phoneController,
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 16,
+                                  onChanged: (value) {
+                                    setState(() {});
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: '1234567890123456',
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 14),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: const BorderSide(
+                                            color: Color(0xFFD0D0D0))),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: const BorderSide(
+                                            color: Color(0xFFD0D0D0))),
+                                  ),
                                 ),
-                              );
-                            },
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 12.0),
+                                    child: Text('Batal'),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Consumer<LandingController>(
+                                  builder: (context, controller, child) {
+                                    return ElevatedButton.icon(
+                                      onPressed: controller.isSending ||
+                                              phoneController.text.length < 16
+                                          ? null
+                                          : () async {
+                                              final localCtx = context;
+
+                                              final result =
+                                                  await controller.sendOtp();
+
+                                              if (!mounted) return;
+
+                                              if (mounted) {
+                                                QuickAlert.show(
+                                                  context: context,
+                                                  type: QuickAlertType.error,
+                                                  title: "Error",
+                                                  text: result.message,
+                                                );
+                                              }
+
+                                              if (result.success) {
+                                                Navigator.of(localCtx).pop();
+                                                _showOtpDialog(localCtx);
+                                              }
+                                            },
+                                      icon: controller.isSending
+                                          ? Container(
+                                              width: 18,
+                                              height: 18,
+                                              child:
+                                                  const CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : const Icon(Icons.send,
+                                              size: 18, color: Colors.white),
+                                      label: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 12.0),
+                                          child: controller.isSending
+                                              ? const Text('Mengirim...',
+                                                  style: TextStyle(
+                                                      color: Colors.white))
+                                              : const Text('Kirim',
+                                                  style: TextStyle(
+                                                      color: Colors.white))),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            phoneController.text.length >= 16 &&
+                                                    !controller.isSending
+                                                ? blue
+                                                : Colors.grey,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ),
-        );
+              );
             },
           ),
         );
@@ -258,126 +266,132 @@ class _LandingPageState extends State<LandingPage> {
           child: Builder(
             builder: (context) {
               return Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
-                  minWidth: 280,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 6),
-                    const Text('Masukkan kode OTP',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 12),
-                    const Text(
-                        'Kode OTP telah dikirim. Masukkan 6 digit kode untuk melanjutkan.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.black54)),
-                    const SizedBox(height: 18),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: LayoutBuilder(builder: (pinCtx, constraints) {
-                        const int length = 6;
-                        const double gap = 8.0;
-                        final double available = constraints.maxWidth;
-                        final double totalGaps = (length - 1) * gap;
-                        final double rawField =
-                            (available - totalGaps) / length;
-                        final double fieldWidth = rawField.clamp(28.0, 48.0);
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.6,
+                        minWidth: 280,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 6),
+                          const Text('Masukkan kode OTP',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 12),
+                          const Text(
+                              'Kode OTP telah dikirim. Masukkan 6 digit kode untuk melanjutkan.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.black54)),
+                          const SizedBox(height: 18),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 24.0),
+                            child:
+                                LayoutBuilder(builder: (pinCtx, constraints) {
+                              const int length = 6;
+                              const double gap = 8.0;
+                              final double available = constraints.maxWidth;
+                              final double totalGaps = (length - 1) * gap;
+                              final double rawField =
+                                  (available - totalGaps) / length;
+                              final double fieldWidth =
+                                  rawField.clamp(28.0, 48.0);
 
-                        bool verifying = false;
+                              bool verifying = false;
 
-                        return StatefulBuilder(builder: (ctx, setState) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              PinCodeTextField(
-                                appContext: pinCtx,
-                                length: length,
-                                keyboardType: TextInputType.number,
-                                onChanged: (v) {},
-                                onCompleted: (code) async {
-                                  if (verifying) return;
-                                  setState(() => verifying = true);
+                              return StatefulBuilder(builder: (ctx, setState) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    PinCodeTextField(
+                                      appContext: pinCtx,
+                                      length: length,
+                                      keyboardType: TextInputType.number,
+                                      onChanged: (v) {},
+                                      onCompleted: (code) async {
+                                        if (verifying) return;
+                                        setState(() => verifying = true);
 
-                                  final result = await controller.verifyOtp(code);
-                                  print(result);
-                                 
-                                  if (!mounted) return;
+                                        final result =
+                                            await controller.verifyOtp(code);
+                                        print(result);
 
-                                  setState(() => verifying = false);
+                                        if (!mounted) return;
 
-                                  if (mounted) {
-                                     QuickAlert.show(
-                                    context: context,
-                                    type: QuickAlertType.error,
-                                    title: "Error",
-                                    text: result.message,
-                                  );
+                                        setState(() => verifying = false);
 
-                                  }
+                                        if (mounted) {
+                                          QuickAlert.show(
+                                            context: context,
+                                            type: QuickAlertType.error,
+                                            title: "Error",
+                                            text: result.message,
+                                          );
+                                        }
 
-                                  if (result.success) {
-                                    Navigator.of(context).pop();
-                                    Navigator.of(context)
-                                        .pushReplacementNamed('/dashboard');
-                                  }
-                                },
-                                pinTheme: PinTheme(
-                                  borderRadius: BorderRadius.circular(8),
-                                  fieldHeight: fieldWidth,
-                                  fieldWidth: fieldWidth,
-                                  activeFillColor: blue.withOpacity(0.1),
-                                  inactiveFillColor: Colors.grey.shade100,
-                                  selectedFillColor: blue.withOpacity(0.2),
-                                  activeColor: blue,
-                                  inactiveColor: Colors.grey.shade400,
-                                  selectedColor: blue,
-                                ),
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                              ),
-                              const SizedBox(height: 12),
-                              if (verifying)
-                                const Center(
-                                  child: SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2)),
-                                ),
-                            ],
-                          );
-                        });
-                      }),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12.0),
-                              child: Text('Batal'),
-                            ),
+                                        if (result.success) {
+                                          Navigator.of(context).pop();
+                                          Navigator.of(context)
+                                              .pushReplacementNamed(
+                                                  '/dashboard');
+                                        }
+                                      },
+                                      pinTheme: PinTheme(
+                                        borderRadius: BorderRadius.circular(8),
+                                        fieldHeight: fieldWidth,
+                                        fieldWidth: fieldWidth,
+                                        activeFillColor: blue.withOpacity(0.1),
+                                        inactiveFillColor: Colors.grey.shade100,
+                                        selectedFillColor:
+                                            blue.withOpacity(0.2),
+                                        activeColor: blue,
+                                        inactiveColor: Colors.grey.shade400,
+                                        selectedColor: blue,
+                                      ),
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    if (verifying)
+                                      const Center(
+                                        child: SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                                strokeWidth: 2)),
+                                      ),
+                                  ],
+                                );
+                              });
+                            }),
                           ),
-                        ),
-                      ],
-                    )
-                  ],
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 12.0),
+                                    child: Text('Batal'),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-        );
+              );
             },
           ),
         );
@@ -391,55 +405,67 @@ class _LandingPageState extends State<LandingPage> {
       value: controller,
       child: Builder(
         builder: (context) => Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1C3FAA),
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
-          child: Container(
-            
-            padding: const EdgeInsets.all(6),
-            child: const Icon(Icons.account_balance, color: Colors.white),
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF1C3FAA),
+            elevation: 0,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                child: const Icon(Icons.account_balance, color: Colors.white),
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () {
+                  // logika lama menu atau drawer
+                },
+              ),
+            ],
           ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () {
-              // logika lama menu atau drawer
-            },
-          ),
-        ],
-      ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 1),
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 1),
 
-              // Logo di tengah
-              ClipOval(
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  padding: const EdgeInsets.all(8),
-                  child: logoUrl != null
-                      ? Image.network(
-                          logoUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
+                  // Logo di tengah
+                  ClipOval(
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      padding: const EdgeInsets.all(8),
+                      child: logoUrl != null
+                          ? Image.network(
+                              logoUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.account_balance,
+                                    size: 64,
+                                    color: Colors.blue,
+                                  ),
+                                );
+                              },
+                            )
+                          : Container(
                               decoration: const BoxDecoration(
                                 color: Colors.white,
                                 shape: BoxShape.circle,
@@ -449,107 +475,96 @@ class _LandingPageState extends State<LandingPage> {
                                 size: 64,
                                 color: Colors.blue,
                               ),
-                            );
-                          },
-                        )
-                      : Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.account_balance,
-                            size: 64,
-                            color: Colors.blue,
+                            ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Judul
+                  const Text(
+                    'Lapor Pak Wali',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Deskripsi
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      'Platform Digital Pemerintah Daerah untuk Melayani Aspirasi dan Keluhan Masyarakat. Transparansi, Responsif, dan Terpercaya.',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        height: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Tombol Daftar
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    SizedBox(
+                      // width: 250,
+                      height: 48,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _goToRegister(context),
+                        icon: const Icon(Icons.person_add_alt,
+                            color: Colors.black),
+                        label: const Text(
+                          'Daftar',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white.withOpacity(1),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              // Judul
-              const Text(
-                'Lapor Pak Wali',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 16),
-
-              // Deskripsi
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  'Platform Digital Pemerintah Daerah untuk Melayani Aspirasi dan Keluhan Masyarakat. Transparansi, Responsif, dan Terpercaya.',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              // Tombol Daftar
-             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                 SizedBox(
-                // width: 250,
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: () => _goToRegister(context),
-                  icon: const Icon(Icons.person_add_alt, color: Colors.black),
-                  label: const Text(
-                    'Daftar',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,color: Colors.black),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(1),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                  ),
-                ),
-              ),
 
-              const SizedBox(width: 16),
+                    const SizedBox(width: 16),
 
-              // Tombol Masuk (border putih)
-              SizedBox(
-                // width: 250,
-                height: 48,
-                child: OutlinedButton.icon(
-                  onPressed: () => _goToLogin(context),
-                  icon: const Icon(Icons.login, color: Colors.white),
-                  label: const Text(
-                    'Masuk',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.white),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    // Tombol Masuk (border putih)
+                    SizedBox(
+                      // width: 250,
+                      height: 48,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _goToLogin(context),
+                        icon: const Icon(Icons.login, color: Colors.white),
+                        label: const Text(
+                          'Masuk',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.white),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
                     ),
-                    foregroundColor: Colors.white,
-                  ),
-                ),
+                  ])
+                ],
               ),
-              ]
-             )
-            ],
+            ),
           ),
         ),
-      ),
-      ),
       ),
     );
   }
@@ -566,18 +581,18 @@ class RegisterStepperModal extends StatefulWidget {
 class _RegisterStepperModalState extends State<RegisterStepperModal> {
   int currentStep = 0;
   final PageController _pageController = PageController();
-  
+
   // Form controllers
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _nikController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   bool _agreeToTerms = false;
-  
+
   // Photo variables
   File? _selfiePhoto;
   File? _idCardPhoto;
   final ImagePicker _picker = ImagePicker();
-  
+
   static const blue = Color(0xFF2D62F2);
 
   @override
@@ -695,9 +710,9 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
         } else if (!phoneNumber.startsWith('0')) {
           phoneNumber = '0' + phoneNumber;
         }
-        
+
         print('Formatted phone number: $phoneNumber');
-        
+
         // Validate NIK length
         String nik = _nikController.text.trim();
         if (nik.length != 16) {
@@ -710,7 +725,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
           );
           return;
         }
-        
+
         // Validate phone number length (should be 10-13 digits after formatting)
         if (phoneNumber.length < 10 || phoneNumber.length > 13) {
           Navigator.of(context).pop(); // Close loading dialog
@@ -722,7 +737,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
           );
           return;
         }
-        
+
         final response = await ApiService.instance.registerUser(
           namaLengkap: _namaController.text.trim(),
           nik: nik,
@@ -732,14 +747,14 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
         );
 
         // Close loading dialog
-       Navigator.of(context).pop();
+        Navigator.of(context).pop();
         print(response.data);
         print(response.success);
 
-        if (response.success && response.data != null) {          
+        if (response.success && response.data != null) {
           // Close registration modal
           Navigator.of(context).pop();
-          
+
           // Show success message
           QuickAlert.show(
             context: context,
@@ -775,16 +790,16 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
       } catch (e) {
         // Close loading dialog
         Navigator.of(context).pop();
-        
+
         // Show error message
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.error,
-            title: "Error",
-            text: 'Terjadi kesalahan: $e',
-          );
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Error",
+          text: 'Terjadi kesalahan: $e',
+        );
       }
-    }else{
+    } else {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.warning,
@@ -794,10 +809,246 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
     }
   }
 
+  void _showTermsAndConditions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.8,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Syarat & Ketentuan',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionTitle('1. Penerimaan Syarat'),
+                      _buildSectionContent(
+                          'Dengan menggunakan aplikasi "Lapor Pak Wali", Anda setuju untuk terikat oleh syarat dan ketentuan ini. Jika Anda tidak setuju dengan syarat dan ketentuan ini, jangan gunakan aplikasi ini.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('2. Penggunaan Aplikasi'),
+                      _buildSectionContent(
+                          'Aplikasi ini disediakan untuk warga dalam menyampaikan aspirasi, pengaduan, dan keluhan kepada pemerintah daerah. Anda setuju untuk menggunakan aplikasi ini hanya untuk tujuan yang sah dan sesuai dengan hukum yang berlaku.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('3. Keakuratan Data'),
+                      _buildSectionContent(
+                          'Anda bertanggung jawab untuk memastikan bahwa semua informasi yang Anda berikan melalui aplikasi ini akurat, lengkap, dan terkini. Kami tidak bertanggung jawab atas kerugian yang disebabkan oleh informasi yang tidak akurat.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('4. Privasi dan Keamanan Data'),
+                      _buildSectionContent(
+                          'Kami berkomitmen untuk melindungi privasi dan keamanan data pribadi Anda. Data yang Anda berikan akan digunakan sesuai dengan Kebijakan Privasi kami dan tidak akan dibagikan kepada pihak ketiga tanpa persetujuan Anda, kecuali diwajibkan oleh hukum.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('5. Larangan Penyalahgunaan'),
+                      _buildSectionContent(
+                          'Anda dilarang keras untuk menggunakan aplikasi ini untuk tujuan yang melanggar hukum, mengirimkan konten yang tidak pantas, atau melakukan tindakan yang merugikan pihak lain. Pelanggaran dapat mengakibatkan penangguhan atau penghentian akun Anda.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('6. Hak Kekayaan Intelektual'),
+                      _buildSectionContent(
+                          'Semua hak kekayaan intelektual dalam aplikasi ini, termasuk namun tidak terbatas pada desain, grafik, teks, dan perangkat lunak, adalah milik kami atau pemberi lisensi kami.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('7. Perubahan Syarat dan Ketentuan'),
+                      _buildSectionContent(
+                          'Kami berhak untuk mengubah syarat dan ketentuan ini dari waktu ke waktu. Perubahan akan diberitahukan melalui aplikasi atau email yang terdaftar. Penggunaan aplikasi yang berkelanjutan setelah perubahan constitutes persetujuan Anda terhadap syarat dan ketentuan yang diperbarui.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('8. Kontak'),
+                      _buildSectionContent(
+                          'Jika Anda memiliki pertanyaan tentang syarat dan ketentuan ini, silakan hubungi kami melalui fitur bantuan dalam aplikasi atau email ke support@laporpakwali.id'),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Tutup',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showPrivacyPolicy(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.8,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Kebijakan Privasi',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionTitle('1. Informasi yang Kami Kumpulkan'),
+                      _buildSectionContent(
+                          'Kami mengumpulkan informasi pribadi yang Anda berikan secara sukarela saat mendaftar dan menggunakan aplikasi, termasuk nama, NIK, nomor telepon, foto profil, dan foto KTP.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('2. Penggunaan Informasi'),
+                      _buildSectionContent(
+                          'Informasi yang kami kumpulkan digunakan untuk:\n'
+                          '• Memverifikasi identitas Anda\n'
+                          '• Memproses pengaduan dan aspirasi Anda\n'
+                          '• Memberikan layanan pelanggan\n'
+                          '• Meningkatkan kualitas layanan kami\n'
+                          '• Mengirimkan notifikasi penting'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('3. Perlindungan Data'),
+                      _buildSectionContent(
+                          'Kami menggunakan teknologi keamanan yang sesuai untuk melindungi data pribadi Anda dari akses tidak sah, perubahan, penghancuran, atau pengungkapan. Data Anda disimpan dalam server yang aman dan dienkripsi.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('4. Berbagi Informasi'),
+                      _buildSectionContent(
+                          'Kami tidak akan menjual, menyewakan, atau membagikan informasi pribadi Anda kepada pihak ketiga tanpa persetujuan Anda, kecuali:\n'
+                          '• Diwajibkan oleh hukum atau perintah pengadilan\n'
+                          '• Untuk melindungi hak, properti, atau keselamatan kami atau pengguna lain\n'
+                          '• Dengan penyedia layanan tepercaya yang membantu kami mengoperasikan aplikasi'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('5. Hak Anda'),
+                      _buildSectionContent('Anda memiliki hak untuk:\n'
+                          '• Mengakses dan memperbarui informasi pribadi Anda\n'
+                          '• Meminta penghapusan data pribadi Anda\n'
+                          '• Menolak pengumpulan atau penggunaan data tertentu\n'
+                          '• Menarik persetujuan untuk pengolahan data'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('6. Cookies dan Teknologi Pelacakan'),
+                      _buildSectionContent(
+                          'Aplikasi kami dapat menggunakan cookies dan teknologi serupa untuk meningkatkan pengalaman pengguna, menganalisis penggunaan, dan mempersonalisasi konten.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('7. Retensi Data'),
+                      _buildSectionContent(
+                          'Kami akan menyimpan data pribadi Anda hanya selama diperlukan untuk tujuan yang dikumpulkan, kecuali diwajibkan oleh hukum untuk menyimpannya lebih lama.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('8. Perubahan Kebijakan Privasi'),
+                      _buildSectionContent(
+                          'Kami dapat memperbarui kebijakan privasi ini dari waktu ke waktu. Perubahan akan diberitahukan melalui aplikasi atau email yang terdaftar.'),
+                      const SizedBox(height: 16),
+                      _buildSectionTitle('9. Kontak'),
+                      _buildSectionContent(
+                          'Jika Anda memiliki pertanyaan tentang kebijakan privasi kami, silakan hubungi kami melalui fitur bantuan dalam aplikasi atau email ke privacy@laporpakwali.id'),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Tutup',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: Colors.black87,
+      ),
+    );
+  }
+
+  Widget _buildSectionContent(String content) {
+    return Text(
+      content,
+      style: const TextStyle(
+        fontSize: 14,
+        color: Colors.black54,
+        height: 1.5,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         height: MediaQuery.of(context).size.height * 0.9,
         decoration: const BoxDecoration(
@@ -842,7 +1093,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
               ),
             ),
             SizedBox(height: 40),
-            
+
             // Page content
             Expanded(
               child: PageView(
@@ -885,7 +1136,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Nama Lengkap field
           const Text(
             'Nama Lengkap',
@@ -916,7 +1167,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // NIK field
           const Text(
             '16 Digit NIK KTP',
@@ -949,13 +1200,14 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 40),
-          
+
           // Continue button
           SizedBox(
             width: double.infinity,
             height: 48,
             child: ElevatedButton(
-              onPressed: _namaController.text.isNotEmpty && _nikController.text.length == 16
+              onPressed: _namaController.text.isNotEmpty &&
+                      _nikController.text.length == 16
                   ? _nextStep
                   : null,
               style: ElevatedButton.styleFrom(
@@ -975,7 +1227,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Login link
           Center(
             child: RichText(
@@ -985,7 +1237,8 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                   const TextSpan(text: 'Sudah punya akun? '),
                   TextSpan(
                     text: 'Masuk di sini',
-                    style: const TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        color: blue, fontWeight: FontWeight.w600),
                     recognizer: TapGestureRecognizer()
                       ..onTap = widget.onLoginPressed,
                   ),
@@ -1021,7 +1274,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Phone number field
           const Text(
             'Nomor WhatsApp',
@@ -1054,7 +1307,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 40),
-          
+
           // Navigation buttons
           Row(
             children: [
@@ -1076,9 +1329,8 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                 child: SizedBox(
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: _phoneController.text.isNotEmpty
-                        ? _nextStep
-                        : null,
+                    onPressed:
+                        _phoneController.text.isNotEmpty ? _nextStep : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: blue,
                       shape: RoundedRectangleBorder(
@@ -1099,7 +1351,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ],
           ),
           const SizedBox(height: 20),
-          
+
           // Login link
           Center(
             child: RichText(
@@ -1109,7 +1361,8 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                   const TextSpan(text: 'Sudah punya akun? '),
                   TextSpan(
                     text: 'Masuk di sini',
-                    style: const TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        color: blue, fontWeight: FontWeight.w600),
                     recognizer: TapGestureRecognizer()
                       ..onTap = widget.onLoginPressed,
                   ),
@@ -1145,7 +1398,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Selfie Photo Section
           const Text(
             'Foto Selfie',
@@ -1206,7 +1459,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // ID Card Photo Section
           const Text(
             'Foto KTP',
@@ -1318,7 +1571,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 40),
-          
+
           // Navigation buttons
           Row(
             children: [
@@ -1363,7 +1616,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ],
           ),
           const SizedBox(height: 20),
-          
+
           // Login link
           Center(
             child: RichText(
@@ -1373,7 +1626,8 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                   const TextSpan(text: 'Sudah punya akun? '),
                   TextSpan(
                     text: 'Masuk di sini',
-                    style: const TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        color: blue, fontWeight: FontWeight.w600),
                     recognizer: TapGestureRecognizer()
                       ..onTap = widget.onLoginPressed,
                   ),
@@ -1409,7 +1663,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Agreement checkbox
           Container(
             padding: const EdgeInsets.all(16),
@@ -1425,30 +1679,44 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                   onChanged: (value) {
                     setState(() {
                       _agreeToTerms = value ?? false;
+                      // Show terms and conditions modal when checkbox is checked
+                      if (_agreeToTerms) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _showTermsAndConditions(context);
+                        });
+                      }
                     });
                   },
                   activeColor: blue,
                 ),
                 Expanded(
                   child: RichText(
-                    text: const TextSpan(
-                      style: TextStyle(
+                    text: TextSpan(
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Colors.black87,
                         height: 1.4,
                       ),
                       children: [
-                        TextSpan(text: 'Saya menyatakan bahwa data yang saya isi adalah benar dan saya telah membaca serta setuju dengan '),
+                        const TextSpan(
+                            text:
+                                'Saya menyatakan bahwa data yang saya isi adalah benar dan saya telah membaca serta setuju dengan '),
                         TextSpan(
                           text: 'Syarat & Ketentuan',
-                          style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                              color: blue, fontWeight: FontWeight.w600),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => _showTermsAndConditions(context),
                         ),
-                        TextSpan(text: ' dan '),
+                        const TextSpan(text: ' dan '),
                         TextSpan(
                           text: 'Kebijakan Privasi',
-                          style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                          style: const TextStyle(
+                              color: blue, fontWeight: FontWeight.w600),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => _showPrivacyPolicy(context),
                         ),
-                        TextSpan(text: '.'),
+                        const TextSpan(text: '.'),
                       ],
                     ),
                   ),
@@ -1457,7 +1725,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Security message
           Row(
             children: [
@@ -1473,7 +1741,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ],
           ),
           const SizedBox(height: 40),
-          
+
           // Navigation buttons
           Row(
             children: [
@@ -1516,7 +1784,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ],
           ),
           const SizedBox(height: 20),
-          
+
           // Login link
           Center(
             child: RichText(
@@ -1526,7 +1794,8 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                   const TextSpan(text: 'Sudah punya akun? '),
                   TextSpan(
                     text: 'Masuk di sini',
-                    style: const TextStyle(color: blue, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        color: blue, fontWeight: FontWeight.w600),
                     recognizer: TapGestureRecognizer()
                       ..onTap = widget.onLoginPressed,
                   ),

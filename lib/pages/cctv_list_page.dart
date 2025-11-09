@@ -217,32 +217,21 @@ class _CctvListPageState extends State<CctvListPage> {
       ),
       child: InkWell(
         onTap: () {
-          // if (camera.isActive) {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => CctvVideoPage(camera: camera),
             ),
           );
-          // } else {
-          //   QuickAlert.show(
-          //     context: context,
-          //     type: QuickAlertType.warning,
-          //     title: "Camera Tidak Aktif",
-          //     text: 'Kamera CCTV ini sedang tidak aktif',
-          //     autoCloseDuration: const Duration(seconds: 2),
-          //     showConfirmBtn: false,
-          //   );
-          // }
         },
         borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Camera thumbnail or placeholder
+            // Camera thumbnail with improved design
             Container(
               width: double.infinity,
-              height: 180,
+              height: 200,
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(12),
@@ -251,39 +240,94 @@ class _CctvListPageState extends State<CctvListPage> {
               ),
               child: Stack(
                 children: [
-                  if (camera.thumbnailUrl != null)
+                  // Thumbnail image or placeholder
+                  if (camera.thumbnailUrl != null &&
+                      camera.thumbnailUrl!.isNotEmpty)
                     ClipRRect(
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(12),
                       ),
-                      child: Image.network(
-                        camera.thumbnailUrl!,
-                        width: double.infinity,
-                        height: 180,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return _buildCameraPlaceholder();
-                        },
+                      child: Stack(
+                        children: [
+                          Image.network(
+                            camera.thumbnailUrl!,
+                            width: double.infinity,
+                            height: 200,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return _buildThumbnailLoading();
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return _buildCameraPlaceholder();
+                            },
+                          ),
+                          // Gradient overlay for better text visibility
+                          Positioned.fill(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(12),
+                                ),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.3),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   else
                     _buildCameraPlaceholder(),
 
-                  // Play button overlay
-                  if (camera.isActive)
-                    Positioned.fill(
+                  // Play button overlay with animation
+                  Positioned.fill(
+                    child: Center(
                       child: Container(
                         decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(12),
-                          ),
-                          color: Colors.black.withOpacity(0.3),
+                          shape: BoxShape.circle,
+                          color: Colors.black.withOpacity(0.5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.play_circle_filled,
-                            size: 48,
+                        child: const Icon(
+                          Icons.play_arrow,
+                          size: 50,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // PTZ indicator if available
+                  if (camera.isPTZ == true)
+                    Positioned(
+                      bottom: 12,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'PTZ',
+                          style: TextStyle(
                             color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -292,26 +336,33 @@ class _CctvListPageState extends State<CctvListPage> {
               ),
             ),
 
-            // Camera info
+            // Camera info with improved layout
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    camera.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        camera.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_on,
                         size: 16,
-                        color: Colors.grey,
+                        color: Theme.of(context).primaryColor,
                       ),
                       const SizedBox(width: 4),
                       Expanded(
@@ -319,7 +370,7 @@ class _CctvListPageState extends State<CctvListPage> {
                           camera.location,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey[600],
+                            color: Colors.grey[700],
                           ),
                         ),
                       ),
@@ -337,29 +388,178 @@ class _CctvListPageState extends State<CctvListPage> {
   Widget _buildCameraPlaceholder() {
     return Container(
       width: double.infinity,
-      height: 180,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF1C3FAA), Color(0xFF2D62F2)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+      height: 200,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(12),
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(12),
+        ),
+        child: Stack(
+          children: [
+            // CCTV placeholder image with realistic appearance
+            Container(
+              width: double.infinity,
+              height: 200,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.grey[400]!,
+                    Colors.grey[600]!,
+                  ],
+                ),
+              ),
+              child: Stack(
+                children: [
+                  // Simulate CCTV view with overlay elements
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          center: const Alignment(0.0, 0.0),
+                          radius: 0.8,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.2),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Date/time overlay like real CCTV
+                  Positioned(
+                    top: 10,
+                    left: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        'CAM-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Recording indicator
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red.withOpacity(0.5),
+                            blurRadius: 4,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Center camera icon
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.videocam,
+                        size: 48,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+
+                  // Bottom info bar
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      height: 30,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.7),
+                          ],
+                        ),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'CCTV MONITORING',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThumbnailLoading() {
+    return Container(
+      width: double.infinity,
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(12),
         ),
       ),
       child: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.videocam,
-              size: 48,
-              color: Colors.white,
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1C3FAA)),
+              ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 12),
             Text(
-              'CCTV Camera',
+              'Memuat thumbnail...',
               style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
+                color: Color(0xFF1C3FAA),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],

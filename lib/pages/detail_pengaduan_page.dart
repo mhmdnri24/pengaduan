@@ -36,9 +36,14 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
   final TextEditingController _commentController = TextEditingController();
   bool _isSubmittingRating = false;
 
+  // Image slider functionality
+  late PageController _pageController;
+  int _currentPage = 0;
+
   @override
   void initState() {
     super.initState();
+    _pageController = PageController();
     _fetchDetail();
     _fetchHistory();
   }
@@ -46,6 +51,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
   @override
   void dispose() {
     _commentController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -68,7 +74,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
         if (body['status'] == 'success' && body['data'] != null) {
           final data = body['data'] as Map<String, dynamic>;
 
-          // Extract comments from the response
+          // Extract comments from response
           final commentsList = data['comments'] as List<dynamic>? ?? [];
 
           setState(() {
@@ -360,62 +366,9 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
                   ),
                   const SizedBox(height: 12),
                 ] else if (filesList.isNotEmpty) ...[
-                  // Show first file as full-width image
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Builder(builder: (context) {
-                      final firstUrl = filesList.isNotEmpty
-                          ? (filesList[0]['file_url']?.toString())
-                          : null;
-                      if (firstUrl != null && firstUrl.isNotEmpty) {
-                        return Image.network(
-                          firstUrl,
-                          width: double.infinity,
-                          height: 200,
-                          fit: BoxFit.cover,
-                          errorBuilder: (c, e, s) => Container(
-                            height: 200,
-                            color: Colors.grey[200],
-                            child:
-                                const Center(child: Icon(Icons.broken_image)),
-                          ),
-                        );
-                      }
-                      return Container(
-                        width: double.infinity,
-                        height: 200,
-                        color: Colors.grey[200],
-                        child: const Center(child: Icon(Icons.broken_image)),
-                      );
-                    }),
-                  ),
+                  // Image slider for multiple files
+                  _buildImageSlider(filesList),
                   const SizedBox(height: 12),
-                  // If there are more files, show them as thumbnails below
-                  if (filesList.length > 1)
-                    SizedBox(
-                      height: 100,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: filesList.skip(1).map<Widget>((f) {
-                          final fileUrl = f['file_url']?.toString();
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: fileUrl != null
-                                  ? Image.network(fileUrl,
-                                      width: 140,
-                                      height: 100,
-                                      fit: BoxFit.cover)
-                                  : Container(
-                                      width: 140,
-                                      height: 100,
-                                      color: Colors.grey[200]),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
                 ],
                 Text(
                   title,
@@ -904,6 +857,94 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildImageSlider(List filesList) {
+    if (filesList.isEmpty) {
+      return Container(
+        width: double.infinity,
+        height: 200,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: Icon(Icons.broken_image, color: Colors.grey),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        Container(
+          height: 200,
+          child: PageView.builder(
+            controller: _pageController,
+            onPageChanged: (int page) {
+              setState(() {
+                _currentPage = page;
+              });
+            },
+            itemCount: filesList.length,
+            itemBuilder: (context, index) {
+              final fileUrl = filesList[index]['file_url']?.toString();
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: fileUrl != null && fileUrl.isNotEmpty
+                      ? Image.network(
+                          fileUrl,
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              width: double.infinity,
+                              height: 200,
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: Icon(Icons.broken_image,
+                                    color: Colors.grey),
+                              ),
+                            );
+                          },
+                        )
+                      : Container(
+                          width: double.infinity,
+                          height: 200,
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: Icon(Icons.broken_image, color: Colors.grey),
+                          ),
+                        ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+        // Page indicators
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            filesList.length,
+            (index) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4.0),
+              height: 8.0,
+              width: _currentPage == index ? 24.0 : 8.0,
+              decoration: BoxDecoration(
+                color: _currentPage == index
+                    ? const Color(0xFF1C3FAA)
+                    : Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(4.0),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
