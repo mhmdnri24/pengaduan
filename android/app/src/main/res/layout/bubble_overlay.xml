@@ -12,7 +12,7 @@
     android:minWidth="280dp"
     android:minHeight="400dp">
 
-    <!-- Header with close button and title -->
+    <!-- Header: Title + Close Button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,6 +22,7 @@
 
         <!-- Title -->
         <TextView
+            android:id="@+id/header_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -31,7 +32,7 @@
             android:textStyle="bold"
             android:gravity="center" />
 
-        <!-- Close button -->
+        <!-- Close Button -->
         <ImageView
             android:id="@+id/bubble_close"
             android:layout_width="24dp"
@@ -42,7 +43,7 @@
             android:padding="3dp" />
     </LinearLayout>
 
-    <!-- Content area with icon and complaint info -->
+    <!-- Content Area -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -56,20 +57,20 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:src="@android:drawable/ic_dialog_alert"
-            android:contentDescription="Emergency icon"
-            android:layout_marginBottom="12dp"
+            android:contentDescription="Emergency"
             android:background="@drawable/emergency_icon_background"
-            android:padding="12dp" />
+            android:padding="12dp"
+            android:layout_marginBottom="12dp" />
 
         <!-- Complaint Info Section -->
         <LinearLayout
+            android:id="@+id/complaint_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="8dp"
             android:background="@drawable/badge_background_blue"
             android:padding="8dp"
-            android:visibility="visible">
+            android:layout_marginBottom="8dp">
 
             <!-- Title -->
             <TextView
@@ -140,7 +141,7 @@
 
         </LinearLayout>
 
-        <!-- Count badge -->
+        <!-- Count Badge -->
         <TextView
             android:id="@+id/badge_text"
             android:layout_width="wrap_content"
@@ -160,7 +161,7 @@
 
     </LinearLayout>
 
-    <!-- Footer with open button -->
+    <!-- Footer Button -->
     <TextView
         android:id="@+id/bubble_open"
         android:layout_width="match_parent"

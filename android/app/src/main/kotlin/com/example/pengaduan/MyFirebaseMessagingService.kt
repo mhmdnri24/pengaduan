@@ -33,7 +33,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             putExtra(BubbleOverlayService.EXTRA_ID, complaintId)
             // Add complaint data as extra
             if (!complaintData.isNullOrEmpty()) {
-                putExtra("complaint_data", complaintData)
+                // putExtra("complaint_data", complaintData)
+                putExtra(BubbleOverlayService.EXTRA_DATA, complaintData)
+
             }
         }
         Log.d(TAG, "Starting BubbleOverlayService with ID=$complaintId and data=$complaintData")

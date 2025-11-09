@@ -288,11 +288,11 @@ class BubbleOverlayService : Service() {
     val closeButton = if (closeId != 0) bubbleView!!.findViewById<ImageView>(closeId) else null
     
     // Try to find complaint info views
-    val complaintInfoId = resources.getIdentifier("complaint_info", "id", packageName)
-    val complaintInfoView = if (complaintInfoId != 0) bubbleView!!.findViewById<TextView>(complaintInfoId) else null
+    // val complaintInfoId = resources.getIdentifier("complaint_info", "id", packageName)
+    // val complaintInfoView = if (complaintInfoId != 0) bubbleView!!.findViewById<TextView>(complaintInfoId) else null
     
     // Log the result of finding the view
-    android.util.Log.d("BubbleOverlayService", "complaintInfoId=$complaintInfoId, complaintInfoView=$complaintInfoView")
+    // android.util.Log.d("BubbleOverlayService", "complaintInfoId=$complaintInfoId, complaintInfoView=$complaintInfoView")
         
     // Set up drag functionality
         setupDragListener(bubbleContainer)
