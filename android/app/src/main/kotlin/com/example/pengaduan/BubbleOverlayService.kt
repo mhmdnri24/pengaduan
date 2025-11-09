@@ -24,8 +24,14 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.plugin.common.MethodChannel
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 
-class BubbleOverlayService : Service() {
+class BubbleOverlayService : Service(), OnMapReadyCallback {
     private var windowManager: WindowManager? = null
     private var bubbleView: View? = null
     private var isBubbleVisible = false
@@ -37,6 +43,10 @@ class BubbleOverlayService : Service() {
     private var mediaPlayer: MediaPlayer? = null
     private var audioManager: AudioManager? = null
     private var focusRequest: AudioFocusRequest? = null
+    private var googleMap: GoogleMap? = null
+    private var mapView: MapView? = null
+    private var complaintLat: Double? = null
+    private var complaintLng: Double? = null
 
     companion object {
         private const val NOTIFICATION_ID = 1001
@@ -258,10 +268,23 @@ class BubbleOverlayService : Service() {
     fun hideBubble() {
         if (!isBubbleVisible) return
         
+        // Pause and destroy MapView before removing the bubble
+        mapView?.let {
+            try {
+                it.onPause()
+                it.onStop()
+                it.onDestroy()
+            } catch (e: Exception) {
+                android.util.Log.e("BubbleOverlayService", "Error pausing MapView", e)
+            }
+        }
+        
         bubbleView?.let { view ->
             windowManager?.removeView(view)
         }
         bubbleView = null
+        mapView = null
+        googleMap = null
         isBubbleVisible = false
     }
 
@@ -287,12 +310,9 @@ class BubbleOverlayService : Service() {
     val closeId = resources.getIdentifier("bubble_close", "id", packageName)
     val closeButton = if (closeId != 0) bubbleView!!.findViewById<ImageView>(closeId) else null
     
-    // Try to find complaint info views
-    // val complaintInfoId = resources.getIdentifier("complaint_info", "id", packageName)
-    // val complaintInfoView = if (complaintInfoId != 0) bubbleView!!.findViewById<TextView>(complaintInfoId) else null
-    
-    // Log the result of finding the view
-    // android.util.Log.d("BubbleOverlayService", "complaintInfoId=$complaintInfoId, complaintInfoView=$complaintInfoView")
+    // Initialize map fragment - we'll handle this differently in a service
+    // The map fragment will be initialized when the bubble is shown
+    initializeMapFragment()
         
     // Set up drag functionality
         setupDragListener(bubbleContainer)
@@ -315,6 +335,21 @@ class BubbleOverlayService : Service() {
         
         // Update complaint info if available
         updateComplaintInfo()
+    }
+    
+    private fun initializeMapFragment() {
+        try {
+            // Initialize MapView
+            val mapViewId = resources.getIdentifier("map_view", "id", packageName)
+            if (mapViewId != 0) {
+                mapView = bubbleView?.findViewById(mapViewId) as? MapView
+                mapView?.onCreate(null)
+                mapView?.getMapAsync(this)
+                android.util.Log.d("BubbleOverlayService", "MapView initialized")
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("BubbleOverlayService", "Error initializing MapView", e)
+        }
     }
 
     private fun setupDragListener(view: View) {
@@ -384,8 +419,8 @@ class BubbleOverlayService : Service() {
         val screenHeight = displayMetrics.heightPixels
         
         // Calculate 3/4 of screen size
-        val bubbleWidth = (screenWidth * 0.75).toInt()
-        val bubbleHeight = (screenHeight * 0.75).toInt()
+        val bubbleWidth = (screenWidth * 0.95).toInt()
+        val bubbleHeight = (screenHeight * 0.95).toInt()
         
         val layoutParams = WindowManager.LayoutParams(
             bubbleWidth,
@@ -407,6 +442,16 @@ class BubbleOverlayService : Service() {
         }
 
         windowManager?.addView(bubbleView, layoutParams)
+        
+        // Start MapView lifecycle after adding to window
+        mapView?.let {
+            try {
+                it.onStart()
+                it.onResume()
+            } catch (e: Exception) {
+                android.util.Log.e("BubbleOverlayService", "Error starting MapView", e)
+            }
+        }
     }
 
     private fun sendBubbleClickToFlutter() {
@@ -466,6 +511,10 @@ class BubbleOverlayService : Service() {
                     val category = jsonData.optString("kategori", "")
                     val code = jsonData.optString("kode_laporan", "")
                     
+                    // Extract location coordinates
+                    complaintLat = jsonData.optDouble("lokasi_lat", Double.NaN)
+                    complaintLng = jsonData.optDouble("lokasi_lng", Double.NaN)
+                    
                     // Update views with extracted data
                     titleView?.text = title
                     descView?.text = if (description.isNotEmpty()) description else null
@@ -480,7 +529,10 @@ class BubbleOverlayService : Service() {
                     categoryView?.visibility = if (category.isNotEmpty()) View.VISIBLE else View.GONE
                     codeView?.visibility = if (code.isNotEmpty()) View.VISIBLE else View.GONE
                     
-                    android.util.Log.d("BubbleOverlayService", "Updated complaint info with title: $title, desc: $description, location: $location, category: $category, code: $code")
+                    // Update map with location if available
+                    updateMapLocation()
+                    
+                    android.util.Log.d("BubbleOverlayService", "Updated complaint info with title: $title, desc: $description, location: $location, category: $category, code: $code, lat: $complaintLat, lng: $complaintLng")
                 } catch (e: Exception) {
                     android.util.Log.e("BubbleOverlayService", "Error parsing complaint data", e)
                     // Fallback to basic info
@@ -532,6 +584,16 @@ class BubbleOverlayService : Service() {
             }
             mediaPlayer = null
         }
+        
+        // Clean up MapView
+        mapView?.let {
+            try {
+                it.onDestroy()
+            } catch (e: Exception) {
+                // ignore
+            }
+        }
+        
         flutterEngine?.destroy()
     }
 
@@ -644,6 +706,38 @@ class BubbleOverlayService : Service() {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
             startActivity(intent)
+        }
+    }
+    
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map
+        android.util.Log.d("BubbleOverlayService", "Map is ready")
+        updateMapLocation()
+    }
+    
+    private fun updateMapLocation() {
+        if (googleMap == null || complaintLat == null || complaintLng == null || complaintLat!!.isNaN() || complaintLng!!.isNaN()) {
+            android.util.Log.d("BubbleOverlayService", "Cannot update map: map=${googleMap != null}, lat=$complaintLat, lng=$complaintLng")
+            return
+        }
+        
+        try {
+            val location = LatLng(complaintLat!!, complaintLng!!)
+            
+            // Add marker for the complaint location
+            googleMap?.addMarker(
+                MarkerOptions()
+                    .position(location)
+                    .title("Lokasi Pengaduan")
+                    .snippet("Laporan: ${complaintId ?: "Unknown"}")
+            )
+            
+            // Move camera to the location
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+            
+            android.util.Log.d("BubbleOverlayService", "Updated map with location: $location")
+        } catch (e: Exception) {
+            android.util.Log.e("BubbleOverlayService", "Error updating map location", e)
         }
     }
 }

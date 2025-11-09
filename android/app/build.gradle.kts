@@ -75,4 +75,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
     // Include analytics to satisfy FirebaseMessaging's optional analytics calls
     implementation("com.google.firebase:firebase-analytics")
+    
+    // Google Maps
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
 }
