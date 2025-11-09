@@ -97,6 +97,11 @@ class MainActivity : FlutterActivity() {
                 val complaintId = it.getStringExtra("complaint_id")
                 if (!complaintId.isNullOrEmpty()) {
                     android.util.Log.d("MainActivity", "Opening detail for complaint ID: $complaintId")
+                    // Save to SharedPreferences for immediate access after splash
+                    val prefs = getSharedPreferences("flutter SharedPreferences", MODE_PRIVATE)
+                    prefs.edit().putString("pending_complaint_id", complaintId).apply()
+                    prefs.edit().putBoolean("skip_splash_to_detail", true).apply()
+                    
                     // Send to Flutter via MethodChannel
                     methodChannel?.invokeMethod("openComplaintDetail", mapOf("id" to complaintId))
                 }

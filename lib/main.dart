@@ -68,6 +68,11 @@ void main() async {
 
       // Use showBubbleWithId to ensure complaintId is stored
       await BubbleOverlayService.showBubbleWithId(id);
+
+      // Also save to prefs for direct navigation when app starts from terminated state
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('pending_complaint_id', id);
+      await prefs.setBool('skip_splash_to_detail', true);
     }
   });
 
@@ -104,7 +109,21 @@ void main() async {
     await playNotificationSound();
   });
 
-  runApp(const MyApp());
+  // Check if we should go directly to detail page before running app
+  final prefs = await SharedPreferences.getInstance();
+  final skipSplashToDetail = prefs.getBool('skip_splash_to_detail') ?? false;
+  final pendingComplaintId = prefs.getString('pending_complaint_id');
+
+  // Clear the flags immediately after reading
+  await prefs.remove('skip_splash_to_detail');
+  await prefs.remove('pending_complaint_id');
+
+  runApp(MyApp(
+    skipToDetail: skipSplashToDetail &&
+        pendingComplaintId != null &&
+        pendingComplaintId.isNotEmpty,
+    complaintId: pendingComplaintId ?? '',
+  ));
 }
 
 // Top-level background message handler
@@ -241,8 +260,11 @@ Future<void> _saveDeviceId(String deviceId) async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, this.skipToDetail = false, this.complaintId = ''});
+
   static const String _title = 'Complaint Management App';
+  final bool skipToDetail;
+  final String complaintId;
 
   // Global navigator key for navigation
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -262,7 +284,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: Typography.blackMountainView,
       ),
-      home: const SplashScreen(),
+      home: skipToDetail == true
+          ? DetailPengaduanPage(complaintId: complaintId)
+          : const SplashScreen(),
       routes: {
         '/landing': (context) => const LandingPage(),
         '/login': (context) => const LoginPage(),
