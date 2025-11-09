@@ -42,23 +42,103 @@
             android:padding="3dp" />
     </LinearLayout>
 
-    <!-- Content area with icon and count -->
+    <!-- Content area with icon and complaint info -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:padding="8dp">
 
         <!-- Emergency Icon -->
         <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:src="@android:drawable/ic_dialog_alert"
             android:contentDescription="Emergency icon"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="12dp"
             android:background="@drawable/emergency_icon_background"
-            android:padding="16dp" />
+            android:padding="12dp" />
+
+        <!-- Complaint Info Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/badge_background_blue"
+            android:padding="8dp"
+            android:visibility="visible">
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/complaint_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pengaduan Baru"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <!-- Description -->
+            <TextView
+                android:id="@+id/complaint_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text=""
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:visibility="gone" />
+
+            <!-- Location -->
+            <TextView
+                android:id="@+id/complaint_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text=""
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:visibility="gone" />
+
+            <!-- Category -->
+            <TextView
+                android:id="@+id/complaint_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text=""
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:visibility="gone" />
+
+            <!-- Code -->
+            <TextView
+                android:id="@+id/complaint_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text=""
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
         <!-- Count badge -->
         <TextView
@@ -87,7 +167,7 @@
         android:layout_height="32dp"
         android:background="@drawable/open_button_background_blue"
         android:gravity="center"
-        android:text="Buka"
+        android:text="Buka Pengaduan"
         android:textColor="@android:color/white"
         android:textSize="12sp"
         android:textStyle="bold"

@@ -13,24 +13,30 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         Log.d(TAG, "From: ${remoteMessage.from}")
         Log.d(TAG, "onMessageReceived data=${remoteMessage.data}")
 
-        // Extract ID from data payload
-        // Priority: id -> body -> fallback to "1"
-        var complaintId = remoteMessage.data["id"]
-        if (complaintId.isNullOrEmpty()) {
-            complaintId = remoteMessage.data["body"]
+        // Extract complaint data from FCM payload
+        val complaintData = remoteMessage.data["pelaporan"]
+        var complaintId = "1" // fallback ID
+        
+        // Try to extract complaint ID from various possible fields
+        if (!remoteMessage.data["id"].isNullOrEmpty()) {
+            complaintId = remoteMessage.data["id"]!!
+        } else if (!remoteMessage.data["body"].isNullOrEmpty()) {
+            complaintId = remoteMessage.data["body"]!!
         }
-        if (complaintId.isNullOrEmpty()) {
-            complaintId = "1" // fallback
-        }
-
+        
         Log.d(TAG, "Extracted complaint ID: $complaintId")
+        Log.d(TAG, "Complaint data: $complaintData")
 
-        // Start the BubbleOverlayService with ID
+        // Start the BubbleOverlayService with ID and complaint data
         val intent = Intent(this, BubbleOverlayService::class.java).apply {
             action = BubbleOverlayService.ACTION_SHOW_WITH_ID
             putExtra(BubbleOverlayService.EXTRA_ID, complaintId)
+            // Add complaint data as extra
+            if (!complaintData.isNullOrEmpty()) {
+                putExtra("complaint_data", complaintData)
+            }
         }
-        Log.d(TAG, "Starting BubbleOverlayService with ID=$complaintId")
+        Log.d(TAG, "Starting BubbleOverlayService with ID=$complaintId and data=$complaintData")
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             Log.d(TAG, "Using startForegroundService")

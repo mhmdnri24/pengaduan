@@ -31,6 +31,7 @@ class BubbleOverlayService : Service() {
     private var isBubbleVisible = false
     private var complaintCount = 0
     private var complaintId: String? = null // Store the complaint ID
+    private var complaintData: String? = null // Store the complaint data
     private var flutterEngine: FlutterEngine? = null
     private var methodChannel: MethodChannel? = null
     private var mediaPlayer: MediaPlayer? = null
@@ -47,6 +48,7 @@ class BubbleOverlayService : Service() {
         const val ACTION_UPDATE = "com.example.pengaduan.action.UPDATE_BUBBLE"
         const val EXTRA_COUNT = "extra_count"
         const val EXTRA_ID = "extra_id"
+        const val EXTRA_DATA = "extra_data"
         
         fun startService(context: Context) {
             val intent = Intent(context, BubbleOverlayService::class.java)
@@ -86,8 +88,9 @@ class BubbleOverlayService : Service() {
                 }
                 ACTION_SHOW_WITH_ID -> {
                     val id = intent.getStringExtra(EXTRA_ID) ?: "1"
-                    android.util.Log.d("BubbleOverlayService", "ACTION_SHOW_WITH_ID id=$id")
-                    showBubbleWithId(id)
+                    val data = intent.getStringExtra(EXTRA_DATA)
+                    android.util.Log.d("BubbleOverlayService", "ACTION_SHOW_WITH_ID id=$id data=$data")
+                    showBubbleWithId(id, data)
                 }
                 ACTION_HIDE -> {
                     android.util.Log.d("BubbleOverlayService", "ACTION_HIDE")
@@ -202,10 +205,11 @@ class BubbleOverlayService : Service() {
         }
     }
 
-    fun showBubbleWithId(id: String) {
+    fun showBubbleWithId(id: String, data: String? = null) {
         if (isBubbleVisible) {
-            // Update existing bubble with new ID
+            // Update existing bubble with new ID and data
             complaintId = id
+            complaintData = data
             return
         }
 
@@ -218,6 +222,7 @@ class BubbleOverlayService : Service() {
         }
 
         complaintId = id
+        complaintData = data
         complaintCount = 1 // Set count to 1 for new complaint
         createBubbleView()
         addBubbleToWindow()
@@ -281,25 +286,35 @@ class BubbleOverlayService : Service() {
     // Try to find close button by id if present
     val closeId = resources.getIdentifier("bubble_close", "id", packageName)
     val closeButton = if (closeId != 0) bubbleView!!.findViewById<ImageView>(closeId) else null
+    
+    // Try to find complaint info views
+    val complaintInfoId = resources.getIdentifier("complaint_info", "id", packageName)
+    val complaintInfoView = if (complaintInfoId != 0) bubbleView!!.findViewById<TextView>(complaintInfoId) else null
+    
+    // Log the result of finding the view
+    android.util.Log.d("BubbleOverlayService", "complaintInfoId=$complaintInfoId, complaintInfoView=$complaintInfoView")
         
     // Set up drag functionality
         setupDragListener(bubbleContainer)
         
-        // Set up click listener
+    // Set up click listener
         bubbleContainer.setOnClickListener {
             sendBubbleClickToFlutter()
         }
 
-        // Open app button: send ID to Flutter and hide bubble
+    // Open app button: send ID to Flutter and hide bubble
         openButton?.setOnClickListener {
             sendBubbleClickToFlutter()
         }
 
-        // Close button: hide bubble and stop the service
+    // Close button: hide bubble and stop the service
         closeButton?.setOnClickListener {
             hideBubble()
             try { stopSelf() } catch (e: Exception) { }
         }
+        
+        // Update complaint info if available
+        updateComplaintInfo()
     }
 
     private fun setupDragListener(view: View) {
@@ -397,13 +412,18 @@ class BubbleOverlayService : Service() {
     private fun sendBubbleClickToFlutter() {
         android.util.Log.d("BubbleOverlayService", "sendBubbleClickToFlutter called")
         android.util.Log.d("BubbleOverlayService", "complaintId: $complaintId")
+        android.util.Log.d("BubbleOverlayService", "complaintData: $complaintData")
         
         complaintId?.let { id ->
-            // Launch MainActivity with the complaint ID
+            // Launch MainActivity with the complaint ID and data
             val intent = Intent(this, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 putExtra("complaint_id", id)
                 putExtra("open_detail", true)
+                // Add complaint data if available
+                complaintData?.let { data ->
+                    putExtra("complaint_data", data)
+                }
             }
             
             try {
@@ -418,6 +438,68 @@ class BubbleOverlayService : Service() {
         
         // Hide bubble after opening the app
         hideBubble()
+    }
+    
+    private fun updateComplaintInfo() {
+        // Try to find and update complaint info views
+        val titleId = resources.getIdentifier("complaint_title", "id", packageName)
+        val descId = resources.getIdentifier("complaint_desc", "id", packageName)
+        val locationId = resources.getIdentifier("complaint_location", "id", packageName)
+        val categoryId = resources.getIdentifier("complaint_category", "id", packageName)
+        val codeId = resources.getIdentifier("complaint_code", "id", packageName)
+        
+        if (titleId != 0 && descId != 0 && locationId != 0 && categoryId != 0 && codeId != 0) {
+            val titleView = bubbleView?.findViewById<TextView>(titleId)
+            val descView = bubbleView?.findViewById<TextView>(descId)
+            val locationView = bubbleView?.findViewById<TextView>(locationId)
+            val categoryView = bubbleView?.findViewById<TextView>(categoryId)
+            val codeView = bubbleView?.findViewById<TextView>(codeId)
+            
+            if (!complaintData.isNullOrEmpty()) {
+                try {
+                    // Parse JSON data to extract complaint information
+                    val jsonData = org.json.JSONObject(complaintData!!)
+                    
+                    val title = jsonData.optString("judul", "Pengaduan Baru")
+                    val description = jsonData.optString("deskripsi", "")
+                    val location = jsonData.optString("alamat", "")
+                    val category = jsonData.optString("kategori", "")
+                    val code = jsonData.optString("kode_laporan", "")
+                    
+                    // Update views with extracted data
+                    titleView?.text = title
+                    descView?.text = if (description.isNotEmpty()) description else null
+                    locationView?.text = if (location.isNotEmpty()) location else null
+                    categoryView?.text = if (category.isNotEmpty()) category else null
+                    codeView?.text = if (code.isNotEmpty()) "Kode: $code" else null
+                    
+                    // Set visibility based on data availability
+                    titleView?.visibility = View.VISIBLE
+                    descView?.visibility = if (description.isNotEmpty()) View.VISIBLE else View.GONE
+                    locationView?.visibility = if (location.isNotEmpty()) View.VISIBLE else View.GONE
+                    categoryView?.visibility = if (category.isNotEmpty()) View.VISIBLE else View.GONE
+                    codeView?.visibility = if (code.isNotEmpty()) View.VISIBLE else View.GONE
+                    
+                    android.util.Log.d("BubbleOverlayService", "Updated complaint info with title: $title, desc: $description, location: $location, category: $category, code: $code")
+                } catch (e: Exception) {
+                    android.util.Log.e("BubbleOverlayService", "Error parsing complaint data", e)
+                    // Fallback to basic info
+                    titleView?.text = "Pengaduan Baru"
+                    descView?.visibility = View.GONE
+                    locationView?.visibility = View.GONE
+                    categoryView?.visibility = View.GONE
+                    codeView?.visibility = View.GONE
+                    titleView?.visibility = View.VISIBLE
+                }
+            } else {
+                // Hide all info views if no data
+                titleView?.visibility = View.GONE
+                descView?.visibility = View.GONE
+                locationView?.visibility = View.GONE
+                categoryView?.visibility = View.GONE
+                codeView?.visibility = View.GONE
+            }
+        }
     }
 
     private fun openComplaintScreen() {
