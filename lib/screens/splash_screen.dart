@@ -14,6 +14,17 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _isImageCached = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isImageCached) {
+      precacheImage(const AssetImage('assets/images/splash.jpg'), context);
+      _isImageCached = true;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -83,49 +94,78 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      body: Stack(
+        children: [
+          // Background image with fallback to gradient
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Image.asset(
+              'assets/images/splash.webp',
+              // 'https://dashboard.nusakoding.com/uploads/pengaturan/splash.jpg',
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+              // errorBuilder: (context, error, stackTrace) {
+              //   // Return empty container on error to show gradient background
+              //   return const SizedBox.shrink();
+              // },
+              // loadingBuilder: (context, child, loadingProgress) {
+              //   if (loadingProgress == null) return child;
+              //   // Show gradient while loading
+              //   return const SizedBox.shrink();
+              // },
+            ),
           ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.account_balance,
-                size: 64,
-                color: Colors.white,
+          // Semi-transparent overlay and content
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.3),
+            ),
+            child: const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.account_balance,
+                    size: 64,
+                    color: Colors.white,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Lapor Pak Wali',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Memuat halaman',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 32),
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Lapor Pak Wali',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Memuat halaman',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 32),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

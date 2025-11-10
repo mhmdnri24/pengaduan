@@ -252,7 +252,10 @@ class _EmergencyPageState extends State<EmergencyPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Kirim Darurat'),
+            child: const Text(
+              'Kirim Darurat',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),

@@ -5,6 +5,15 @@ class BannerCard extends StatelessWidget {
 
   const BannerCard({super.key, required this.name});
 
+  String ucwords(String text) {
+    if (text.isEmpty) return text;
+
+    return text.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -30,7 +39,7 @@ class BannerCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                name,
+                ucwords(name),
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -48,7 +57,6 @@ class BannerCard extends StatelessWidget {
             ],
           ),
         ),
-    
       ],
     );
   }

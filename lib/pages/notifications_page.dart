@@ -25,7 +25,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     {
       'id': 2,
       'title': 'Pengaduan Selesai',
-      'description': 'Pengaduan #LPW-2024-003 tentang "Saluran Air Tersumbat" telah diselesaikan',
+      'description':
+          'Pengaduan #LPW-2024-003 tentang "Saluran Air Tersumbat" telah diselesaikan',
       'time': '2 jam lalu',
       'type': 'completed',
       'isUnread': true,
@@ -43,7 +44,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     {
       'id': 4,
       'title': 'Berita Terbaru',
-      'description': 'Program Bantuan Sosial Diperluas - Pemerintah memperluas cakupan bantuan',
+      'description':
+          'Program Bantuan Sosial Diperluas - Pemerintah memperluas cakupan bantuan',
       'time': '6 jam lalu',
       'type': 'news',
       'isUnread': true,
@@ -52,7 +54,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     {
       'id': 5,
       'title': 'Pengaduan Diterima',
-      'description': 'Pengaduan baru #LPW-2024-004 tentang "Lampu Jalan Mati" telah diterima',
+      'description':
+          'Pengaduan baru #LPW-2024-004 tentang "Lampu Jalan Mati" telah diterima',
       'time': '1 hari lalu',
       'type': 'received',
       'isUnread': true,
@@ -61,7 +64,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     {
       'id': 6,
       'title': 'Maintenance Sistem',
-      'description': 'Sistem akan mengalami maintenance pada 15 Januari 2024 pukul 02:00-04:00 WIB',
+      'description':
+          'Sistem akan mengalami maintenance pada 15 Januari 2024 pukul 02:00-04:00 WIB',
       'time': '1 hari lalu',
       'type': 'maintenance',
       'isUnread': true,
@@ -120,7 +124,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
@@ -181,7 +186,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: _buildSummaryCard('$unreadCount', 'Dibaca', const Color(0xFFFFD700)),
+          child: _buildSummaryCard(
+              '$unreadCount', 'Dibaca', const Color(0xFFFFD700)),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -248,8 +254,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     tabs[index],
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: isSelected ? Colors.grey.shade800 : Colors.grey.shade600,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: isSelected
+                          ? Colors.grey.shade800
+                          : Colors.grey.shade600,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
                       fontSize: 14,
                     ),
                   ),

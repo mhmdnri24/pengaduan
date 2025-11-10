@@ -244,15 +244,15 @@ class _CctvVideoPageState extends State<CctvVideoPage> {
             ),
           ),
         // Add fallback button for WebView issues
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: FloatingActionButton.small(
-            onPressed: _openVideoInExternalPlayer,
-            backgroundColor: Colors.black54,
-            child: const Icon(Icons.open_in_new, color: Colors.white),
-          ),
-        ),
+        // Positioned(
+        //   bottom: 16,
+        //   right: 16,
+        //   child: FloatingActionButton.small(
+        //     onPressed: _openVideoInExternalPlayer,
+        //     backgroundColor: Colors.black54,
+        //     child: const Icon(Icons.open_in_new, color: Colors.white),
+        //   ),
+        // ),
       ],
     );
   }

@@ -46,6 +46,8 @@ flutter:
     - assets/sound/urgent.wav
     - assets/images/profile.jpeg
     - assets/images/back-arrow.png
+    - assets/images/splash.jpg
+    - assets/images/splash.webp
   # fonts:
   # - family: Poppins
   #   fonts:

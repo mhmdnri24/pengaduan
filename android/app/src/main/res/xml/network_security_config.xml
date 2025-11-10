@@ -3,4 +3,7 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">lubuklinggaukota.go.id</domain>
     </domain-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">dashboard.nusakoding.com</domain>
+    </domain-config>
 </network-security-config>

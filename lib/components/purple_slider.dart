@@ -81,21 +81,22 @@ class _PurpleSliderState extends State<PurpleSlider> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _autoTimer = Timer.periodic(widget.autoPlayInterval, (_) {
-        if (!mounted || _sliders.isEmpty) return;
-        final next = (_page + 1) % _sliders.length;
-        if (_controller.hasClients) {
-          _controller.animateToPage(next,
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut);
+        if (!mounted || _sliders.isEmpty || !_controller.hasClients) {
+          _autoTimer?.cancel();
+          return;
         }
+        final next = (_page + 1) % _sliders.length;
+        _controller.animateToPage(next,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOut);
       });
     });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     _autoTimer?.cancel();
+    _controller.dispose();
     super.dispose();
   }
 

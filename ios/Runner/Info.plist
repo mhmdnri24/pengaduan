@@ -53,5 +53,20 @@
     <string>This app needs access to location to show your position on the map and for complaint location.</string>
     <key>io.flutter.embedded_views_preview</key>
     <true/>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>dashboard.nusakoding.com</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
+                <key>NSIncludesSubdomains</key>
+                <true/>
+            </dict>
+        </dict>
+    </dict>
   </dict>
 </plist>

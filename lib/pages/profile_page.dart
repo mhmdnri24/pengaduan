@@ -95,6 +95,15 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  String ucwords(String text) {
+    if (text.isEmpty) return text;
+
+    return text.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -157,7 +166,12 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            userName ?? 'Nama Tidak Diketahui',
+                            (() {
+                              final name = userName ?? '';
+                              return name.isNotEmpty
+                                  ? ucwords(name)
+                                  : 'Nama Tidak Diketahui';
+                            })(),
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -189,8 +203,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: const [
+                            const Row(
+                              children: [
                                 Icon(Icons.person_outline,
                                     color: Color(0xFF2255EE), size: 20),
                                 SizedBox(width: 8),
@@ -231,61 +245,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ),
-                  ),
-
-                  // Action tiles
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Card(
-                          color: Colors.white,
-                          elevation: 0.5,
-                          shadowColor: Colors.black12,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          child: InkWell(
-                            onTap: () {},
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Column(
-                                children: const [
-                                  Icon(Icons.report, color: Colors.blue),
-                                  SizedBox(height: 8),
-                                  Text('Pengaduan',
-                                      style: TextStyle(fontSize: 12)),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Card(
-                          color: Colors.white,
-                          elevation: 0.5,
-                          shadowColor: Colors.black12,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          child: InkWell(
-                            onTap: () {},
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Column(
-                                children: const [
-                                  Icon(Icons.favorite, color: Colors.pink),
-                                  SizedBox(height: 8),
-                                  Text('Favorit',
-                                      style: TextStyle(fontSize: 12)),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
 
                   const SizedBox(height: 16),

@@ -343,35 +343,21 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildHistoryContent() {
-    return const SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            HistoryPage(),
-          ],
-        ),
-      ),
+    return const Padding(
+      padding: EdgeInsets.all(16.0),
+      child: HistoryPage(),
     );
   }
 
   Widget _buildServicesContent() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          NotificationsPage(),
-        ],
-      ),
-    );
+    return const NotificationsPage();
   }
 
   Widget _buildProfileContent() {
-    return Center(child: ProfilePage());
+    return const ProfilePage();
   }
 
   Widget _buildAddComplaintContent() {
-    return Center(
-      child: AddComplaintPage(showAppBar: false),
-    );
+    return AddComplaintPage(showAppBar: false);
   }
 }
