@@ -14,7 +14,6 @@ import 'package:quickalert/quickalert.dart';
 class AddComplaintPage extends StatefulWidget {
   final bool showAppBar;
   const AddComplaintPage({Key? key, this.showAppBar = true}) : super(key: key);
-
   @override
   State<AddComplaintPage> createState() => _AddComplaintPageState();
 }
@@ -147,25 +146,43 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
   }
 
   Widget _photoPlaceholder() {
+    final bool isMaxPhotos = selectedImages.length >= 3;
     return GestureDetector(
-      onTap: _pickImage,
+      onTap: isMaxPhotos ? null : _pickImage,
       child: Container(
         height: 80,
         width: 100,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isMaxPhotos ? Colors.grey.shade100 : Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(
+            color: isMaxPhotos ? Colors.grey.shade200 : Colors.grey.shade300,
+          ),
         ),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [
-              Icon(Icons.add_a_photo, color: Colors.grey, size: 24),
-              SizedBox(height: 4),
-              Text('Tambah',
-                  style: TextStyle(color: Colors.grey, fontSize: 11)),
-              Text('Foto', style: TextStyle(color: Colors.grey, fontSize: 11))
+            children: [
+              Icon(
+                Icons.add_a_photo,
+                color: isMaxPhotos ? Colors.grey.shade400 : Colors.grey,
+                size: 24,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Tambah',
+                style: TextStyle(
+                  color: isMaxPhotos ? Colors.grey.shade400 : Colors.grey,
+                  fontSize: 11,
+                ),
+              ),
+              Text(
+                'Foto',
+                style: TextStyle(
+                  color: isMaxPhotos ? Colors.grey.shade400 : Colors.grey,
+                  fontSize: 11,
+                ),
+              )
             ],
           ),
         ),
@@ -209,9 +226,8 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
   List<Widget> _buildPhotoWidgets() {
     List<Widget> widgets =
         selectedImages.map((img) => _imageWidget(img)).toList();
-    if (widgets.length < 3) {
-      widgets.add(_photoPlaceholder());
-    }
+    // Always show the upload button, but disable it if already have 3 photos
+    widgets.add(_photoPlaceholder());
     return widgets
         .expand((widget) => [widget, const SizedBox(width: 12)])
         .toList()
@@ -316,6 +332,14 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
 
   Future<void> _validateAndAddImage(XFile image) async {
     try {
+      // Check if already have 3 photos
+      if (selectedImages.length >= 3) {
+        if (mounted) {
+          _showError('Maksimal 3 foto yang dapat diunggah.');
+        }
+        return;
+      }
+
       // Check file size (5MB limit as mentioned in UI)
       final file = File(image.path);
       final fileSize = await file.length();
@@ -352,6 +376,10 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
     }
     if (locationController.text.trim().isEmpty) {
       _showError('Lokasi kejadian tidak boleh kosong');
+      return false;
+    }
+    if (selectedImages.isEmpty) {
+      _showError('Foto wajib ditambahkan. Minimal 1 foto diperlukan.');
       return false;
     }
     if (userName == null || userName!.isEmpty) {
@@ -545,7 +573,7 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
         pelaporNik: userNik!,
         pelaporAlamat:
             locationController.text.trim(), // Use same address as location
-        foto: imageFiles.isNotEmpty ? imageFiles : null,
+        foto: imageFiles,
         lat: lat ?? '',
         lng: lng ?? '',
         masId: masId!,
@@ -1056,11 +1084,17 @@ class _AddComplaintPageState extends State<AddComplaintPage> {
                       const Text('Foto Pendukung',
                           style: TextStyle(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 12),
-                      Row(children: _buildPhotoWidgets()),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(children: _buildPhotoWidgets()),
+                      ),
                       const SizedBox(height: 8),
-                      const Text(
-                          'Maksimal 3 foto, ukuran maksimal 5MB per foto\nTekan untuk memilih dari kamera atau galeri',
-                          style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      Text(
+                          selectedImages.length >= 3
+                              ? 'Maksimal 3 foto, ukuran maksimal 5MB per foto\nHapus foto terlebih dahulu untuk menambah foto baru'
+                              : 'Maksimal 3 foto, ukuran maksimal 5MB per foto\nTekan untuk memilih dari kamera atau galeri',
+                          style: const TextStyle(
+                              color: Colors.grey, fontSize: 12)),
                     ]),
               ),
             ),

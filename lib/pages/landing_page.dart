@@ -9,6 +9,7 @@ import '../services/api_service.dart';
 import '../config/api_config.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
+import '../components/selfie_camera.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -644,15 +645,20 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
 
   Future<void> _pickSelfie() async {
     try {
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 80,
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => SelfieCamera(
+            onImageCaptured: (imagePath) {
+              setState(() {
+                _selfiePhoto = File(imagePath);
+              });
+            },
+            onClose: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
       );
-      if (image != null) {
-        setState(() {
-          _selfiePhoto = File(image.path);
-        });
-      }
     } catch (e) {
       QuickAlert.show(
         context: context,

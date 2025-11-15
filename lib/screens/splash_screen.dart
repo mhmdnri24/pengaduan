@@ -5,6 +5,7 @@ import '../pages/landing_page.dart';
 import '../controllers/landing_controller.dart';
 import '../pages/dashboard_page.dart';
 import '../pages/detail_pengaduan_page.dart';
+import '../services/session_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,6 +16,25 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   bool _isImageCached = false;
+  String? _splashImageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSplashImage();
+    _checkAuthAndNavigate();
+  }
+
+  Future<void> _loadSplashImage() async {
+    final sessionService = SessionService.instance;
+    final splashImageUrl =
+        await sessionService.getFromSession('splashscreen_image');
+    if (splashImageUrl != null) {
+      setState(() {
+        _splashImageUrl = splashImageUrl as String;
+      });
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -23,12 +43,6 @@ class _SplashScreenState extends State<SplashScreen> {
       precacheImage(const AssetImage('assets/images/splash.jpg'), context);
       _isImageCached = true;
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _checkAuthAndNavigate();
   }
 
   Future<void> _checkAuthAndNavigate() async {
@@ -58,13 +72,13 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    // Show splash for at least 1.5-2.5s while checking auth
+    // Show splash for at least 8 seconds while checking auth
     final start = DateTime.now();
     try {
       final controller = LandingController();
       final session = await controller.getSession();
       final elapsed = DateTime.now().difference(start);
-      final remaining = const Duration(seconds: 2) - elapsed;
+      final remaining = const Duration(seconds: 8) - elapsed;
       if (remaining.isNegative) {
         // nothing
       } else {
@@ -83,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen> {
     } catch (e) {
       // on any error, fall back to landing page after a short delay
       final elapsed = DateTime.now().difference(start);
-      final remaining = const Duration(seconds: 2) - elapsed;
+      final remaining = const Duration(seconds: 8) - elapsed;
       if (!remaining.isNegative) await Future.delayed(remaining);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
@@ -107,22 +121,28 @@ class _SplashScreenState extends State<SplashScreen> {
                 end: Alignment.bottomCenter,
               ),
             ),
-            child: Image.asset(
-              'assets/images/splash.webp',
-              // 'https://dashboard.nusakoding.com/uploads/pengaturan/splash.jpg',
-              width: double.infinity,
-              height: double.infinity,
-              fit: BoxFit.cover,
-              // errorBuilder: (context, error, stackTrace) {
-              //   // Return empty container on error to show gradient background
-              //   return const SizedBox.shrink();
-              // },
-              // loadingBuilder: (context, child, loadingProgress) {
-              //   if (loadingProgress == null) return child;
-              //   // Show gradient while loading
-              //   return const SizedBox.shrink();
-              // },
-            ),
+            child: _splashImageUrl != null
+                ? Image.network(
+                    _splashImageUrl!,
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      // Return empty container on error to show gradient background
+                      return const SizedBox.shrink();
+                    },
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      // Show gradient while loading
+                      return const SizedBox.shrink();
+                    },
+                  )
+                : Image.asset(
+                    'assets/images/splash.jpg',
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
           ),
           // Semi-transparent overlay and content
           Container(
@@ -135,14 +155,15 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.account_balance,
-                    size: 64,
-                    color: Colors.white,
-                  ),
+                  // Icon(
+                  //   Icons.account_balance,
+                  //   size: 64,
+                  //   color: Colors.white,
+                  // ),
                   SizedBox(height: 16),
                   Text(
-                    'Lapor Pak Wali',
+                    // 'Lapor Pak Wali',
+                    '',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -151,16 +172,17 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Memuat halaman',
+                    // 'Memuat halaman',
+                    '',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white,
                     ),
                   ),
                   SizedBox(height: 32),
-                  CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
+                  // CircularProgressIndicator(
+                  //   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  // ),
                 ],
               ),
             ),

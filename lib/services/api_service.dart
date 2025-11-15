@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import '../models/complaint.dart';
 import '../models/slider.dart';
+import 'session_service.dart';
 
 class ApiResponse<T> {
   final bool success;
@@ -448,6 +450,60 @@ class ApiService {
             error: 'HTTP ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
+  /// Get pengaturan data from API and save to session
+  Future<ApiResponse<Map<String, dynamic>>>
+      getPengaturanAndSaveToSession() async {
+    try {
+      // First, get the data from API
+      final apiResponse = await getPengaturan();
+
+      if (apiResponse.success && apiResponse.data != null) {
+        // Save all data to session
+        final sessionService = SessionService.instance;
+
+        // Save each field individually for easier access
+        if (apiResponse.data!['nama_situs'] != null) {
+          await sessionService.saveToSession(
+              'nama_situs', apiResponse.data!['nama_situs']);
+        }
+
+        if (apiResponse.data!['tagline'] != null) {
+          await sessionService.saveToSession(
+              'tagline', apiResponse.data!['tagline']);
+        }
+
+        if (apiResponse.data!['logo'] != null) {
+          await sessionService.saveToSession('logo', apiResponse.data!['logo']);
+        }
+
+        if (apiResponse.data!['favicon'] != null) {
+          await sessionService.saveToSession(
+              'favicon', apiResponse.data!['favicon']);
+        }
+
+        if (apiResponse.data!['splashscreen_image'] != null) {
+          await sessionService.saveToSession(
+              'splashscreen_image', apiResponse.data!['splashscreen_image']);
+        }
+
+        // Also save the complete data object as a backup
+        await sessionService.saveToSession(
+            'pengaturan_data', apiResponse.data!);
+
+        debugPrint('Pengaturan data saved to session successfully');
+
+        return ApiResponse(success: true, data: apiResponse.data);
+      } else {
+        return ApiResponse(
+            success: false,
+            error: apiResponse.error ?? 'Failed to get pengaturan data');
+      }
+    } catch (e) {
+      debugPrint('Error in getPengaturanAndSaveToSession: $e');
       return ApiResponse(success: false, error: 'Network error: $e');
     }
   }

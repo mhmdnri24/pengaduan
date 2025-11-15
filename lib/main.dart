@@ -11,6 +11,7 @@ import 'services/complaint_service.dart';
 import 'services/bubble_overlay_service.dart';
 import 'services/session_service.dart';
 import 'services/fcm_handler.dart';
+import 'services/api_service.dart';
 import 'screens/splash_screen.dart';
 import 'pages/dashboard_page.dart';
 import 'pages/landing_page.dart';
@@ -28,6 +29,9 @@ void main() async {
 
   // Initialize the complaint service
   await ComplaintService.instance.initialize();
+
+  // Fetch and save pengaturan data to session
+  await _fetchAndSavePengaturan();
 
   // Check overlay permission on Android
   if (Platform.isAndroid) {
@@ -256,6 +260,22 @@ Future<void> _saveDeviceId(String deviceId) async {
     debugPrint('Device ID saved to session: $deviceId');
   } catch (e) {
     debugPrint('Failed to save device_id to session: $e');
+  }
+}
+
+// Fetch and save pengaturan data to session
+Future<void> _fetchAndSavePengaturan() async {
+  try {
+    final apiService = ApiService.instance;
+    final result = await apiService.getPengaturanAndSaveToSession();
+
+    if (result.success) {
+      debugPrint('Pengaturan data fetched and saved successfully');
+    } else {
+      debugPrint('Failed to fetch pengaturan data: ${result.error}');
+    }
+  } catch (e) {
+    debugPrint('Error fetching pengaturan data: $e');
   }
 }
 
