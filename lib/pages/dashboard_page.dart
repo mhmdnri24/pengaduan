@@ -14,6 +14,8 @@ import 'history_page.dart';
 import 'package:pengaduan/services/session_service.dart';
 import 'notifications_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api_service.dart';
+import 'package:quickalert/quickalert.dart';
 
 // Constants for better maintainability
 class DashboardConstants {
@@ -44,6 +46,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
   String? _userName;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
@@ -89,7 +92,60 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  /// Refresh all API data
+  Future<void> _refreshAllData() async {
+    if (_isRefreshing) return; // Prevent multiple refreshes
+
+    setState(() {
+      _isRefreshing = true;
+    });
+
+    try {
+      // Show loading indicator
+      if (!mounted) return;
+
+      // Refresh pengaturan data
+      await ApiService.instance.getPengaturanAndSaveToSession();
+
+      // Refresh user profile data
+      await ApiService.instance.getUserProfile();
+
+      // Refresh other data as needed
+      // You can add more API calls here based on what needs to be refreshed
+
+      // Show success message
+      if (mounted) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: "Berhasil",
+          text: "Data berhasil diperbarui",
+          autoCloseDuration: const Duration(seconds: 2),
+        );
+      }
+    } catch (e) {
+      // Show error message
+      if (mounted) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Error",
+          text: "Gagal memperbarui data: $e",
+          autoCloseDuration: const Duration(seconds: 3),
+        );
+      }
+    } finally {
+      // Hide loading indicator
+      if (mounted) {
+        setState(() {
+          _isRefreshing = false;
+        });
+      }
+    }
+  }
+
   void _onItemTapped(int index) {
+    if (!mounted) return;
     setState(() {
       _selectedIndex = index;
     });
@@ -134,15 +190,15 @@ class _DashboardPageState extends State<DashboardPage> {
     final isDesktop = MediaQuery.of(context).size.width >=
         DashboardConstants.desktopBreakpoint;
 
-    return WillPopScope(
-      onWillPop: () async {
-        if (_selectedIndex != 0) {
+    return PopScope(
+      canPop: _selectedIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (mounted) {
           setState(() {
             _selectedIndex = 0;
           });
-          return false;
         }
-        return true;
       },
       child: Scaffold(
         key: _scaffoldKey,
@@ -193,11 +249,21 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: FloatingActionButton(
-          onPressed: () => _onItemTapped(DashboardConstants.fabIndex),
-          backgroundColor: DashboardConstants.primaryColor,
+          onPressed: _isRefreshing ? null : _refreshAllData,
+          backgroundColor:
+              _isRefreshing ? Colors.grey : DashboardConstants.primaryColor,
           shape: const CircleBorder(),
-          child: Icon(Icons.add,
-              size: DashboardConstants.fabSize, color: Colors.white),
+          child: _isRefreshing
+              ? const SizedBox(
+                  width: DashboardConstants.fabSize,
+                  height: DashboardConstants.fabSize,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.0,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Icon(Icons.refresh,
+                  size: DashboardConstants.fabSize, color: Colors.white),
         ),
       ),
     );
@@ -247,56 +313,29 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildHomeContent(bool isDesktop) {
     return SingleChildScrollView(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🔵 Header biru sampai search bar
-          SizedBox(
-            width: double.infinity,
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    DashboardConstants.primaryColor,
-                    DashboardConstants.secondaryColor
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(DashboardConstants.borderRadius),
-                  bottomRight: Radius.circular(DashboardConstants.borderRadius),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Background Header Extension
+              Container(
+                height: 100,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: DashboardConstants.primaryColor,
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(30),
+                  ),
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    BannerCard(name: _userName ?? DashboardConstants.userName),
-                    // const SizedBox(height: 25),
-                    // TextField(
-                    //   decoration: InputDecoration(
-                    //     hintText: DashboardConstants.searchHint,
-                    //     prefixIcon: const Icon(Icons.search),
-                    //     border: OutlineInputBorder(
-                    //       borderRadius: BorderRadius.circular(
-                    //           DashboardConstants.searchBorderRadius),
-                    //       borderSide: BorderSide.none,
-                    //     ),
-                    //     filled: true,
-                    //     fillColor: Colors.white,
-                    //     contentPadding: const EdgeInsets.symmetric(
-                    //         vertical: 10, horizontal: 12),
-                    //   ),
-                    // ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
+              // Banner Card Overlapping
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                child: BannerCard(name: _userName ?? DashboardConstants.userName),
               ),
-            ),
+            ],
           ),
-
+          
           const SizedBox(height: 24),
 
           // Purple info card replaced by reusable PurpleSlider component
@@ -318,7 +357,11 @@ class _DashboardPageState extends State<DashboardPage> {
                   HeaderPengaduan(
                     title: "Pengaduan Terbaru",
                     subtitle: "Pantau aduan masyarakat terbaru",
-                    onViewAll: () => setState(() => _selectedIndex = 1),
+                    onViewAll: () {
+                      if (mounted) {
+                        setState(() => _selectedIndex = 1);
+                      }
+                    },
                   ),
                   const SizedBox(height: 10),
                   const PengaduanList(),
@@ -328,12 +371,12 @@ class _DashboardPageState extends State<DashboardPage> {
           //     padding: EdgeInsets.symmetric(horizontal: 16.0),
           //     child: Column(
           //       children: [
-          //         SizedBox(height: 10),
+          //         const SizedBox(height: 10),
           //         HeaderPengaduan(
           //           title: "Berita Terbaru",
           //           subtitle: "Informasi dan berita terkini dari pemerintah",
           //         ),
-          //         SizedBox(height: 10),
+          //         const SizedBox(height: 10),
           //         PengaduanList(),
           //       ],
           //     )),
@@ -350,7 +393,15 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildServicesContent() {
-    return const NotificationsPage();
+    return NotificationsPage(
+      onBack: () {
+        if (mounted) {
+          setState(() {
+            _selectedIndex = 0; // Navigate to home tab
+          });
+        }
+      },
+    );
   }
 
   Widget _buildProfileContent() {
@@ -358,6 +409,6 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildAddComplaintContent() {
-    return AddComplaintPage(showAppBar: false);
+    return const AddComplaintPage(showAppBar: false);
   }
 }

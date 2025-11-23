@@ -34,7 +34,7 @@ class _NavbarState extends State<Navbar> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? photoUrl = prefs.getString('user_photo_url');
-      if (photoUrl != null && photoUrl.isNotEmpty) {
+      if (photoUrl != null && photoUrl.isNotEmpty && mounted) {
         setState(() {
           _avatarUrl = photoUrl;
         });
@@ -43,14 +43,14 @@ class _NavbarState extends State<Navbar> {
       // Keep default avatar if there's an error
       debugPrint('Error loading user photo: $e');
     }
-  } 
+  }
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 0,
-        backgroundColor: const Color(0xFF1C3FAA), // Dominant blue color
-        foregroundColor: Colors.white,
+      backgroundColor: const Color(0xFF1C3FAA), // Dominant blue color
+      foregroundColor: Colors.white,
 
       // ❌ leading dihapus, jadi icon garis 3 tidak muncul
       automaticallyImplyLeading: false,
@@ -76,12 +76,15 @@ class _NavbarState extends State<Navbar> {
               IconButton(
                 icon: const Icon(Icons.notifications, color: Colors.white),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationsPage(),
-                    ),
-                  );
+                  if (Navigator.canPop(context) ||
+                      Navigator.of(context).canPop()) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NotificationsPage(),
+                      ),
+                    );
+                  }
                 },
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.white.withOpacity(0.2),
@@ -121,7 +124,7 @@ class _NavbarState extends State<Navbar> {
           padding: const EdgeInsets.only(right: 12),
           child: CircleAvatar(
             radius: 16,
-            backgroundImage: _avatarUrl.startsWith('http') 
+            backgroundImage: _avatarUrl.startsWith('http')
                 ? NetworkImage(_avatarUrl)
                 : AssetImage(_avatarUrl) as ImageProvider,
             onBackgroundImageError: (exception, stackTrace) {

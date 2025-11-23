@@ -20,40 +20,82 @@ import 'pages/register_page.dart';
 import 'pages/detail_pengaduan_page.dart';
 import 'pages/cctv_list_page.dart';
 import 'pages/cctv_video_page.dart';
+import 'utils/memory_monitor.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp();
+  try {
+    // Initialize Firebase with timeout
+    await Firebase.initializeApp().timeout(const Duration(seconds: 10));
+    debugPrint('Firebase initialized successfully');
+  } catch (e) {
+    debugPrint('Firebase initialization failed: $e');
+    // Continue without Firebase - app will have limited functionality
+  }
 
-  // Initialize the complaint service
-  await ComplaintService.instance.initialize();
+  // Add delay between heavy operations
+  await Future.delayed(const Duration(milliseconds: 500));
 
-  // Fetch and save pengaturan data to session
-  await _fetchAndSavePengaturan();
+  // Initialize the complaint service with error handling
+  try {
+    await ComplaintService.instance
+        .initialize()
+        .timeout(const Duration(seconds: 5));
+    debugPrint('Complaint service initialized successfully');
+  } catch (e) {
+    debugPrint('Complaint service initialization failed: $e');
+    // Continue without complaint service
+  }
+
+  await Future.delayed(const Duration(milliseconds: 500));
+
+  // Fetch and save pengaturan data to session with timeout
+  try {
+    await _fetchAndSavePengaturan().timeout(const Duration(seconds: 5));
+    debugPrint('Settings fetched successfully');
+  } catch (e) {
+    debugPrint('Failed to fetch settings: $e');
+    // Continue with default settings
+  }
 
   // Check overlay permission on Android
   if (Platform.isAndroid) {
-    await _checkOverlayPermission();
+    try {
+      await _checkOverlayPermission().timeout(const Duration(seconds: 3));
+    } catch (e) {
+      debugPrint('Overlay permission check failed: $e');
+    }
   }
 
   // Request notification permissions (Android auto-grants but keep for completeness)
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  await messaging.requestPermission();
+  try {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    await messaging.requestPermission().timeout(const Duration(seconds: 3));
 
-  // Print FCM token and listen for refreshes
-  await _printFcmToken();
-  FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
-    debugPrint('FCM Token refreshed: $newToken');
-    await _saveFcmToken(newToken);
-  });
+    // Print FCM token and listen for refreshes
+    await _printFcmToken().timeout(const Duration(seconds: 5));
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+      debugPrint('FCM Token refreshed: $newToken');
+      await _saveFcmToken(newToken);
+    });
+  } catch (e) {
+    debugPrint('FCM setup failed: $e');
+  }
 
   // Get and save device ID
-  await _getDeviceId();
+  try {
+    await _getDeviceId().timeout(const Duration(seconds: 5));
+  } catch (e) {
+    debugPrint('Device ID retrieval failed: $e');
+  }
 
   // Handle background messages (required top-level handler)
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  try {
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  } catch (e) {
+    debugPrint('Background message handler setup failed: $e');
+  }
 
   // Handle messages when app is opened from a terminated state via tap
   const platform = MethodChannel('bubble_overlay');
@@ -121,6 +163,9 @@ void main() async {
   // Clear the flags immediately after reading
   await prefs.remove('skip_splash_to_detail');
   await prefs.remove('pending_complaint_id');
+
+  // Start memory monitoring
+  MemoryMonitor.startMonitoring();
 
   runApp(MyApp(
     skipToDetail: skipSplashToDetail &&
@@ -266,6 +311,17 @@ Future<void> _saveDeviceId(String deviceId) async {
 // Fetch and save pengaturan data to session
 Future<void> _fetchAndSavePengaturan() async {
   try {
+    // Check if session already has pengaturan data
+    final sessionService = SessionService.instance;
+    final existingData =
+        await sessionService.getFromSession('splashscreen_image');
+
+    if (existingData != null) {
+      debugPrint('Pengaturan data already exists in session, skipping fetch');
+      return;
+    }
+
+    debugPrint('No pengaturan data in session, fetching from API...');
     final apiService = ApiService.instance;
     final result = await apiService.getPengaturanAndSaveToSession();
 

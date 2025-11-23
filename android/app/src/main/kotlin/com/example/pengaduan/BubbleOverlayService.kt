@@ -418,7 +418,8 @@ class BubbleOverlayService : Service(), OnMapReadyCallback {
         val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
         
-        // Calculate 3/4 of screen size
+        // Calculate smaller bubble size to reduce memory usage
+            // Calculate 3/4 of screen size
         val bubbleWidth = (screenWidth * 0.95).toInt()
         val bubbleHeight = (screenHeight * 0.95).toInt()
         

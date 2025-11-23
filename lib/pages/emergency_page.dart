@@ -19,6 +19,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
   bool _isLoadingLocation = false;
   String _detectedLocation = '';
   String _address = '';
+  String _alamat = '';
 
   // User data from session
   String? userName;
@@ -26,6 +27,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
   String? masId;
   String? userPhone;
   String? userPhotoUrl;
+  String? userAddress; // Added to store user's address from profile
   String? lat;
   String? lng;
 
@@ -70,6 +72,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
   Future<void> _loadUserData() async {
     try {
+      // First load from cache for immediate display
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       if (mounted) {
@@ -79,16 +82,70 @@ class _EmergencyPageState extends State<EmergencyPage> {
           masId = prefs.getString('user_id');
           userPhone = prefs.getString('user_phone');
           userPhotoUrl = prefs.getString('user_photo_url');
-          isLoadingUserData = false;
-
-          print(masId);
-          print(userPhone);
+          userAddress = prefs.getString('user_alamat');
+          _alamat = prefs.getString('user_alamat') ?? '';
         });
+
+        // _showError(_alamat ?? 'Alamat tidak tersedia');
       }
+
+      // Then fetch fresh data from API to verify completeness
+      await _fetchUserDataFromAPI();
     } catch (e) {
       if (mounted) {
         setState(() {
           errorMessage = 'Gagal memuat data pengguna';
+          isLoadingUserData = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _fetchUserDataFromAPI() async {
+    try {
+      final response = await ApiService.instance.getUserProfile();
+
+      if (response.success && response.data != null) {
+        final userData = response.data!;
+
+        // Update cache with fresh data
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString(
+            'user_name', userData['nama_lengkap'] ?? userName);
+        await prefs.setString('user_nik', userData['nik'] ?? userNik);
+        await prefs.setString('user_id', userData['id'] ?? masId);
+        await prefs.setString('user_phone', userData['no_telpon'] ?? userPhone);
+        await prefs.setString(
+            'user_photo_url', userData['foto_profil_url'] ?? userPhotoUrl);
+        await prefs.setString('user_alamat', userData['alamat'] ?? userAddress);
+
+        if (mounted) {
+          setState(() {
+            userName = userData['nama_lengkap'] ?? userName;
+            userNik = userData['nik'] ?? userNik;
+            masId = userData['id'] ?? masId;
+            userPhone = userData['no_telpon'] ?? userPhone;
+            userPhotoUrl = userData['foto_profil_url'] ?? userPhotoUrl;
+            userAddress = userData['alamat'] ?? userAddress;
+
+            // Set _address to use user's address instead of geocoded address
+            if (userAddress != null && userAddress!.isNotEmpty) {
+              _alamat = userAddress!;
+            }
+            isLoadingUserData = false;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            isLoadingUserData = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching user data from API: $e');
+      if (mounted) {
+        setState(() {
           isLoadingUserData = false;
         });
       }
@@ -140,8 +197,10 @@ class _EmergencyPageState extends State<EmergencyPage> {
         _detectedLocation = '${position.latitude}, ${position.longitude}';
       });
 
-      // Get address from coordinates
-      await _getAddressFromCoordinates(position.latitude, position.longitude);
+      // Only get address from coordinates if user address is not available
+      if (userAddress == null || userAddress!.isEmpty) {
+        await _getAddressFromCoordinates(position.latitude, position.longitude);
+      }
     } catch (e) {
       print('Error getting location: $e');
       QuickAlert.show(
@@ -229,6 +288,24 @@ class _EmergencyPageState extends State<EmergencyPage> {
       _showError('NIK pengguna tidak tersedia');
       return;
     }
+
+    // Check if user profile is complete
+    if (masId == null || masId!.isEmpty) {
+      _showError('Lengkapi terlebih dahulu identitas anda');
+      return;
+    }
+
+    // _showError(_alamat);
+
+    // Validate address completeness
+    if (_alamat.isEmpty ||
+        _alamat == 'Alamat tidak dapat dideteksi' ||
+        _alamat == 'Gagal mendapatkan alamat') {
+      _showError(
+          'Alamat lengkap harus diisi untuk laporan darurat. Silakan lengkapi profil Anda terlebih dahulu.');
+      return;
+    }
+
     if (selectedEmergencyCategory == null) {
       _showError('Pilih jenis keadaan darurat terlebih dahulu');
       return;
@@ -781,16 +858,40 @@ class _EmergencyPageState extends State<EmergencyPage> {
                             size: 16, color: Colors.grey),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            _address.isNotEmpty
-                                ? _address
-                                : _currentPosition != null
-                                    ? 'GPS: ${_currentPosition!.latitude}, ${_currentPosition!.longitude}'
-                                    : 'Mendeteksi lokasi...',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.black87,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _address.isNotEmpty
+                                    ? _address
+                                    : _currentPosition != null
+                                        ? 'GPS: ${_currentPosition!.latitude}, ${_currentPosition!.longitude}'
+                                        : 'Mendeteksi lokasi...',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              if (userAddress != null &&
+                                  userAddress!.isNotEmpty)
+                                Container(
+                                  margin: const EdgeInsets.only(top: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade100,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    'Dari Profil',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.green.shade700,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       ],

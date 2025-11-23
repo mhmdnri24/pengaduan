@@ -34,6 +34,7 @@ class LandingController extends ChangeNotifier {
   final TextEditingController nikController = TextEditingController();
   bool _isSending = false;
   final _secureStorage = const FlutterSecureStorage();
+  final SessionService sessionService = SessionService.instance;
 
   bool get isSending => _isSending;
 
@@ -381,6 +382,12 @@ class LandingController extends ChangeNotifier {
       await prefs.setString('user_nik', data['nik']?.toString() ?? '');
     if (data.containsKey('no_telpon'))
       await prefs.setString('user_phone', data['no_telpon']?.toString() ?? '');
+
+    if (data.containsKey('alamat'))
+      print("ok");
+      print(data['alamat']?.toString());
+      await prefs.setString('user_alamat', data['alamat']?.toString() ?? '');
+
     if (data.containsKey('foto_profil_url'))
       await prefs.setString(
           'user_photo_url', data['foto_profil_url']?.toString() ?? '');

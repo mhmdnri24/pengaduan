@@ -5,9 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SessionService {
   static SessionService? _instance;
   static const String _sessionKey = 'app_session';
-  
+
   SessionService._internal();
-  
+
   static SessionService get instance {
     _instance ??= SessionService._internal();
     return _instance!;
@@ -18,13 +18,13 @@ class SessionService {
     try {
       // Get existing session data
       final sessionData = await getSessionData();
-      
+
       // Update the specific key
       sessionData[key] = value;
-      
+
       // Save back to storage
       await _saveSessionData(sessionData);
-      
+
       debugPrint('Saved to session: $key = $value');
     } catch (e) {
       debugPrint('Error saving to session: $e');
@@ -90,7 +90,7 @@ class SessionService {
       final sessionData = await getSessionData();
       sessionData.remove(key);
       await _saveSessionData(sessionData);
-      
+
       debugPrint('Removed from session: $key');
     } catch (e) {
       debugPrint('Error removing from session: $e');
@@ -136,5 +136,25 @@ class SessionService {
   /// Save user ID to session
   Future<void> saveUserId(String userId) async {
     await saveToSession('user_id', userId);
+  }
+
+  /// Get splash screen image from session
+  Future<String?> getSplashScreenImage() async {
+    return await getFromSession('splashscreen_image') as String?;
+  }
+
+  /// Save splash screen image to session
+  Future<void> saveSplashScreenImage(String imageUrl) async {
+    await saveToSession('splashscreen_image', imageUrl);
+  }
+
+  /// Get background image from session
+  Future<String?> getBackgroundImage() async {
+    return await getFromSession('background_image') as String?;
+  }
+
+  /// Save background image to session
+  Future<void> saveBackgroundImage(String imageUrl) async {
+    await saveToSession('background_image', imageUrl);
   }
 }

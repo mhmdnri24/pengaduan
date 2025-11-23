@@ -314,6 +314,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         try {
           final Map<String, dynamic> jsonResp = jsonDecode(resp.body);
           final data = jsonResp['data'] as Map<String, dynamic>? ?? {};
+          print(data);
           final prefs = await SharedPreferences.getInstance();
           if (data.containsKey('nama_lengkap'))
             await prefs.setString(
@@ -321,13 +322,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
           if (data.containsKey('no_telpon'))
             await prefs.setString(
                 'user_phone', data['no_telpon']?.toString() ?? noTelp);
+
+          if (data.containsKey('alamat'))
+            await prefs.setString(
+                'user_alamat', data['alamat']?.toString() ?? alamat);
           if (data.containsKey('foto_profil_url'))
             await prefs.setString(
                 'user_photo_url', data['foto_profil_url']?.toString() ?? '');
         } catch (_) {
           // ignore parse errors
         }
-        print(resp.statusCode);
+
         // if (!mounted) return;
         print(1);
         // ScaffoldMessenger.of(context).showSnackBar(

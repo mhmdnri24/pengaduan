@@ -31,12 +31,14 @@ class _PurpleSliderState extends State<PurpleSlider> {
     _controller = PageController(viewportFraction: 0.98);
     _controller.addListener(() {
       final p = _controller.page?.round() ?? 0;
-      if (p != _page) setState(() => _page = p);
+      if (p != _page && mounted) setState(() => _page = p);
     });
     _fetchSliders();
   }
 
   Future<void> _fetchSliders() async {
+    if (!mounted) return;
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -54,6 +56,8 @@ class _PurpleSliderState extends State<PurpleSlider> {
         deviceId: deviceId,
       );
 
+      if (!mounted) return;
+
       if (response.success && response.data != null) {
         setState(() {
           _sliders = response.data!.sliders;
@@ -69,6 +73,7 @@ class _PurpleSliderState extends State<PurpleSlider> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = 'Error loading sliders: $e';
         _isLoading = false;
@@ -77,18 +82,21 @@ class _PurpleSliderState extends State<PurpleSlider> {
   }
 
   void _startAutoPlay() {
-    if (_sliders.isEmpty) return;
+    if (_sliders.isEmpty || !mounted) return;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       _autoTimer = Timer.periodic(widget.autoPlayInterval, (_) {
         if (!mounted || _sliders.isEmpty || !_controller.hasClients) {
           _autoTimer?.cancel();
           return;
         }
-        final next = (_page + 1) % _sliders.length;
-        _controller.animateToPage(next,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeInOut);
+        if (mounted) {
+          final next = (_page + 1) % _sliders.length;
+          _controller.animateToPage(next,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut);
+        }
       });
     });
   }
@@ -358,9 +366,13 @@ class _PurpleSliderState extends State<PurpleSlider> {
               children: List.generate(_sliders.length, (i) {
                 final active = i == _page;
                 return GestureDetector(
-                  onTap: () => _controller.animateToPage(i,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut),
+                  onTap: () {
+                    if (mounted && _controller.hasClients) {
+                      _controller.animateToPage(i,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut);
+                    }
+                  },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     margin: const EdgeInsets.symmetric(horizontal: 6),
@@ -393,9 +405,11 @@ class _PurpleSliderState extends State<PurpleSlider> {
 
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _isLightboxVisible = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLightboxVisible = false;
+          });
+        }
       },
       child: Container(
         color: Colors.black.withOpacity(0.9),
@@ -410,9 +424,11 @@ class _PurpleSliderState extends State<PurpleSlider> {
                   padding: const EdgeInsets.only(top: 40, right: 20),
                   child: GestureDetector(
                     onTap: () {
-                      setState(() {
-                        _isLightboxVisible = false;
-                      });
+                      if (mounted) {
+                        setState(() {
+                          _isLightboxVisible = false;
+                        });
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8),
@@ -472,9 +488,11 @@ class _PurpleSliderState extends State<PurpleSlider> {
                   if (_lightboxIndex > 0)
                     GestureDetector(
                       onTap: () {
-                        setState(() {
-                          _lightboxIndex = _lightboxIndex - 1;
-                        });
+                        if (mounted) {
+                          setState(() {
+                            _lightboxIndex = _lightboxIndex - 1;
+                          });
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(12),
@@ -496,9 +514,11 @@ class _PurpleSliderState extends State<PurpleSlider> {
                   if (_lightboxIndex < _sliders.length - 1)
                     GestureDetector(
                       onTap: () {
-                        setState(() {
-                          _lightboxIndex = _lightboxIndex + 1;
-                        });
+                        if (mounted) {
+                          setState(() {
+                            _lightboxIndex = _lightboxIndex + 1;
+                          });
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(12),

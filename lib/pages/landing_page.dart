@@ -22,6 +22,7 @@ class _LandingPageState extends State<LandingPage> {
   final controller = LandingController();
   static const blue = Color(0xFF2D62F2);
   String? logoUrl;
+  String? backgroundImage;
 
   @override
   void initState() {
@@ -36,7 +37,23 @@ class _LandingPageState extends State<LandingPage> {
       if (result.success && result.data != null && mounted) {
         setState(() {
           logoUrl = result.data!['logo'] as String?;
+          // Also get background image from pengaturan if available
+          backgroundImage = result.data!['background_image'] as String?;
+          // Save background image to session for future use
+          if (backgroundImage != null) {
+            controller.sessionService.saveBackgroundImage(backgroundImage!);
+          }
         });
+      }
+
+      // If no background image in pengaturan, try to get from session
+      if (backgroundImage == null) {
+        final bgImage = await controller.sessionService.getBackgroundImage();
+        if (bgImage != null && mounted) {
+          setState(() {
+            backgroundImage = bgImage;
+          });
+        }
       }
     } catch (e) {
       // ignore error
@@ -407,161 +424,178 @@ class _LandingPageState extends State<LandingPage> {
       child: Builder(
         builder: (context) => Scaffold(
           extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            backgroundColor: const Color(0xFF1C3FAA),
-            elevation: 0,
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                child: const Icon(Icons.account_balance, color: Colors.white),
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () {
-                  // logika lama menu atau drawer
-                },
-              ),
-            ],
-          ),
+          // appBar: AppBar(
+          //   backgroundColor: const Color(0xFF1C3FAA),
+          //   elevation: 0,
+          //   leading: Padding(
+          //     padding: const EdgeInsets.only(left: 12),
+          //     child: Container(
+          //       padding: const EdgeInsets.all(6),
+          //       child: const Icon(Icons.account_balance, color: Colors.white),
+          //     ),
+          //   ),
+          //   actions: [
+          //     IconButton(
+          //       icon: const Icon(Icons.menu, color: Colors.white),
+          //       onPressed: () {
+          //         // logika lama menu atau drawer
+          //       },
+          //     ),
+          //   ],
+          // ),
           body: Container(
             width: double.infinity,
             height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+            decoration: backgroundImage != null
+                ? BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(backgroundImage!),
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : null,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF2258DA)
+                        .withOpacity(backgroundImage != null ? 0.6 : 1.0),
+                    const Color(0xFF2F80ED)
+                        .withOpacity(backgroundImage != null ? 0.6 : 1.0),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
               ),
-            ),
-            child: SafeArea(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 1),
+              child: SafeArea(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 1),
 
-                  // Logo di tengah
-                  ClipOval(
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      padding: const EdgeInsets.all(8),
-                      child: logoUrl != null
-                          ? Image.network(
-                              logoUrl!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.account_balance,
-                                    size: 64,
-                                    color: Colors.blue,
-                                  ),
-                                );
-                              },
-                            )
-                          : Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
+                    // Logo di tengah
+                    ClipOval(
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        padding: const EdgeInsets.all(8),
+                        child: logoUrl != null
+                            ? Image.network(
+                                logoUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.account_balance,
+                                      size: 64,
+                                      color: Colors.blue,
+                                    ),
+                                  );
+                                },
+                              )
+                            : Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.account_balance,
+                                  size: 64,
+                                  color: Colors.blue,
+                                ),
                               ),
-                              child: const Icon(
-                                Icons.account_balance,
-                                size: 64,
-                                color: Colors.blue,
-                              ),
-                            ),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 30),
+                    const SizedBox(height: 30),
 
-                  // Judul
-                  const Text(
-                    'Lapor Pak Wali',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Deskripsi
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      'Platform Digital Pemerintah Daerah untuk Melayani Aspirasi dan Keluhan Masyarakat. Transparansi, Responsif, dan Terpercaya.',
+                    // Judul
+                    const Text(
+                      'Lapor Pak Wali',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
-                        height: 1.5,
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                  ),
 
-                  const SizedBox(height: 40),
+                    const SizedBox(height: 16),
 
-                  // Tombol Daftar
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    SizedBox(
-                      // width: 250,
-                      height: 48,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _goToRegister(context),
-                        icon: const Icon(Icons.person_add_alt,
-                            color: Colors.black),
-                        label: const Text(
-                          'Daftar',
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                    // Deskripsi
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24),
+                      child: Text(
+                        'Platform Digital Pemerintah Daerah untuk Melayani Aspirasi dan Keluhan Masyarakat. Transparansi, Responsif, dan Terpercaya.',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          height: 1.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    // Tombol Daftar
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      SizedBox(
+                        // width: 250,
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _goToRegister(context),
+                          icon: const Icon(Icons.person_add_alt,
                               color: Colors.black),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(1),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          label: const Text(
+                            'Daftar',
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white.withOpacity(1),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
-                    const SizedBox(width: 16),
+                      const SizedBox(width: 16),
 
-                    // Tombol Masuk (border putih)
-                    SizedBox(
-                      // width: 250,
-                      height: 48,
-                      child: OutlinedButton.icon(
-                        onPressed: () => _goToLogin(context),
-                        icon: const Icon(Icons.login, color: Colors.white),
-                        label: const Text(
-                          'Masuk',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.white),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      // Tombol Masuk (border putih)
+                      SizedBox(
+                        // width: 250,
+                        height: 48,
+                        child: OutlinedButton.icon(
+                          onPressed: () => _goToLogin(context),
+                          icon: const Icon(Icons.login, color: Colors.white),
+                          label: const Text(
+                            'Masuk',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
                           ),
-                          foregroundColor: Colors.white,
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.white),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            foregroundColor: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                  ])
-                ],
+                    ])
+                  ],
+                ),
               ),
             ),
           ),
@@ -730,6 +764,40 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             text: "NIK harus 16 digit",
           );
           return;
+        }
+
+        // Validate NIK if already registered
+        final nikValidation = await ApiService.instance.validateNIK(nik);
+        if (!nikValidation.success) {
+          Navigator.of(context).pop(); // Close loading dialog
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.error,
+            title: "Error",
+            text:
+                nikValidation.error ?? 'Terjadi kesalahan saat memvalidasi NIK',
+          );
+          return;
+        }
+
+        // Check if NIK already exists
+        if (nikValidation.data != null &&
+            nikValidation.data!['exists'] == true) {
+          Navigator.of(context).pop(); // Close loading dialog
+          QuickAlert.show(
+            context: context,
+            type: QuickAlertType.info,
+            title: "Informasi",
+            text: "NIK sudah terdaftar. Silakan login dengan NIK tersebut.",
+          );
+          return;
+        }
+
+        // If NIK is not registered, continue with registration
+        if (nikValidation.data != null &&
+            nikValidation.data!['exists'] == false) {
+          // Continue with normal registration flow
+          print('NIK available for registration');
         }
 
         // Validate phone number length (should be 10-13 digits after formatting)
@@ -1214,7 +1282,57 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             child: ElevatedButton(
               onPressed: _namaController.text.isNotEmpty &&
                       _nikController.text.length == 16
-                  ? _nextStep
+                  ? () async {
+                      // Validate NIK before proceeding to next step
+                      String nik = _nikController.text.trim();
+
+                      // Show loading
+                      if (!mounted) return;
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+
+                      // Validate NIK
+                      final nikValidation =
+                          await ApiService.instance.validateNIK(nik);
+
+                      // Close loading dialog
+                      if (!mounted) return;
+                      Navigator.of(context).pop();
+
+                      if (!nikValidation.success) {
+                        if (!mounted) return;
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.error,
+                          title: "Error",
+                          text: nikValidation.error ??
+                              'Terjadi kesalahan saat memvalidasi NIK',
+                        );
+                        return;
+                      }
+
+                      // Check if NIK already exists
+                      if (nikValidation.data != null &&
+                          nikValidation.data!['exists'] == true) {
+                        if (!mounted) return;
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.info,
+                          title: "Informasi",
+                          text:
+                              "NIK sudah terdaftar. Silakan login dengan NIK tersebut.",
+                        );
+                        return;
+                      }
+
+                      // If NIK is available, proceed to next step
+                      _nextStep();
+                    }
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: blue,

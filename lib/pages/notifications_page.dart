@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class NotificationsPage extends StatefulWidget {
-  const NotificationsPage({super.key});
+  const NotificationsPage({super.key, this.onBack});
+
+  final Function()? onBack;
 
   @override
   State<NotificationsPage> createState() => _NotificationsPageState();
@@ -116,7 +118,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      // Use the callback if provided, otherwise navigate to dashboard
+                      if (widget.onBack != null) {
+                        widget.onBack!();
+                      } else {
+                        // Default behavior: navigate to dashboard route
+                        Navigator.pushReplacementNamed(context, '/dashboard');
+                      }
+                    },
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white.withOpacity(0.2),

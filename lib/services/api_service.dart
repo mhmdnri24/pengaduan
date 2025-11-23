@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import '../models/complaint.dart';
 import '../models/slider.dart';
+import '../models/menu_grid.dart';
 import 'session_service.dart';
 
 class ApiResponse<T> {
@@ -61,6 +62,12 @@ class ApiService {
         'Origin': ApiConfig.origin,
         'Referer': ApiConfig.origin,
         'Cookie': 'krs_session=6egg5h8fo1co8b9lmoroui0pp4es97hb',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Mobile Safari/537.36',
+        'Accept': 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+        'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
       };
 
   Future<ApiResponse<Map<String, dynamic>>> postComplaint({
@@ -486,8 +493,32 @@ class ApiService {
         }
 
         if (apiResponse.data!['splashscreen_image'] != null) {
-          await sessionService.saveToSession(
-              'splashscreen_image', apiResponse.data!['splashscreen_image']);
+          final splashImage =
+              apiResponse.data!['splashscreen_image'].toString();
+          // Validate the URL before saving
+          if (splashImage.isNotEmpty &&
+              (splashImage.startsWith('http://') ||
+                  splashImage.startsWith('https://'))) {
+            await sessionService.saveToSession(
+                'splashscreen_image', splashImage);
+            debugPrint('Splash screen image saved to session: $splashImage');
+          } else {
+            debugPrint('Invalid splash image URL format: $splashImage');
+            // Don't save invalid URL to session
+          }
+        }
+        if (apiResponse.data!['background_image'] != null) {
+          final splashImage = apiResponse.data!['background_image'].toString();
+          // Validate the URL before saving
+          if (splashImage.isNotEmpty &&
+              (splashImage.startsWith('http://') ||
+                  splashImage.startsWith('https://'))) {
+            await sessionService.saveToSession('background_image', splashImage);
+            debugPrint('Splash screen image saved to session: $splashImage');
+          } else {
+            debugPrint('Invalid splash image URL format: $splashImage');
+            // Don't save invalid URL to session
+          }
         }
 
         // Also save the complete data object as a backup
@@ -539,6 +570,82 @@ class ApiService {
         } else {
           return ApiResponse(success: false, error: 'Invalid response format');
         }
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
+  /// Get active menu grid from API
+  Future<ApiResponse<MenuGridResponse>> getActiveMenuGrid() async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/menu_grid/active');
+      var response = await http.get(uri, headers: _headers);
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+
+        if (responseData is Map<String, dynamic> &&
+            responseData['status'] == 'success') {
+          final menuGridResponse =
+              MenuGridResponse.fromJson(responseData['data']);
+          return ApiResponse(success: true, data: menuGridResponse);
+        } else {
+          return ApiResponse(success: false, error: 'Invalid response format');
+        }
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
+  /// Get user profile from API
+  Future<ApiResponse<Map<String, dynamic>>> getUserProfile() async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/profile');
+      var response = await http.get(uri, headers: _headers);
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+
+        if (responseData is Map<String, dynamic> &&
+            responseData['status'] == 'success') {
+          return ApiResponse(success: true, data: responseData['data']);
+        } else {
+          return ApiResponse(success: false, error: 'Invalid response format');
+        }
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
+  /// Validate NIK to check if already registered
+  Future<ApiResponse<Map<String, dynamic>>> validateNIK(String nik) async {
+    try {
+      var uri =
+          Uri.parse('${ApiConfig.baseUrl}/masyarakat/validate-nik?nik=$nik');
+      var response = await http.get(uri, headers: _headers);
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+        if (responseData is Map<String, dynamic> &&
+            responseData['status'] == 'success') {
+          return ApiResponse(success: true, data: responseData['data']);
+        }
+        return ApiResponse(success: false, error: 'NIK validation failed');
       } else {
         return ApiResponse(
             success: false,

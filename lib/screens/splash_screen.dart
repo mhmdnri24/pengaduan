@@ -26,12 +26,48 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _loadSplashImage() async {
+    print('Loading splash image from session...');
     final sessionService = SessionService.instance;
     final splashImageUrl =
         await sessionService.getFromSession('splashscreen_image');
-    if (splashImageUrl != null) {
-      setState(() {
-        _splashImageUrl = splashImageUrl as String;
+
+    print('Splash image URL from session: $splashImageUrl');
+
+    // Always update state to ensure UI refreshes
+    setState(() {
+      if (splashImageUrl != null && splashImageUrl.toString().isNotEmpty) {
+        _splashImageUrl = splashImageUrl.toString();
+        print('Splash image loaded successfully: $_splashImageUrl');
+      } else {
+        _splashImageUrl = null;
+        print('No splash image found in session, using default asset');
+      }
+    });
+
+    // Check if we need to trigger a fetch of pengaturan data
+    if (_splashImageUrl == null) {
+      final pengaturanData =
+          await sessionService.getFromSession('pengaturan_data');
+      if (pengaturanData == null) {
+        print(
+            'No pengaturan data in session, splash image will be available on next app start');
+      }
+    }
+
+    // Preache network image after state is updated with proper error handling
+    if (_splashImageUrl != null && _splashImageUrl!.isNotEmpty) {
+      // Try to precache but don't block if it fails
+      precacheImage(
+              NetworkImage(
+                _splashImageUrl!,
+                headers: {
+                  'User-Agent': 'Mozilla/5.0 (compatible; Flutter)',
+                },
+              ),
+              context)
+          .catchError((e) {
+        print('Error precaching network image (this is OK): $e');
+        // Don't treat this as critical error
       });
     }
   }
@@ -40,7 +76,16 @@ class _SplashScreenState extends State<SplashScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isImageCached) {
-      precacheImage(const AssetImage('assets/images/splash.jpg'), context);
+      // Try to precache both splash images
+      precacheImage(const AssetImage('assets/images/splash.jpg'), context)
+          .catchError((e) {
+        print('Error precaching splash.jpg: $e');
+      });
+      precacheImage(const AssetImage('assets/images/splash.webp'), context)
+          .catchError((e) {
+        print('Error precaching splash.webp: $e');
+      });
+
       _isImageCached = true;
     }
   }
@@ -121,27 +166,111 @@ class _SplashScreenState extends State<SplashScreen> {
                 end: Alignment.bottomCenter,
               ),
             ),
-            child: _splashImageUrl != null
-                ? Image.network(
-                    _splashImageUrl!,
+            child: _splashImageUrl != null && _splashImageUrl!.isNotEmpty
+                ? Stack(
+                    children: [
+                      // Network image
+                      Image.network(
+                        _splashImageUrl!,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          print('Error loading network image: $error');
+                          print('Stack trace: $stackTrace');
+                          // Fallback to asset on error
+                          return Image.asset(
+                            'assets/images/splash.webp',
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              print('Error loading fallback asset: $error');
+                              // Return gradient background if asset not found
+                              return Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFF2258DA),
+                                      Color(0xFF2F80ED)
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          print(
+                              'Loading network image progress: $loadingProgress');
+                          if (loadingProgress == null) return child;
+                          // Show gradient while loading
+                          return Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      // Debug overlay
+                      // Positioned(
+                      //   top: 50,
+                      //   left: 10,
+                      //   child: Container(
+                      //     padding: const EdgeInsets.all(8),
+                      //     color: Colors.black.withOpacity(0.7),
+                      //     child: Text(
+                      //       'URL: ${_splashImageUrl!.length > 30 ? _splashImageUrl!.substring(0, 30) + '...' : _splashImageUrl!}',
+                      //       style: const TextStyle(
+                      //         color: Colors.white,
+                      //         fontSize: 10,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                    ],
+                  )
+                : Image.asset(
+                    'assets/images/splash.webp',
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      // Return empty container on error to show gradient background
-                      return const SizedBox.shrink();
+                      print(
+                          'Error loading default splash.webp: $error, trying splash.jpg');
+                      // Try splash.jpg as fallback
+                      return Image.asset(
+                        'assets/images/splash.jpg',
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          print('Error loading default splash.jpg: $error');
+                          // Return gradient background if asset not found
+                          return Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
+                          );
+                        },
+                      );
                     },
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      // Show gradient while loading
-                      return const SizedBox.shrink();
-                    },
-                  )
-                : Image.asset(
-                    'assets/images/splash.jpg',
-                    width: double.infinity,
-                    height: double.infinity,
-                    fit: BoxFit.cover,
                   ),
           ),
           // Semi-transparent overlay and content
@@ -162,7 +291,6 @@ class _SplashScreenState extends State<SplashScreen> {
                   // ),
                   SizedBox(height: 16),
                   Text(
-                    // 'Lapor Pak Wali',
                     '',
                     style: TextStyle(
                       fontSize: 32,
@@ -172,7 +300,6 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    // 'Memuat halaman',
                     '',
                     style: TextStyle(
                       fontSize: 18,

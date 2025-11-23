@@ -55,7 +55,7 @@ class _HistoryPageState extends State<HistoryPage> {
           statusFilter = 'LAPOR';
           break;
         case 2: // Proses
-          statusFilter = 'PROSES';
+          statusFilter = 'DIKERJAKAN';
           break;
         case 3: // Selesai
           statusFilter = 'SELESAI';
