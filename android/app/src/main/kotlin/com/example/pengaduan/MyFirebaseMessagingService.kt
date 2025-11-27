@@ -6,7 +6,9 @@ import android.util.Log
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.media.AudioAttributes
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -20,9 +22,22 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         Log.d(TAG, "onMessageReceived data=${remoteMessage.data}")
 
         // Show notification if app is in foreground
+        // Show notification if app is in foreground
         remoteMessage.notification?.let {
             Log.d(TAG, "Message Notification Body: ${it.body}")
-            sendNotification(it.body, it.title)
+            // Check if body is an integer to determine urgency
+            // Use data["body"] if available as it drives the overlay logic
+            val dataBody = remoteMessage.data["body"]
+            val isDataBodyInteger = dataBody?.toIntOrNull() != null
+            
+            // Fallback to notification body if data body is missing
+            val isUrgent = if (dataBody != null) {
+                isDataBodyInteger
+            } else {
+                it.body?.toIntOrNull() != null
+            }
+            
+            sendNotification(it.body, it.title, isUrgent)
         }
 
         // Extract complaint data from FCM payload
@@ -77,7 +92,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // You might want to send the token to your server here
     }
 
-    private fun sendNotification(messageBody: String?, messageTitle: String?) {
+    private fun sendNotification(messageBody: String?, messageTitle: String?, isUrgent: Boolean) {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pendingIntent = PendingIntent.getActivity(
@@ -85,25 +100,38 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        val channelId = "fcm_default_channel"
-        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val channelId = if (isUrgent) "fcm_urgent_channel_v2" else "fcm_default_channel_v2"
+        val channelName = if (isUrgent) "Urgent Notifications" else "Default Notifications"
+        
+        val soundUri = if (isUrgent) {
+             Uri.parse("android.resource://" + packageName + "/" + R.raw.urgent)
+        } else {
+            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        }
+
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(messageTitle ?: "Pengaduan")
             .setContentText(messageBody)
             .setAutoCancel(true)
-            .setSound(defaultSoundUri)
+            .setSound(soundUri)
             .setContentIntent(pendingIntent)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // Since android Oreo notification channel is needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .build()
+
             val channel = NotificationChannel(
                 channelId,
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_DEFAULT
+                channelName,
+                NotificationManager.IMPORTANCE_HIGH
             )
+            channel.setSound(soundUri, audioAttributes)
             notificationManager.createNotificationChannel(channel)
         }
 
