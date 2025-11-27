@@ -600,7 +600,7 @@ class BubbleOverlayService : Service(), OnMapReadyCallback {
     private fun playNotificationSound() {
         try {
             android.util.Log.d("BubbleOverlayService", "playNotificationSound: start")
-            // Prefer a bundled raw resource `res/raw/urgent.wav` if available (works in background).
+            // Prefer a bundled raw resource `res/raw/urgent.mp3` if available (works in background).
             val resId = resources.getIdentifier("urgent", "raw", packageName)
             android.util.Log.d("BubbleOverlayService", "playNotificationSound: resId=$resId")
 
