@@ -419,7 +419,7 @@ class BubbleOverlayService : Service(), OnMapReadyCallback {
         val screenHeight = displayMetrics.heightPixels
         
         // Calculate smaller bubble size to reduce memory usage
-            // Calculate 3/4 of screen size
+        // Reduced from 95% to 80% width and 60% height
         val bubbleWidth = (screenWidth * 0.95).toInt()
         val bubbleHeight = (screenHeight * 0.95).toInt()
         
@@ -433,8 +433,7 @@ class BubbleOverlayService : Service(), OnMapReadyCallback {
                 WindowManager.LayoutParams.TYPE_PHONE
             },
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.CENTER

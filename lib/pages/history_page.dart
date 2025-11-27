@@ -129,7 +129,7 @@ class _HistoryPageState extends State<HistoryPage> {
       final prosesResponse = await ApiService.instance.getComplaints(
         page: 1,
         limit: 1,
-        status: 'PROSES',
+        status: 'DIKERJAKAN',
         userId: userId,
       );
 
@@ -140,6 +140,9 @@ class _HistoryPageState extends State<HistoryPage> {
         status: 'SELESAI',
         userId: userId,
       );
+
+      print('prosesResponse.data');
+      print(selesaiResponse.data?.pagination.totalRecords);
 
       setState(() {
         _totalCount = totalResponse.data?.pagination.totalRecords ?? 0;
@@ -533,131 +536,284 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
+  // Widget _complaintCard({
+  //   required List<Widget> statusChips,
+  //   required String title,
+  //   required String description,
+  //   required String location,
+  //   required String time,
+  //   required String verification,
+  //   required Color verificationColor,
+  //   String? imageUrl,
+  //   required VoidCallback detailAction,
+  // }) {
+  //   return Card(
+  //     color: Colors.white,
+  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  //     elevation: 2,
+  //     child: Padding(
+  //       padding: const EdgeInsets.all(12.0),
+  //       child: Row(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Expanded(
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Row(children: statusChips),
+  //                 const SizedBox(height: 4),
+  //                 Text(title,
+  //                     style: const TextStyle(
+  //                         fontWeight: FontWeight.bold, fontSize: 16)),
+  //                 const SizedBox(height: 2),
+  //                 Text(
+  //                   description.length > 100
+  //                       ? '${description.substring(0, 100)}...'
+  //                       : description,
+  //                   style: const TextStyle(fontSize: 13, color: Colors.black87),
+  //                 ),
+  //                 const SizedBox(height: 8),
+  //                 Row(
+  //                   children: [
+  //                     const Icon(Icons.location_on,
+  //                         size: 14, color: Colors.grey),
+  //                     const SizedBox(width: 2),
+  //                     Expanded(
+  //                       child: Text(location,
+  //                           maxLines: 1,
+  //                           overflow: TextOverflow.ellipsis,
+  //                           style: const TextStyle(
+  //                               fontSize: 12, color: Colors.grey)),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 const SizedBox(height: 4),
+  //                 Row(
+  //                   children: [
+  //                     const Icon(Icons.access_time,
+  //                         size: 14, color: Colors.grey),
+  //                     const SizedBox(width: 2),
+  //                     Text(time,
+  //                         style: const TextStyle(
+  //                             fontSize: 12, color: Colors.grey)),
+  //                   ],
+  //                 ),
+  //                 const SizedBox(height: 8),
+  //                 Row(
+  //                   children: [
+  //                     Icon(Icons.circle, size: 10, color: verificationColor),
+  //                     const SizedBox(width: 4),
+  //                     Text(
+  //                       verification,
+  //                       style: TextStyle(
+  //                           color: verificationColor,
+  //                           fontSize: 13,
+  //                           fontWeight: FontWeight.w600),
+  //                     ),
+  //                     const Spacer(),
+  //                     GestureDetector(
+  //                       onTap: detailAction,
+  //                       child: const Text('Detail',
+  //                           style: TextStyle(
+  //                               color: Color(0xFF1C3FAA),
+  //                               fontWeight: FontWeight.bold)),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //           const SizedBox(width: 8),
+  //           ClipRRect(
+  //             borderRadius: BorderRadius.circular(8),
+  //             child: imageUrl != null
+  //                 ? Image.network(
+  //                     imageUrl,
+  //                     width: 60,
+  //                     height: 60,
+  //                     fit: BoxFit.cover,
+  //                     errorBuilder: (context, error, stackTrace) => Container(
+  //                       width: 60,
+  //                       height: 60,
+  //                       color: Colors.grey[300],
+  //                       child: const Icon(Icons.image_not_supported,
+  //                           color: Colors.grey),
+  //                     ),
+  //                     loadingBuilder: (context, child, loadingProgress) {
+  //                       if (loadingProgress == null) return child;
+  //                       return Container(
+  //                         width: 60,
+  //                         height: 60,
+  //                         color: Colors.grey[200],
+  //                         child: const Center(
+  //                           child: CircularProgressIndicator(strokeWidth: 2),
+  //                         ),
+  //                       );
+  //                     },
+  //                   )
+  //                 : Container(
+  //                     width: 60,
+  //                     height: 60,
+  //                     color: Colors.grey[300],
+  //                     child: const Icon(Icons.image, color: Colors.grey),
+  //                   ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget _complaintCard({
-    required List<Widget> statusChips,
-    required String title,
-    required String description,
-    required String location,
-    required String time,
-    required String verification,
-    required Color verificationColor,
-    String? imageUrl,
-    required VoidCallback detailAction,
-  }) {
-    return Card(
+  required List<Widget> statusChips,
+  required String title,
+  required String description,
+  required String location,
+  required String time,
+  required String verification,
+  required Color verificationColor,
+  String? imageUrl,
+  required VoidCallback detailAction,
+}) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
       color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      borderRadius: BorderRadius.circular(18),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.06),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // left content
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              
+              // status chips
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: statusChips,
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              // title
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              // description
+              Text(
+                description.length > 110
+                    ? '${description.substring(0, 110)}...'
+                    : description,
+                style: const TextStyle(fontSize: 13, color: Colors.black87),
+              ),
+
+              const SizedBox(height: 10),
+
+              // location
+              Row(
                 children: [
-                  Row(children: statusChips),
-                  const SizedBox(height: 4),
-                  Text(title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16)),
-                  const SizedBox(height: 2),
-                  Text(
-                    description.length > 100
-                        ? '${description.substring(0, 100)}...'
-                        : description,
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on,
-                          size: 14, color: Colors.grey),
-                      const SizedBox(width: 2),
-                      Expanded(
-                        child: Text(location,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.grey)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time,
-                          size: 14, color: Colors.grey),
-                      const SizedBox(width: 2),
-                      Text(time,
-                          style: const TextStyle(
-                              fontSize: 12, color: Colors.grey)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.circle, size: 10, color: verificationColor),
-                      const SizedBox(width: 4),
-                      Text(
-                        verification,
-                        style: TextStyle(
-                            color: verificationColor,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: detailAction,
-                        child: const Text('Detail',
-                            style: TextStyle(
-                                color: Color(0xFF1C3FAA),
-                                fontWeight: FontWeight.bold)),
-                      ),
-                    ],
+                  Icon(Icons.location_on_outlined,
+                      size: 16, color: Colors.grey[600]),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      location,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                    ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: imageUrl != null
-                  ? Image.network(
-                      imageUrl,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        width: 60,
-                        height: 60,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.image_not_supported,
-                            color: Colors.grey),
-                      ),
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          width: 60,
-                          height: 60,
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
-                      width: 60,
-                      height: 60,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.image, color: Colors.grey),
+
+              const SizedBox(height: 6),
+
+              // time
+              Row(
+                children: [
+                  Icon(Icons.access_time_rounded,
+                      size: 16, color: Colors.grey[600]),
+                  const SizedBox(width: 4),
+                  Text(
+                    time,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              // footer
+              Row(
+                children: [
+                  Icon(Icons.circle, size: 10, color: verificationColor),
+                  const SizedBox(width: 6),
+                  Text(
+                    verification,
+                    style: TextStyle(
+                      color: verificationColor,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
                     ),
-            ),
-          ],
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: detailAction,
+                    child: const Text(
+                      'Detail',
+                      style: TextStyle(
+                        color: Color(0xFF1C3FAA),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+
+        const SizedBox(width: 14),
+
+        // image (bigger & rounded)
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: imageUrl != null
+              ? Image.network(
+                  imageUrl,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                )
+              : Container(
+                  width: 80,
+                  height: 80,
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.image, size: 32, color: Colors.grey),
+                ),
+        ),
+      ],
+    ),
+  );
+}
 }

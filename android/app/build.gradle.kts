@@ -51,6 +51,9 @@ android {
         targetSdk = 34  // Target Android 14 for compatibility
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Tambahkan konfigurasi untuk mengurangi memory usage
+        multiDexEnabled = true
     }
 
     buildTypes {

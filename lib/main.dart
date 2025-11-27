@@ -25,56 +25,74 @@ import 'utils/memory_monitor.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Firebase only - the most critical component
   try {
-    // Initialize Firebase with timeout
-    await Firebase.initializeApp().timeout(const Duration(seconds: 10));
+    await Firebase.initializeApp().timeout(const Duration(seconds: 5));
     debugPrint('Firebase initialized successfully');
   } catch (e) {
     debugPrint('Firebase initialization failed: $e');
-    // Continue without Firebase - app will have limited functionality
   }
 
-  // Add delay between heavy operations
+  // Start the app immediately with minimal initialization
+  runApp(const MyApp());
+
+  // Initialize heavy services after app is running
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _initializeHeavyServices();
+  });
+}
+
+// Separate function for heavy initialization to prevent blocking
+Future<void> _initializeHeavyServices() async {
+  debugPrint('Starting heavy services initialization...');
+
+  // Add initial delay to let app fully load
+  await Future.delayed(const Duration(seconds: 1));
+
+  // Initialize services with proper error handling and delays
+  await _initializeComplaintService();
   await Future.delayed(const Duration(milliseconds: 500));
 
-  // Initialize the complaint service with error handling
+  await _fetchAndSavePengaturan();
+  await Future.delayed(const Duration(milliseconds: 500));
+
+  await _setupFCM();
+  await Future.delayed(const Duration(milliseconds: 500));
+
+  await _getDeviceId();
+  await Future.delayed(const Duration(milliseconds: 500));
+
+  if (Platform.isAndroid) {
+    await _checkOverlayPermission();
+  }
+
+  // Setup message handlers
+  _setupMessageHandlers();
+
+  // Start memory monitoring
+  MemoryMonitor.startMonitoring();
+
+  debugPrint('Heavy services initialization completed');
+}
+
+Future<void> _initializeComplaintService() async {
   try {
     await ComplaintService.instance
         .initialize()
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 10));
     debugPrint('Complaint service initialized successfully');
   } catch (e) {
     debugPrint('Complaint service initialization failed: $e');
-    // Continue without complaint service
   }
+}
 
-  await Future.delayed(const Duration(milliseconds: 500));
-
-  // Fetch and save pengaturan data to session with timeout
-  try {
-    await _fetchAndSavePengaturan().timeout(const Duration(seconds: 5));
-    debugPrint('Settings fetched successfully');
-  } catch (e) {
-    debugPrint('Failed to fetch settings: $e');
-    // Continue with default settings
-  }
-
-  // Check overlay permission on Android
-  if (Platform.isAndroid) {
-    try {
-      await _checkOverlayPermission().timeout(const Duration(seconds: 3));
-    } catch (e) {
-      debugPrint('Overlay permission check failed: $e');
-    }
-  }
-
-  // Request notification permissions (Android auto-grants but keep for completeness)
+Future<void> _setupFCM() async {
   try {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
-    await messaging.requestPermission().timeout(const Duration(seconds: 3));
+    await messaging.requestPermission().timeout(const Duration(seconds: 5));
 
-    // Print FCM token and listen for refreshes
-    await _printFcmToken().timeout(const Duration(seconds: 5));
+    await _printFcmToken().timeout(const Duration(seconds: 10));
+
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
       debugPrint('FCM Token refreshed: $newToken');
       await _saveFcmToken(newToken);
@@ -82,97 +100,45 @@ void main() async {
   } catch (e) {
     debugPrint('FCM setup failed: $e');
   }
+}
 
-  // Get and save device ID
-  try {
-    await _getDeviceId().timeout(const Duration(seconds: 5));
-  } catch (e) {
-    debugPrint('Device ID retrieval failed: $e');
-  }
-
-  // Handle background messages (required top-level handler)
+void _setupMessageHandlers() {
   try {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) async {
+      if (message != null) {
+        await _handleMessage(message);
+      }
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      await _handleMessage(message);
+      await playNotificationSound();
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      await _handleMessage(message);
+      await playNotificationSound();
+    });
   } catch (e) {
-    debugPrint('Background message handler setup failed: $e');
+    debugPrint('Message handlers setup failed: $e');
   }
+}
 
-  // Handle messages when app is opened from a terminated state via tap
-  const platform = MethodChannel('bubble_overlay');
-  FirebaseMessaging.instance
-      .getInitialMessage()
-      .then((RemoteMessage? message) async {
-    if (message != null) {
-      // Extract ID from message data
-      String? id = message.data['id'];
-      if (id == null) {
-        id = message.data['body'];
-      }
-      if (id == null || id.isEmpty) {
-        id = '1'; // fallback ID
-      }
-
-      // Use showBubbleWithId to ensure complaintId is stored
-      await BubbleOverlayService.showBubbleWithId(id);
-
-      // Also save to prefs for direct navigation when app starts from terminated state
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('pending_complaint_id', id);
-      await prefs.setBool('skip_splash_to_detail', true);
-    }
-  });
-
-  // Foreground message handler: show bubble immediately
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    // Extract ID from message data
-    String? id = message.data['id'];
-    if (id == null) {
-      id = message.data['body'];
-    }
-    if (id == null || id.isEmpty) {
-      id = '1'; // fallback ID
-    }
-
-    // Use showBubbleWithId to ensure complaintId is stored
+Future<void> _handleMessage(RemoteMessage message) async {
+  try {
+    String id = message.data['id'] ?? message.data['body'] ?? '1';
     await BubbleOverlayService.showBubbleWithId(id);
-    // optional: keep Dart audio as extra feedback when app is foreground
-    await playNotificationSound();
-  });
 
-  // When app in background but opened via notification tap
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-    // Extract ID from message data
-    String? id = message.data['id'];
-    if (id == null) {
-      id = message.data['body'];
-    }
-    if (id == null || id.isEmpty) {
-      id = '1'; // fallback ID
-    }
-
-    // Use showBubbleWithId to ensure complaintId is stored
-    await BubbleOverlayService.showBubbleWithId(id);
-    await playNotificationSound();
-  });
-
-  // Check if we should go directly to detail page before running app
-  final prefs = await SharedPreferences.getInstance();
-  final skipSplashToDetail = prefs.getBool('skip_splash_to_detail') ?? false;
-  final pendingComplaintId = prefs.getString('pending_complaint_id');
-
-  // Clear the flags immediately after reading
-  await prefs.remove('skip_splash_to_detail');
-  await prefs.remove('pending_complaint_id');
-
-  // Start memory monitoring
-  MemoryMonitor.startMonitoring();
-
-  runApp(MyApp(
-    skipToDetail: skipSplashToDetail &&
-        pendingComplaintId != null &&
-        pendingComplaintId.isNotEmpty,
-    complaintId: pendingComplaintId ?? '',
-  ));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('pending_complaint_id', id);
+    await prefs.setBool('skip_splash_to_detail', true);
+  } catch (e) {
+    debugPrint('Error handling message: $e');
+  }
 }
 
 // Top-level background message handler

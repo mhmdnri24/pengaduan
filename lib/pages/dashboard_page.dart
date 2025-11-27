@@ -1,5 +1,6 @@
 // removed unused imports after slider extraction
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:pengaduan/components/pengaduan_list.dart';
 import 'package:pengaduan/pages/add_complaint_page.dart';
 import 'package:pengaduan/pages/profile_page.dart';
@@ -12,7 +13,7 @@ import '../components/purple_slider.dart';
 // import '../services/complaint_service.dart';
 import 'history_page.dart';
 import 'package:pengaduan/services/session_service.dart';
-import 'notifications_page.dart';
+import 'pengumuman_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import 'package:quickalert/quickalert.dart';
@@ -158,7 +159,7 @@ class _DashboardPageState extends State<DashboardPage> {
       case 1:
         return "Histori";
       case 2:
-        return "Notif";
+        return "Pengumuman";
       case 3:
         return "Profile";
       case 4:
@@ -241,7 +242,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 _buildTabItem(Icons.home, "Home", 0),
                 _buildTabItem(Icons.history, "Histori", 1),
                 const SizedBox(width: 48), // ruang untuk FAB
-                _buildTabItem(Icons.notifications, "Notif", 2),
+                _buildTabItem(Icons.notifications, "Info", 2),
                 _buildTabItem(Icons.person, "Profile", 3),
               ],
             ),
@@ -319,13 +320,24 @@ class _DashboardPageState extends State<DashboardPage> {
             children: [
               // Background Header Extension
               Container(
-                height: 100,
+                height: 120, // Increased height for better proportion
                 width: double.infinity,
                 decoration: const BoxDecoration(
-                  color: DashboardConstants.primaryColor,
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(30),
+                  gradient: LinearGradient(
+                    colors: [
+                      DashboardConstants.primaryColor,
+                      DashboardConstants.secondaryColor,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(15),
+                  ),
+                ),
+                child: Stack(
+                  children: [ 
+                  ],
                 ),
               ),
               // Banner Card Overlapping
@@ -344,8 +356,20 @@ class _DashboardPageState extends State<DashboardPage> {
             child: PurpleSlider(),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
 
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              "Layanan Utama",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          
           // Grid icons (extracted to IconGrid)
           IconGrid(isDesktop: isDesktop),
 
@@ -393,7 +417,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildServicesContent() {
-    return NotificationsPage(
+    return PengumumanPage(
       onBack: () {
         if (mounted) {
           setState(() {

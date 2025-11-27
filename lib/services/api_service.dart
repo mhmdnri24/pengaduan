@@ -6,6 +6,7 @@ import '../config/api_config.dart';
 import '../models/complaint.dart';
 import '../models/slider.dart';
 import '../models/menu_grid.dart';
+import '../models/pengumuman.dart';
 import 'session_service.dart';
 
 class ApiResponse<T> {
@@ -652,6 +653,43 @@ class ApiService {
             error: 'HTTP ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
+  /// Get active pengumuman from API
+  Future<ApiResponse<PengumumanResponse>> getActivePengumuman() async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/pengumuman/active');
+      print('Pengumuman API URL: $uri');
+      
+      var response = await http.get(uri, headers: _headers);
+      print('Pengumuman API Status Code: ${response.statusCode}');
+      print('Pengumuman API Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+        print('Parsed response data: $responseData');
+
+        if (responseData is Map<String, dynamic> &&
+            responseData['status'] == 'success') {
+          print('Response status is success, parsing PengumumanResponse...');
+          final pengumumanResponse = PengumumanResponse.fromJson(responseData);
+          print('Parsed ${pengumumanResponse.pengumuman.length} pengumuman items');
+          return ApiResponse(success: true, data: pengumumanResponse);
+        } else {
+          print('Invalid response format or status not success');
+          return ApiResponse(success: false, error: 'Invalid response format');
+        }
+      } else {
+        print('HTTP error: ${response.statusCode}');
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e, stackTrace) {
+      print('Exception in getActivePengumuman: $e');
+      print('Stack trace: $stackTrace');
       return ApiResponse(success: false, error: 'Network error: $e');
     }
   }

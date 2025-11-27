@@ -872,25 +872,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
                                   color: Colors.black87,
                                 ),
                               ),
-                              if (userAddress != null &&
-                                  userAddress!.isNotEmpty)
-                                Container(
-                                  margin: const EdgeInsets.only(top: 4),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.shade100,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    'Dari Profil',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.green.shade700,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
+                               
                             ],
                           ),
                         ),

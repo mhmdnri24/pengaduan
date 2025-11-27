@@ -45,97 +45,92 @@ class _NavbarState extends State<Navbar> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      elevation: 0,
-      backgroundColor: const Color(0xFF1C3FAA), // Dominant blue color
-      foregroundColor: Colors.white,
-
-      // ❌ leading dihapus, jadi icon garis 3 tidak muncul
-      automaticallyImplyLeading: false,
-
-      title: Row(
-        children: [
-          Icon(widget.iconic, color: Colors.white),
-          const SizedBox(width: 8),
-          Text(
-            widget.title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 18,
-            ),
-          ),
+@override
+Widget build(BuildContext context) {
+  return Container(
+    decoration: const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFF1C3FAA),
+          Color(0xFF3558D7),
         ],
       ),
-      actions: [
-        if (widget.notificationCount > 0)
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications, color: Colors.white),
-                onPressed: () {
-                  if (Navigator.canPop(context) ||
-                      Navigator.of(context).canPop()) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const NotificationsPage(),
+    ),
+    child: SafeArea(
+      bottom: false,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
+          children: [
+            Icon(widget.iconic, color: Colors.white, size: 26),
+
+            const SizedBox(width: 10),
+
+            // title
+            Text(
+              widget.title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+
+            const Spacer(),
+
+            // notif
+            if (widget.notificationCount > 0)
+              Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_none, color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  Positioned(
+                    right: 6,
+                    top: 6,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade600,
+                        shape: BoxShape.circle,
                       ),
-                    );
-                  }
-                },
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.white.withOpacity(0.2),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 16,
-                    minHeight: 16,
-                  ),
-                  child: Text(
-                    "${widget.notificationCount}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
+                      child: Text(
+                        "${widget.notificationCount}",
+                        style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        const SizedBox(width: 8),
-        Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: CircleAvatar(
-            radius: 16,
-            backgroundImage: _avatarUrl.startsWith('http')
-                ? NetworkImage(_avatarUrl)
-                : AssetImage(_avatarUrl) as ImageProvider,
-            onBackgroundImageError: (exception, stackTrace) {
-              // Fallback to default asset if network image fails
-            },
-            child: _avatarUrl.startsWith('http') && _avatarUrl.isEmpty
-                ? const Icon(Icons.person, color: Colors.white)
-                : null,
-          ),
+
+            const SizedBox(width: 8),
+
+            // avatar
+            CircleAvatar(
+              radius: 18,
+              backgroundImage: _avatarUrl.startsWith('http')
+                  ? NetworkImage(_avatarUrl)
+                  : AssetImage(_avatarUrl) as ImageProvider,
+            )
+          ],
         ),
-      ],
-    );
-  }
+      ),
+    ),
+  );
+}
+
+
 }

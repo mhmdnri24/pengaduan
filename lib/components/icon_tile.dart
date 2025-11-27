@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class IconTile extends StatelessWidget {
   final IconData icon;
@@ -10,19 +11,17 @@ class IconTile extends StatelessWidget {
   final VoidCallback? onTap;
 
   const IconTile({
-    Key? key,
+    super.key,
     required this.icon,
     required this.label,
     this.gradient,
     this.accentColor,
     this.color,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final resolvedAccent = accentColor ?? color;
-
     final boxGradient = gradient ??
         (color != null
             ? LinearGradient(
@@ -51,19 +50,20 @@ class IconTile extends StatelessWidget {
               width: boxSize,
               decoration: BoxDecoration(
                 gradient: boxGradient,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(20), // More rounded
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
+                    color: (accentColor ?? Colors.black).withValues(alpha: 0.2),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                    spreadRadius: -2,
                   ),
                 ],
               ),
-              child: Icon(icon, color: Colors.white, size: boxSize * 0.48),
+              child: Icon(icon, color: Colors.white, size: boxSize * 0.45),
             ),
 
-            const SizedBox(height: 6),
+            const SizedBox(height: 10),
 
             // Batasi tinggi area teks agar tidak memaksa overflow
             SizedBox(
@@ -73,22 +73,15 @@ class IconTile extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-              ),
-            ),
-
-            if (resolvedAccent != null) ...[
-//   const SizedBox(height: 2), // lebih rapat
-              Container(
-                height: 3,
-                width: 24,
-                decoration: BoxDecoration(
-                  color: resolvedAccent,
-                  borderRadius: BorderRadius.circular(2),
+                style: GoogleFonts.poppins(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
                 ),
               ),
-            ],
+            ),
+            
+            // Removed the bottom indicator line for a cleaner look
           ],
         ),
       );
