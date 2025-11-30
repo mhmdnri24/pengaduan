@@ -17,6 +17,7 @@ import 'pengumuman_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import 'package:quickalert/quickalert.dart';
+import '../services/fcm_handler.dart';
 
 // Constants for better maintainability
 class DashboardConstants {
@@ -43,20 +44,48 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _DashboardPageState extends State<DashboardPage> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
   String? _userName;
   bool _isRefreshing = false;
+  int _notificationCount = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadUserNameFromSession();
+    
+    // Initialize with current value
+    _notificationCount = FCMHandler.notificationCount.value;
+    
+    // Listen to notification count changes
+    FCMHandler.notificationCount.addListener(_updateNotificationCount);
+    // Initial fetch
+    FCMHandler.updateNotificationCount();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      debugPrint('App resumed, refreshing notification count...');
+      FCMHandler.updateNotificationCount();
+    }
+  }
+
+  void _updateNotificationCount() {
+    if (mounted) {
+      setState(() {
+        _notificationCount = FCMHandler.notificationCount.value;
+      });
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    FCMHandler.notificationCount.removeListener(_updateNotificationCount);
     super.dispose();
   }
 
@@ -110,6 +139,9 @@ class _DashboardPageState extends State<DashboardPage> {
 
       // Refresh user profile data
       await ApiService.instance.getUserProfile();
+
+      // Refresh notification count
+      await FCMHandler.updateNotificationCount();
 
       // Refresh other data as needed
       // You can add more API calls here based on what needs to be refreshed
@@ -206,7 +238,7 @@ class _DashboardPageState extends State<DashboardPage> {
         resizeToAvoidBottomInset: false,
         appBar: Navbar(
           title: _getTitle(),
-          notificationCount: DashboardConstants.notificationCount,
+          notificationCount: _notificationCount,
           iconic: _getIcon(),
         ),
         drawer: isDesktop

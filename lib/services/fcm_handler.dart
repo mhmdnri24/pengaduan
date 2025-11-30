@@ -1,9 +1,12 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'bubble_overlay_service.dart';
+import 'api_service.dart';
 
 class FCMHandler {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  static final ValueNotifier<int> notificationCount = ValueNotifier<int>(0);
+
 
   /// Initialize FCM and setup message handlers
   static Future<void> initialize() async {
@@ -28,6 +31,7 @@ class FCMHandler {
   /// Handle FCM message when app is in foreground
   static Future<void> _handleForegroundMessage(RemoteMessage message) async {
     debugPrint('Received foreground message: ${message.data}');
+    await updateNotificationCount();
     
     // Extract ID from message data (check both 'id' and 'body' fields)
     String? id = message.data['id'];
@@ -45,6 +49,7 @@ class FCMHandler {
   /// Handle FCM message when app is in background or terminated
   static Future<void> _handleBackgroundMessage(RemoteMessage message) async {
     debugPrint('Received background message: ${message.data}');
+    await updateNotificationCount();
     
     // Extract ID from message data (check both 'id' and 'body' fields)
     String? id = message.data['id'];
@@ -66,6 +71,22 @@ class FCMHandler {
     } catch (e) {
       debugPrint('Error getting FCM token: $e');
       return null;
+    }
+  }
+
+  /// Update notification count from API
+  static Future<void> updateNotificationCount() async {
+    try {
+      final response = await ApiService.instance.getActivePengumuman();
+      debugPrint('updateNotificationCount: success=${response.success}, total=${response.data?.total}');
+      if (response.success && response.data != null) {
+        notificationCount.value = response.data!.total;
+        debugPrint('Notification count updated to: ${notificationCount.value}');
+      } else {
+        debugPrint('Failed to update notification count: ${response.error}');
+      }
+    } catch (e) {
+      debugPrint('Error updating notification count: $e');
     }
   }
 }

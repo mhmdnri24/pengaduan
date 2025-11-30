@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../models/pengumuman.dart';
+import '../services/api_service.dart';
+import 'pengumuman_detail_page.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key, this.onBack});
@@ -12,68 +15,43 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> {
   int selectedTab = 0;
   final List<String> tabs = ['Semua', 'Belum Dibaca', 'Penting'];
+  
+  List<Pengumuman> _notifications = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  // Sample notification data
-  final List<Map<String, dynamic>> notifications = [
-    {
-      'id': 1,
-      'title': 'SINYAL DARURAT AKTIF!',
-      'description': 'Keadaan darurat: Medis di Jl. Sudirman No. 45',
-      'time': '5 menit lalu',
-      'type': 'emergency',
-      'isUnread': true,
-      'isImportant': true,
-    },
-    {
-      'id': 2,
-      'title': 'Pengaduan Selesai',
-      'description':
-          'Pengaduan #LPW-2024-003 tentang "Saluran Air Tersumbat" telah diselesaikan',
-      'time': '2 jam lalu',
-      'type': 'completed',
-      'isUnread': true,
-      'isImportant': false,
-    },
-    {
-      'id': 3,
-      'title': 'Update Pengaduan',
-      'description': 'Pengaduan #LPW-2024-001 sedang dalam proses perbaikan',
-      'time': '4 jam lalu',
-      'type': 'update',
-      'isUnread': true,
-      'isImportant': false,
-    },
-    {
-      'id': 4,
-      'title': 'Berita Terbaru',
-      'description':
-          'Program Bantuan Sosial Diperluas - Pemerintah memperluas cakupan bantuan',
-      'time': '6 jam lalu',
-      'type': 'news',
-      'isUnread': true,
-      'isImportant': false,
-    },
-    {
-      'id': 5,
-      'title': 'Pengaduan Diterima',
-      'description':
-          'Pengaduan baru #LPW-2024-004 tentang "Lampu Jalan Mati" telah diterima',
-      'time': '1 hari lalu',
-      'type': 'received',
-      'isUnread': true,
-      'isImportant': false,
-    },
-    {
-      'id': 6,
-      'title': 'Maintenance Sistem',
-      'description':
-          'Sistem akan mengalami maintenance pada 15 Januari 2024 pukul 02:00-04:00 WIB',
-      'time': '1 hari lalu',
-      'type': 'maintenance',
-      'isUnread': true,
-      'isImportant': true,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchNotifications();
+  }
+
+  Future<void> _fetchNotifications() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final response = await ApiService.instance.getActivePengumuman();
+      if (response.success && response.data != null) {
+        setState(() {
+          _notifications = response.data!.pengumuman;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = response.error ?? 'Gagal memuat notifikasi';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Terjadi kesalahan: $e';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,19 +62,62 @@ class _NotificationsPageState extends State<NotificationsPage> {
           _buildHeader(),
           _buildTabBar(),
           Expanded(
-            child: _buildNotificationList(),
+            child: _buildBody(),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Refresh notifications
-          setState(() {});
-        },
+        onPressed: _fetchNotifications,
         backgroundColor: const Color(0xFF1C3FAA),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1C3FAA)),
+        ),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(_errorMessage!),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _fetchNotifications,
+              child: const Text('Coba Lagi'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_notifications.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.notifications_off_outlined, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              'Belum ada notifikasi',
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return _buildNotificationList();
   }
 
   Widget _buildHeader() {
@@ -185,9 +206,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildSummaryCards() {
-    final totalCount = notifications.length;
-    final unreadCount = notifications.where((n) => n['isUnread']).length;
-    final todayCount = 4; // Mock data for today's count
+    final totalCount = _notifications.length;
+    // Assuming all fetched are unread for now or based on logic if available
+    // Since API doesn't seem to have 'isUnread', we might just show total
+    final unreadCount = totalCount; 
+    final todayCount = 0; // Logic for today's count would require parsing dates
 
     return Row(
       children: [
@@ -197,7 +220,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         const SizedBox(width: 10),
         Expanded(
           child: _buildSummaryCard(
-              '$unreadCount', 'Dibaca', const Color(0xFFFFD700)),
+              '$unreadCount', 'Baru', const Color(0xFFFFD700)),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -284,137 +307,139 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget _buildNotificationList() {
     return ListView.builder(
       padding: const EdgeInsets.all(20),
-      itemCount: notifications.length,
+      itemCount: _notifications.length,
       itemBuilder: (context, index) {
-        final notification = notifications[index];
+        final notification = _notifications[index];
         return _buildNotificationCard(notification);
       },
     );
   }
 
-  Widget _buildNotificationCard(Map<String, dynamic> notification) {
-    final type = notification['type'] as String;
-    final isUnread = notification['isUnread'] as bool;
-    final isImportant = notification['isImportant'] as bool;
+  Widget _buildNotificationCard(Pengumuman notification) {
+    // Determine type/color based on status or content if possible
+    // For now, default to info style as Pengumuman doesn't have explicit type like 'emergency'
+    
+    Color backgroundColor = Colors.blue.shade50;
+    Color iconColor = Colors.blue;
+    IconData iconData = Icons.info;
 
-    Color backgroundColor;
-    Color iconColor;
-    IconData iconData;
-
-    switch (type) {
-      case 'emergency':
-        backgroundColor = Colors.red.shade50;
-        iconColor = Colors.red;
-        iconData = Icons.report_problem;
-        break;
-      case 'completed':
-        backgroundColor = Colors.green.shade50;
-        iconColor = Colors.green;
-        iconData = Icons.check_circle;
-        break;
-      case 'update':
-      case 'news':
-      case 'received':
-      case 'maintenance':
-      default:
-        backgroundColor = Colors.blue.shade50;
-        iconColor = Colors.blue;
-        iconData = Icons.info;
-        break;
+    if (notification.status == '1') {
+       // Active
+       backgroundColor = Colors.blue.shade50;
+       iconColor = Colors.blue;
+       iconData = Icons.notifications_active;
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: iconColor,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              iconData,
-              color: Colors.white,
-              size: 20,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PengumumanDetailPage(
+              id: notification.id,
+              title: notification.judul,
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        notification['title'],
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: iconColor,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: iconColor,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                iconData,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          notification.judul,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: iconColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      // if (isImportant)
+                      //   const Icon(
+                      //     Icons.star,
+                      //     color: Color(0xFFFFD700),
+                      //     size: 16,
+                      //   ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    notification.deskripsi,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black87,
+                      height: 1.3,
                     ),
-                    if (isImportant)
-                      const Icon(
-                        Icons.star,
-                        color: Color(0xFFFFD700),
-                        size: 16,
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 4),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
                 Text(
-                  notification['description'],
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.black87,
-                    height: 1.3,
+                  notification.createdAtFormatted,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey.shade600,
                   ),
                 ),
+                const SizedBox(height: 8),
+                // if (isUnread)
+                //   Container(
+                //     width: 8,
+                //     height: 8,
+                //     decoration: const BoxDecoration(
+                //       color: Color(0xFF1C3FAA),
+                //       shape: BoxShape.circle,
+                //     ),
+                //   ),
               ],
             ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                notification['time'],
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              if (isUnread)
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1C3FAA),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+

@@ -693,4 +693,45 @@ class ApiService {
       return ApiResponse(success: false, error: 'Network error: $e');
     }
   }
+
+  /// Get pengumuman detail from API
+  Future<ApiResponse<Pengumuman>> getPengumumanDetail(String id) async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/pengumuman/$id');
+      print('Pengumuman Detail API URL: $uri');
+
+      var response = await http.post(uri, headers: _headers);
+      print('Pengumuman Detail API Status Code: ${response.statusCode}');
+      print('Pengumuman Detail API Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+
+        if (responseData is Map<String, dynamic> &&
+            responseData['status'] == 'success') {
+          final data = responseData['data'] as Map<String, dynamic>;
+          // Ensure gambar_url is present or derived from gambar
+          if (data['gambar_url'] == null && data['gambar'] != null) {
+             // If backend doesn't provide gambar_url in detail, we might need to construct it
+             // But usually the model handles it or we expect it.
+             // Let's check the model again. The model expects 'gambar_url' in fromJson.
+             // If it's missing, it defaults to empty string.
+             // Let's try to be smart, if gambar is there but gambar_url is not, maybe we can use gambar?
+             // But for now let's just pass it to fromJson.
+          }
+          
+          final pengumuman = Pengumuman.fromJson(data);
+          return ApiResponse(success: true, data: pengumuman);
+        } else {
+          return ApiResponse(success: false, error: 'Invalid response format');
+        }
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
 }

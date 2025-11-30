@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/pengumuman.dart';
 import '../services/api_service.dart';
+import 'pengumuman_detail_page.dart';
 
 class PengumumanPage extends StatefulWidget {
   const PengumumanPage({super.key, this.onBack});
@@ -156,7 +157,20 @@ class _PengumumanPageState extends State<PengumumanPage> {
         itemCount: _pengumumanList.length,
         itemBuilder: (context, index) {
           final pengumuman = _pengumumanList[index];
-          return _buildPengumumanCard(pengumuman);
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PengumumanDetailPage(
+                    id: pengumuman.id,
+                    title: pengumuman.judul,
+                  ),
+                ),
+              );
+            },
+            child: _buildPengumumanCard(pengumuman),
+          );
         },
       ),
     );

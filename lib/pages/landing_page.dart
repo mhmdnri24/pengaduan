@@ -33,7 +33,7 @@ class _LandingPageState extends State<LandingPage> {
 
   Future<void> _loadPengaturan() async {
     try {
-      final result = await ApiService.instance.getPengaturan();
+      final result = await ApiService.instance.getPengaturanAndSaveToSession();
       if (result.success && result.data != null && mounted) {
         setState(() {
           logoUrl = result.data!['logo'] as String?;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/session_service.dart';
 import '../pages/notifications_page.dart';
 
 class Navbar extends StatefulWidget implements PreferredSizeWidget {
@@ -23,11 +24,30 @@ class Navbar extends StatefulWidget implements PreferredSizeWidget {
 
 class _NavbarState extends State<Navbar> {
   String _avatarUrl = "assets/images/profile.jpeg"; // Default fallback
+  String? _title;
 
   @override
   void initState() {
     super.initState();
     _loadUserPhoto();
+    _loadTitle();
+  }
+
+  Future<void> _loadTitle() async {
+    try {
+      final sessionService = SessionService.instance;
+      final namaSitus = await sessionService.getFromSession('nama_situs');
+      print('Nama situs: $namaSitus');
+      if (namaSitus != null && namaSitus is String && namaSitus.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _title = namaSitus;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading title from session: $e');
+    }
   }
 
   Future<void> _loadUserPhoto() async {
@@ -69,32 +89,34 @@ Widget build(BuildContext context) {
             const SizedBox(width: 10),
 
             // title
-            Text(
-              widget.title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
+            Expanded(
+              child: Text(
+                _title ?? widget.title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
             ),
 
-            const Spacer(),
-
             // notif
-            if (widget.notificationCount > 0)
-              Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.notifications_none, color: Colors.white),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const NotificationsPage(),
-                        ),
-                      );
-                    },
-                  ),
+            Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications_none, color: Colors.white),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NotificationsPage(),
+                      ),
+                    );
+                  },
+                ),
+                if (widget.notificationCount > 0)
                   Positioned(
                     right: 6,
                     top: 6,
@@ -113,8 +135,8 @@ Widget build(BuildContext context) {
                       ),
                     ),
                   ),
-                ],
-              ),
+              ],
+            ),
 
             const SizedBox(width: 8),
 
