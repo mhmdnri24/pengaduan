@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/pengumuman.dart';
 import '../services/api_service.dart';
 import 'pengumuman_detail_page.dart';
+import '../services/fcm_handler.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key, this.onBack});
@@ -331,7 +332,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
 
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        // Call API to update status (mark as read)
+        try {
+          await ApiService.instance.updatePengumumanStatus(notification.id);
+          await FCMHandler.updateNotificationCount();
+        } catch (e) {
+          print('Error updating notification status: $e');
+          // Continue navigation even if API call fails
+        }
+
+        if (!context.mounted) return;
+
         Navigator.push(
           context,
           MaterialPageRoute(

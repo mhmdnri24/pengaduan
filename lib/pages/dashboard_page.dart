@@ -30,7 +30,7 @@ class DashboardConstants {
   static const double borderRadius = 6.0;
   static const double searchBorderRadius = 12.0;
   static const int fabIndex = 4;
-  static const int notificationCount = 3;
+  static const int notificationCount = 0;
   static const String avatarUrl = "assets/images/profile.jpeg";
   static const String backIcon = "assets/images/back-arrow.png";
   static const String userName = "Pengguna";

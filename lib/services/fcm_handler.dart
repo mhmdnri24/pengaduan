@@ -80,7 +80,10 @@ class FCMHandler {
       final response = await ApiService.instance.getActivePengumuman();
       debugPrint('updateNotificationCount: success=${response.success}, total=${response.data?.total}');
       if (response.success && response.data != null) {
-        notificationCount.value = response.data!.total;
+
+        print('updateNotificationCount: success=${response.success}, total=${response.data}');
+
+        notificationCount.value = response.data!.pengumuman.length;
         debugPrint('Notification count updated to: ${notificationCount.value}');
       } else {
         debugPrint('Failed to update notification count: ${response.error}');

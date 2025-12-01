@@ -660,7 +660,7 @@ class ApiService {
   /// Get active pengumuman from API
   Future<ApiResponse<PengumumanResponse>> getActivePengumuman() async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/pengumuman/active');
+      var uri = Uri.parse('${ApiConfig.baseUrl}/pengumuman?status=1&limit=10&onread=0');
       print('Pengumuman API URL: $uri');
       
       var response = await http.get(uri, headers: _headers);
@@ -722,6 +722,42 @@ class ApiService {
           
           final pengumuman = Pengumuman.fromJson(data);
           return ApiResponse(success: true, data: pengumuman);
+        } else {
+          return ApiResponse(success: false, error: 'Invalid response format');
+        }
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+  /// Update pengumuman status (mark as read)
+  Future<ApiResponse<Map<String, dynamic>>> updatePengumumanStatus(
+      String id) async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/pengumuman/$id/update_status');
+      print('Update Pengumuman Status API URL: $uri');
+
+      var request = http.Request('POST', uri);
+      request.headers.addAll(_headers);
+      request.headers['Content-Type'] = 'application/json';
+      request.body = json.encode({'onread': 1});
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print('Update Status API Status Code: ${response.statusCode}');
+      print('Update Status API Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+
+        if (responseData is Map<String, dynamic> &&
+            responseData['status'] == 'success') {
+          return ApiResponse(success: true, data: responseData);
         } else {
           return ApiResponse(success: false, error: 'Invalid response format');
         }
