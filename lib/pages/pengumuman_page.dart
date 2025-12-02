@@ -17,45 +17,70 @@ class _PengumumanPageState extends State<PengumumanPage> {
   bool _isLoading = true;
   String? _errorMessage;
 
+  // Pagination variables
+  int _currentPage = 1;
+  int _totalPages = 1;
+  int _totalRecords = 0;
+  bool _hasNext = false;
+  bool _hasPrev = false;
+  final int _itemsPerPage = 10;
+
   @override
   void initState() {
     super.initState();
     _fetchPengumuman();
   }
 
-  Future<void> _fetchPengumuman() async {
+  Future<void> _fetchPengumuman({int? page}) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      print('Fetching pengumuman from API...');
-      final response = await ApiService.instance.getActivePengumuman();
+      final pageToLoad = page ?? _currentPage;
+      print('Fetching pengumuman page $pageToLoad from API...');
       
-      print('API Response - Success: ${response.success}');
-      print('API Response - Data: ${response.data}');
-      print('API Response - Error: ${response.error}');
-
+      final response = await ApiService.instance.getActivePengumuman(
+        page: pageToLoad,
+        limit: _itemsPerPage,
+      );
+      
       if (response.success && response.data != null) {
-        print('Pengumuman count: ${response.data!.pengumuman.length}');
         setState(() {
           _pengumumanList = response.data!.pengumuman;
+          if (response.data!.pagination != null) {
+            _currentPage = response.data!.pagination!.currentPage;
+            _totalPages = response.data!.pagination!.totalPages;
+            _totalRecords = response.data!.pagination!.totalRecords;
+            _hasNext = response.data!.pagination!.hasNext;
+            _hasPrev = response.data!.pagination!.hasPrev;
+          }
           _isLoading = false;
         });
       } else {
-        print('API call failed: ${response.error}');
         setState(() {
           _errorMessage = response.error ?? 'Gagal memuat pengumuman';
           _isLoading = false;
         });
       }
     } catch (e) {
-      print('Exception in _fetchPengumuman: $e');
       setState(() {
         _errorMessage = 'Error: $e';
         _isLoading = false;
       });
+    }
+  }
+
+  void _goToNextPage() {
+    if (_hasNext) {
+      _fetchPengumuman(page: _currentPage + 1);
+    }
+  }
+
+  void _goToPreviousPage() {
+    if (_hasPrev) {
+      _fetchPengumuman(page: _currentPage - 1);
     }
   }
 
@@ -99,7 +124,7 @@ class _PengumumanPageState extends State<PengumumanPage> {
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
-                onPressed: _fetchPengumuman,
+                onPressed: () => _fetchPengumuman(),
                 icon: const Icon(Icons.refresh),
                 label: const Text('Coba Lagi'),
                 style: ElevatedButton.styleFrom(
@@ -136,28 +161,18 @@ class _PengumumanPageState extends State<PengumumanPage> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Pengumuman akan muncul di sini',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
-              ),
-            ),
           ],
         ),
       );
     }
 
     return RefreshIndicator(
-      onRefresh: _fetchPengumuman,
+      onRefresh: () => _fetchPengumuman(page: 1),
       color: const Color(0xFF1C3FAA),
-      child: ListView.builder(
+      child: ListView(
         padding: const EdgeInsets.all(16),
-        itemCount: _pengumumanList.length,
-        itemBuilder: (context, index) {
-          final pengumuman = _pengumumanList[index];
-          return GestureDetector(
+        children: [
+          ..._pengumumanList.map((pengumuman) => GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
@@ -170,8 +185,99 @@ class _PengumumanPageState extends State<PengumumanPage> {
               );
             },
             child: _buildPengumumanCard(pengumuman),
-          );
-        },
+          )),
+          if (_totalPages > 1) ...[
+            const SizedBox(height: 16),
+            _buildPaginationControls(),
+            const SizedBox(height: 16),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaginationControls() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Previous button
+          SizedBox(
+            width: 80,
+            child: ElevatedButton(
+              onPressed: _hasPrev ? _goToPreviousPage : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1C3FAA),
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.grey[300],
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.arrow_back, size: 16),
+                  SizedBox(width: 4),
+                  Text('Prev', style: TextStyle(fontSize: 12)),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          // Page indicator
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF1C3FAA)),
+              ),
+              child: Text(
+                '$_currentPage/$_totalPages',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1C3FAA),
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          // Next button
+          SizedBox(
+            width: 80,
+            child: ElevatedButton(
+              onPressed: _hasNext ? _goToNextPage : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1C3FAA),
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.grey[300],
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Next', style: TextStyle(fontSize: 12)),
+                  SizedBox(width: 4),
+                  Icon(Icons.arrow_forward, size: 16),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

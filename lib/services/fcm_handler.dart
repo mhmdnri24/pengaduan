@@ -77,14 +77,14 @@ class FCMHandler {
   /// Update notification count from API
   static Future<void> updateNotificationCount() async {
     try {
-      final response = await ApiService.instance.getActivePengumuman();
-      debugPrint('updateNotificationCount: success=${response.success}, total=${response.data?.total}');
+      final response = await ApiService.instance.getActivePengumuman(onread: '0');
+      // debugPrint('updateNotificationCount: success=${response.success}, total=${response.data?.total}');
       if (response.success && response.data != null) {
 
-        print('updateNotificationCount: success=${response.success}, total=${response.data}');
+        // print('updateNotificationCount: success=${response.success}, total=${response.data}');
 
         notificationCount.value = response.data!.pengumuman.length;
-        debugPrint('Notification count updated to: ${notificationCount.value}');
+        // debugPrint('Notification count updated to: ${notificationCount.value}');
       } else {
         debugPrint('Failed to update notification count: ${response.error}');
       }

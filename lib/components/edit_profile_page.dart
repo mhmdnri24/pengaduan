@@ -7,6 +7,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:quickalert/quickalert.dart';
 
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import '../services/api_service.dart';
 import '../config/api_config.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -30,6 +33,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _secureStorage = const FlutterSecureStorage();
   bool isSaving = false;
   bool isLoadingProfile = false;
+  String? profilePhotoUrl;
 
   // store kecamatan as list of maps with id + name to preserve API ids
   List<Map<String, String>> kecamatanList = [
@@ -52,6 +56,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     setState(() {
       userNik = prefs.getString('user_nik');
+      profilePhotoUrl = prefs.getString('user_photo_url');
     });
   }
 
@@ -195,6 +200,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
             selectedDate =
                 DateTime.tryParse(data['tanggal_lahir']?.toString() ?? '');
             alamatController.text = data['alamat']?.toString() ?? '';
+
+            if (data['foto_profil_url'] != null) {
+               profilePhotoUrl = data['foto_profil_url'].toString();
+            }
 
             // kecamatan/kelurahan
             final kec = data['kecamatan'] as Map<String, dynamic>?;
@@ -371,6 +380,91 @@ class _EditProfilePageState extends State<EditProfilePage> {
       );
     } finally {
       if (mounted) setState(() => isSaving = false);
+    }
+  }
+
+  Future<void> _pickAndUploadImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 85,
+    );
+
+    if (image == null) return;
+
+    if (userNik == null || userNik!.isEmpty) {
+      if (!mounted) return;
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Error",
+        text: 'NIK tidak ditemukan. Silakan login ulang.',
+      );
+      return;
+    }
+
+    // Show loading
+    if (!mounted) return;
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.loading,
+      title: "Loading",
+      text: "Mengupload foto profil...",
+    );
+
+    try {
+      final File imageFile = File(image.path);
+      final response = await ApiService.instance.uploadProfilePhoto(
+        nik: userNik!,
+        fotoProfil: imageFile,
+      );
+
+      // Close loading
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      if (response.success) {
+        // Update session with new photo URL if available
+        if (response.data != null &&
+            response.data!['data'] != null &&
+            response.data!['data']['foto_profil_url'] != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('user_photo_url',
+              response.data!['data']['foto_profil_url'].toString());
+        }
+
+        if (!mounted) return;
+        await QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: "Sukses",
+          text: 'Foto profil berhasil diperbarui',
+        );
+        
+        // Refresh profile to show new image
+        _fetchProfile();
+      } else {
+        if (!mounted) return;
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Gagal",
+          text: response.error ?? 'Gagal mengupload foto',
+        );
+      }
+    } catch (e) {
+      // Close loading if open
+      if (mounted) Navigator.pop(context);
+      
+      if (!mounted) return;
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Error",
+        text: 'Terjadi kesalahan: $e',
+      );
     }
   }
 
@@ -734,11 +828,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 color: Colors.grey.shade300,
                                 width: 2,
                                 style: BorderStyle.solid),
+                            image: profilePhotoUrl != null && profilePhotoUrl!.isNotEmpty
+                                ? DecorationImage(
+                                    image: NetworkImage(profilePhotoUrl!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
                           ),
-                          child: const Center(
-                            child: Icon(Icons.camera_alt_outlined,
-                                color: Colors.grey, size: 40),
-                          ),
+                          child: profilePhotoUrl != null && profilePhotoUrl!.isNotEmpty
+                              ? null
+                              : const Center(
+                                  child: Icon(Icons.camera_alt_outlined,
+                                      color: Colors.grey, size: 40),
+                                ),
                         ),
                         const SizedBox(height: 8),
                         const Text('Tambah Foto',
@@ -762,7 +864,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: _pickAndUploadImage,
                         ),
                         const SizedBox(height: 8),
                         const Text(

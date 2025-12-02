@@ -658,9 +658,14 @@ class ApiService {
   }
 
   /// Get active pengumuman from API
-  Future<ApiResponse<PengumumanResponse>> getActivePengumuman() async {
+  Future<ApiResponse<PengumumanResponse>> getActivePengumuman({
+    String onread = '',
+    int page = 1,
+    int limit = 10,
+  }) async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/pengumuman?status=1&limit=10&onread=0');
+      var uri = Uri.parse(
+          '${ApiConfig.baseUrl}/pengumuman?status=1&limit=$limit&page=$page&onread=$onread');
       print('Pengumuman API URL: $uri');
       
       var response = await http.get(uri, headers: _headers);
@@ -761,6 +766,53 @@ class ApiService {
         } else {
           return ApiResponse(success: false, error: 'Invalid response format');
         }
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
+  /// Upload profile photo
+  Future<ApiResponse<Map<String, dynamic>>> uploadProfilePhoto({
+    required String nik,
+    required File fotoProfil,
+  }) async {
+    try {
+      var uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/upload-foto-profil');
+      var request = http.MultipartRequest('POST', uri);
+
+      // Add headers
+      request.headers.addAll(_headers);
+
+      // Add form fields
+      request.fields['nik'] = nik;
+
+      // Add profile photo
+      if (await fotoProfil.exists()) {
+        var multipartFile = await http.MultipartFile.fromPath(
+          'foto_profil',
+          fotoProfil.path,
+          filename: 'profile_photo.jpg',
+        );
+        request.files.add(multipartFile);
+      } else {
+        return ApiResponse(
+            success: false, error: 'Profile photo file not found');
+      }
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print('Upload Profile Photo Status Code: ${response.statusCode}');
+      print('Upload Profile Photo Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var responseData = json.decode(response.body);
+        return ApiResponse(success: true, data: responseData);
       } else {
         return ApiResponse(
             success: false,

@@ -34,7 +34,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     });
 
     try {
-      final response = await ApiService.instance.getActivePengumuman();
+      final response = await ApiService.instance.getActivePengumuman(onread: '0');
       if (response.success && response.data != null) {
         setState(() {
           _notifications = response.data!.pengumuman;

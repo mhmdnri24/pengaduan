@@ -58,13 +58,53 @@ class Pengumuman {
   }
 }
 
+class Pagination {
+  final int currentPage;
+  final int perPage;
+  final int totalRecords;
+  final int totalPages;
+  final bool hasNext;
+  final bool hasPrev;
+
+  Pagination({
+    required this.currentPage,
+    required this.perPage,
+    required this.totalRecords,
+    required this.totalPages,
+    required this.hasNext,
+    required this.hasPrev,
+  });
+
+  factory Pagination.fromJson(Map<String, dynamic> json) {
+    return Pagination(
+      currentPage: json['current_page'] ?? 1,
+      perPage: json['per_page'] ?? 10,
+      totalRecords: json['total_records'] ?? 0,
+      totalPages: json['total_pages'] ?? 1,
+      hasNext: json['has_next'] ?? false,
+      hasPrev: json['has_prev'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'current_page': currentPage,
+      'per_page': perPage,
+      'total_records': totalRecords,
+      'total_pages': totalPages,
+      'has_next': hasNext,
+      'has_prev': hasPrev,
+    };
+  }
+}
+
 class PengumumanResponse {
   final List<Pengumuman> pengumuman;
-  final int total;
+  final Pagination? pagination;
 
   PengumumanResponse({
     required this.pengumuman,
-    required this.total,
+    this.pagination,
   });
 
   factory PengumumanResponse.fromJson(Map<String, dynamic> json) {
@@ -75,7 +115,9 @@ class PengumumanResponse {
       pengumuman: pengumumanList
           .map((item) => Pengumuman.fromJson(item as Map<String, dynamic>))
           .toList(),
-      total: (data['total'] as num?)?.toInt() ?? 0,
+      pagination: data['pagination'] != null
+          ? Pagination.fromJson(data['pagination'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -83,7 +125,7 @@ class PengumumanResponse {
     return {
       'data': {
         'pengumuman': pengumuman.map((p) => p.toJson()).toList(),
-        'total': total,
+        'pagination': pagination?.toJson(),
       },
     };
   }
