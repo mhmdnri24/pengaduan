@@ -822,4 +822,82 @@ class ApiService {
       return ApiResponse(success: false, error: 'Network error: $e');
     }
   }
+
+  /// Get API settings from remote endpoint
+  Future<ApiResponse<Map<String, dynamic>>> getApiSettings() async {
+    try {
+      // Use the hardcoded endpoint for fetching settings
+      const settingsUrl = 'https://config.lubuklinggaukota.go.id/api_settings/row';
+      var uri = Uri.parse(settingsUrl);
+      
+      var response = await http.get(uri, headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36',
+      });
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+
+        if (responseData is Map<String, dynamic> &&
+            responseData['status'] == true) {
+          return ApiResponse(success: true, data: responseData['data']);
+        } else {
+          return ApiResponse(success: false, error: 'Invalid response format');
+        }
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Error fetching API settings: $e');
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
+  /// Fetch API settings and save base_url to session
+  Future<ApiResponse<Map<String, dynamic>>> fetchAndSaveApiSettings() async {
+    try {
+      // First, get the data from API
+      final apiResponse = await getApiSettings();
+
+      if (apiResponse.success && apiResponse.data != null) {
+        // Save base_url to session
+        final sessionService = SessionService.instance;
+
+        if (apiResponse.data!['base_url'] != null) {
+          final baseUrl = apiResponse.data!['base_url'].toString();
+          
+          // Validate the URL before saving
+          if (baseUrl.isNotEmpty &&
+              (baseUrl.startsWith('http://') ||
+                  baseUrl.startsWith('https://'))) {
+            await sessionService.saveBaseUrl(baseUrl);
+            debugPrint('Base URL saved to session: $baseUrl');
+          } else {
+            debugPrint('Invalid base URL format: $baseUrl');
+            return ApiResponse(
+                success: false, error: 'Invalid base URL format');
+          }
+        }
+
+        // Optionally save other settings if needed
+        if (apiResponse.data!['api_enabled'] != null) {
+          await sessionService.saveToSession(
+              'api_enabled', apiResponse.data!['api_enabled']);
+        }
+
+        debugPrint('API settings saved to session successfully');
+        return ApiResponse(success: true, data: apiResponse.data);
+      } else {
+        return ApiResponse(
+            success: false,
+            error: apiResponse.error ?? 'Failed to get API settings');
+      }
+    } catch (e) {
+      debugPrint('Error in fetchAndSaveApiSettings: $e');
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
 }
+

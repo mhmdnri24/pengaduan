@@ -157,4 +157,14 @@ class SessionService {
   Future<void> saveBackgroundImage(String imageUrl) async {
     await saveToSession('background_image', imageUrl);
   }
+
+  /// Get base URL from session
+  Future<String?> getBaseUrl() async {
+    return await getFromSession('base_url') as String?;
+  }
+
+  /// Save base URL to session
+  Future<void> saveBaseUrl(String baseUrl) async {
+    await saveToSession('base_url', baseUrl);
+  }
 }

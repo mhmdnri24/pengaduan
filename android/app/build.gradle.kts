@@ -66,6 +66,13 @@ android {
             }
         }
     }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+            keepDebugSymbols += setOf("*/armeabi-v7a/*.so", "*/arm64-v8a/*.so", "*/x86/*.so", "*/x86_64/*.so")
+        }
+    }
 }
 
 flutter {

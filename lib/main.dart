@@ -20,6 +20,7 @@ import 'pages/register_page.dart';
 import 'pages/detail_pengaduan_page.dart';
 import 'pages/cctv_list_page.dart';
 import 'pages/cctv_video_page.dart';
+import 'pages/pengumuman_detail_page.dart';
 import 'utils/memory_monitor.dart';
 
 void main() async {
@@ -51,6 +52,9 @@ Future<void> _initializeHeavyServices() async {
 
   // Initialize services with proper error handling and delays
   await _initializeComplaintService();
+  await Future.delayed(const Duration(milliseconds: 500));
+
+  await _fetchAndSaveApiSettings();
   await Future.delayed(const Duration(milliseconds: 500));
 
   await _fetchAndSavePengaturan();
@@ -120,7 +124,25 @@ void _setupMessageHandlers() {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
-      await _handleMessage(message);
+      debugPrint('Message opened app: ${message.data}');
+      
+      // Check if we have an ID to navigate to
+      String? id = message.data['id'];
+      if (id == null) {
+        id = message.data['body'];
+      }
+      
+      if (id != null && id.isNotEmpty) {
+        // Navigate to pengumuman detail
+        MyApp.navigatorKey.currentState?.pushNamed(
+          '/pengumuman-detail',
+          arguments: {'id': id},
+        );
+      } else {
+        // Fallback to existing logic if needed, or just do nothing specific
+        await _handleMessage(message);
+      }
+      
       await playNotificationSound();
     });
   } catch (e) {
@@ -274,6 +296,34 @@ Future<void> _saveDeviceId(String deviceId) async {
   }
 }
 
+// Fetch and save API settings (base_url) to session
+Future<void> _fetchAndSaveApiSettings() async {
+  try {
+    // Check if session already has base_url
+    final sessionService = SessionService.instance;
+    final existingBaseUrl = await sessionService.getBaseUrl();
+
+    if (existingBaseUrl != null && existingBaseUrl.isNotEmpty) {
+      debugPrint('Base URL already exists in session: $existingBaseUrl');
+      return;
+    }
+
+    debugPrint('No base URL in session, fetching from API settings...');
+    final apiService = ApiService.instance;
+    final result = await apiService.fetchAndSaveApiSettings();
+
+    if (result.success) {
+      debugPrint('API settings fetched and saved successfully');
+    } else {
+      debugPrint('Failed to fetch API settings: ${result.error}');
+      debugPrint('Will use hardcoded base URL as fallback');
+    }
+  } catch (e) {
+    debugPrint('Error fetching API settings: $e');
+    debugPrint('Will use hardcoded base URL as fallback');
+  }
+}
+
 // Fetch and save pengaturan data to session
 Future<void> _fetchAndSavePengaturan() async {
   try {
@@ -343,6 +393,12 @@ class MyApp extends StatelessWidget {
           return DetailPengaduanPage(complaintId: id);
         },
         '/cctv': (context) => const CctvListPage(),
+        '/pengumuman-detail': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+          final String id = args?['id'] ?? '';
+          return PengumumanDetailPage(id: id);
+        },
       },
       builder: (context, child) {
         // Initialize bubble overlay service after MaterialApp is built
