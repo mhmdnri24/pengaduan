@@ -143,12 +143,14 @@ class _LandingPageState extends State<LandingPage> {
                                 : () async {
                                     final localCtx = context;
 
-                                    final result = await controller.sendOtp(
-                                      () => setState(
-                                          () => controller.isSending = true),
-                                      () => setState(
-                                          () => controller.isSending = false),
-                                    );
+                                    // Set sending state to true before sending OTP
+                                    setState(() => controller.setSending(true));
+
+                                    final result = await controller.sendOtp();
+
+                                    // Set sending state to false after sending OTP
+                                    setState(
+                                        () => controller.setSending(false));
 
                                     if (!mounted) return;
 
@@ -265,8 +267,8 @@ class _LandingPageState extends State<LandingPage> {
                                   if (verifying) return;
                                   setState(() => verifying = true);
 
-                                  final result = await controller.verifyOtp(
-                                      code, () {}, () {});
+                                  final result =
+                                      await controller.verifyOtp(code);
 
                                   if (!mounted) return;
 
@@ -278,9 +280,8 @@ class _LandingPageState extends State<LandingPage> {
                                       type: result.success
                                           ? QuickAlertType.success
                                           : QuickAlertType.error,
-                                      title: result.success
-                                          ? "Berhasil"
-                                          : "Gagal",
+                                      title:
+                                          result.success ? "Berhasil" : "Gagal",
                                       text: result.message,
                                       autoCloseDuration: result.success
                                           ? const Duration(seconds: 2)
@@ -496,18 +497,18 @@ class RegisterStepperModal extends StatefulWidget {
 class _RegisterStepperModalState extends State<RegisterStepperModal> {
   int currentStep = 0;
   final PageController _pageController = PageController();
-  
+
   // Form controllers
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _nikController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   bool _agreeToTerms = false;
-  
+
   // Photo variables
   File? _selfiePhoto;
   File? _idCardPhoto;
   final ImagePicker _picker = ImagePicker();
-  
+
   static const blue = Color(0xFF2D62F2);
 
   @override
@@ -617,7 +618,8 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         height: MediaQuery.of(context).size.height * 0.9,
         decoration: const BoxDecoration(
@@ -661,7 +663,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                 ],
               ),
             ),
-            
+
             // Page content
             Expanded(
               child: PageView(
@@ -704,7 +706,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Nama Lengkap field
           const Text(
             'Nama Lengkap',
@@ -735,7 +737,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // NIK field
           const Text(
             '16 Digit NIK KTP',
@@ -768,13 +770,14 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 40),
-          
+
           // Continue button
           SizedBox(
             width: double.infinity,
             height: 48,
             child: ElevatedButton(
-              onPressed: _namaController.text.isNotEmpty && _nikController.text.length == 16
+              onPressed: _namaController.text.isNotEmpty &&
+                      _nikController.text.length == 16
                   ? _nextStep
                   : null,
               style: ElevatedButton.styleFrom(
@@ -794,7 +797,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Login link
           Center(
             child: RichText(
@@ -838,7 +841,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Phone number field
           const Text(
             'Nomor WhatsApp',
@@ -871,7 +874,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 40),
-          
+
           // Navigation buttons
           Row(
             children: [
@@ -893,9 +896,8 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                 child: SizedBox(
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: _phoneController.text.isNotEmpty
-                        ? _nextStep
-                        : null,
+                    onPressed:
+                        _phoneController.text.isNotEmpty ? _nextStep : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: blue,
                       shape: RoundedRectangleBorder(
@@ -916,7 +918,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ],
           ),
           const SizedBox(height: 20),
-          
+
           // Login link
           Center(
             child: RichText(
@@ -960,7 +962,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Selfie Photo Section
           const Text(
             'Foto Selfie',
@@ -1021,7 +1023,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // ID Card Photo Section
           const Text(
             'Foto KTP',
@@ -1133,7 +1135,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 40),
-          
+
           // Navigation buttons
           Row(
             children: [
@@ -1178,7 +1180,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ],
           ),
           const SizedBox(height: 20),
-          
+
           // Login link
           Center(
             child: RichText(
@@ -1222,7 +1224,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 32),
-          
+
           // Agreement checkbox
           Container(
             padding: const EdgeInsets.all(16),
@@ -1251,15 +1253,19 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                         height: 1.4,
                       ),
                       children: [
-                        TextSpan(text: 'Saya menyatakan bahwa data yang saya isi adalah benar dan saya telah membaca serta setuju dengan '),
+                        TextSpan(
+                            text:
+                                'Saya menyatakan bahwa data yang saya isi adalah benar dan saya telah membaca serta setuju dengan '),
                         TextSpan(
                           text: 'Syarat & Ketentuan',
-                          style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              color: blue, fontWeight: FontWeight.w600),
                         ),
                         TextSpan(text: ' dan '),
                         TextSpan(
                           text: 'Kebijakan Privasi',
-                          style: TextStyle(color: blue, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              color: blue, fontWeight: FontWeight.w600),
                         ),
                         TextSpan(text: '.'),
                       ],
@@ -1270,7 +1276,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Security message
           Row(
             children: [
@@ -1286,7 +1292,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ],
           ),
           const SizedBox(height: 40),
-          
+
           // Navigation buttons
           Row(
             children: [
@@ -1329,7 +1335,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
             ],
           ),
           const SizedBox(height: 20),
-          
+
           // Login link
           Center(
             child: RichText(
