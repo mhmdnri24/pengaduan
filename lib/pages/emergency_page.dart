@@ -295,7 +295,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
 
     // _showError('masId $masId');
 
-    // Validate address completeness
+    // Validate address completenesss
     if (_alamat.isEmpty ||
         _alamat == 'Alamat tidak dapat dideteksi' ||
         _alamat == 'Gagal mendapatkan alamat') {
