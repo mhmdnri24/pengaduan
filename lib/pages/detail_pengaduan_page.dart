@@ -62,7 +62,7 @@ class _DetailPengaduanPageState extends State<DetailPengaduanPage> {
     });
 
     final url =
-        Uri.parse('${ApiConfig.baseUrl}/pelaporan/${widget.complaintId}');
+        Uri.parse('${await ApiConfig.getBaseUrl()}/pelaporan/${widget.complaintId}');
     try {
       final resp = await http.get(url, headers: {
         'X-API-Key': ApiConfig.apiKey,

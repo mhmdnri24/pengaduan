@@ -85,8 +85,6 @@ class _EmergencyPageState extends State<EmergencyPage> {
           userAddress = prefs.getString('user_alamat');
           _alamat = prefs.getString('user_alamat') ?? '';
         });
-
-        // _showError(_alamat ?? 'Alamat tidak tersedia');
       }
 
       // Then fetch fresh data from API to verify completeness
@@ -295,7 +293,7 @@ class _EmergencyPageState extends State<EmergencyPage> {
       return;
     }
 
-    // _showError(_alamat);
+    // _showError('masId $masId');
 
     // Validate address completeness
     if (_alamat.isEmpty ||
@@ -872,7 +870,6 @@ class _EmergencyPageState extends State<EmergencyPage> {
                                   color: Colors.black87,
                                 ),
                               ),
-                               
                             ],
                           ),
                         ),

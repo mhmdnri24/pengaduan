@@ -167,4 +167,13 @@ class SessionService {
   Future<void> saveBaseUrl(String baseUrl) async {
     await saveToSession('base_url', baseUrl);
   }
+  /// Get base URL from session
+  Future<String?> getApiKey() async {
+    return await getFromSession('api_key') as String?;
+  }
+
+  /// Save base URL to session
+  Future<void> setApiKey(String apiKey) async {
+    await saveToSession('api_key', apiKey);
+  }
 }

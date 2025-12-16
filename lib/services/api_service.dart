@@ -30,8 +30,8 @@ class ApiService {
   /// Get list of pelaporan kategori
   Future<ApiResponse<List<Map<String, dynamic>>>> getCategories() async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/kategori');
-      var response = await http.get(uri, headers: _headers);
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/pelaporan/kategori');
+      var response = await http.get(uri, headers: await _headers);
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
@@ -58,18 +58,21 @@ class ApiService {
     }
   }
 
-  Map<String, String> get _headers => {
-        'X-API-Key': ApiConfig.apiKey,
-        'Origin': ApiConfig.origin,
-        'Referer': ApiConfig.origin,
-        'Cookie': 'krs_session=6egg5h8fo1co8b9lmoroui0pp4es97hb',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Mobile Safari/537.36',
-        'Accept': 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-        'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache',
-      };
+  Future<Map<String, String>> get _headers async {
+    final apiKey = await ApiConfig.getApiKey();
+    return {
+      'X-API-Key': apiKey,
+      'Origin': ApiConfig.origin,
+      'Referer': ApiConfig.origin,
+      'Cookie': 'krs_session=6egg5h8fo1co8b9lmoroui0pp4es97hb',
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Mobile Safari/537.36',
+      'Accept': 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+      'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache',
+    };
+  }
 
   Future<ApiResponse<Map<String, dynamic>>> postComplaint({
     required String judul,
@@ -86,11 +89,11 @@ class ApiService {
     List<File>? foto,
   }) async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/create');
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/pelaporan/create');
       var request = http.MultipartRequest('POST', uri);
 
       // Add headers
-      request.headers.addAll(_headers);
+      request.headers.addAll(await _headers);
 
       // Add form fields
       request.fields.addAll({
@@ -150,11 +153,11 @@ class ApiService {
     required File fotoKtp,
   }) async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/register');
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/register');
       var request = http.MultipartRequest('POST', uri);
 
       // Add headers
-      request.headers.addAll(_headers);
+      request.headers.addAll(await _headers);
 
       // Add form fields
       request.fields.addAll({
@@ -241,11 +244,11 @@ class ApiService {
         queryParams['search'] = search;
       }
 
-      var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan').replace(
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/pelaporan').replace(
         queryParameters: queryParams,
       );
 
-      var response = await http.get(uri, headers: _headers);
+      var response = await http.get(uri, headers: await _headers);
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
@@ -273,9 +276,9 @@ class ApiService {
       String complaintId) async {
     try {
       var uri = Uri.parse(
-          '${ApiConfig.baseUrl}/pelaporan/pelaporan_history/$complaintId');
+          '${await ApiConfig.getBaseUrl()}/pelaporan/pelaporan_history/$complaintId');
 
-      var response = await http.get(uri, headers: _headers);
+      var response = await http.get(uri, headers: await _headers);
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
@@ -296,12 +299,12 @@ class ApiService {
     required String deviceId,
   }) async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/device/insert_or_update');
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/device/insert_or_update');
 
       var request = http.MultipartRequest('POST', uri);
 
       // Add headers
-      request.headers.addAll(_headers);
+      request.headers.addAll(await _headers);
 
       // Add form fields
       request.fields['masyarakat_id'] = masyarakatId;
@@ -332,12 +335,12 @@ class ApiService {
   }) async {
     try {
       var uri = Uri.parse(
-          '${ApiConfig.baseUrl}/pelaporan/$pelaporanId/create_comment');
+          '${await ApiConfig.getBaseUrl()}/pelaporan/$pelaporanId/create_comment');
 
       var request = http.MultipartRequest('POST', uri);
 
       // Add headers
-      request.headers.addAll(_headers);
+      request.headers.addAll(await _headers);
 
       // Add form fields
       request.fields['comment'] = comment;
@@ -378,11 +381,11 @@ class ApiService {
     required String masId,
   }) async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/pelaporan/create');
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/pelaporan/create');
       var request = http.MultipartRequest('POST', uri);
 
       // Add headers
-      request.headers.addAll(_headers);
+      request.headers.addAll(await _headers);
 
       // Add form fields with emergency-specific values
       request.fields.addAll({
@@ -440,8 +443,8 @@ class ApiService {
   /// Get pengaturan data from API
   Future<ApiResponse<Map<String, dynamic>>> getPengaturan() async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/pengaturan');
-      var response = await http.get(uri, headers: _headers);
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/pengaturan');
+      var response = await http.get(uri, headers: await _headers);
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
@@ -547,11 +550,11 @@ class ApiService {
     required String deviceId,
   }) async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/slider/active');
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/slider/active');
       var request = http.MultipartRequest('GET', uri);
 
       // Add headers
-      request.headers.addAll(_headers);
+      request.headers.addAll(await _headers);
 
       // Add form fields
       request.fields['masyarakat_id'] = masyarakatId;
@@ -584,8 +587,8 @@ class ApiService {
   /// Get active menu grid from API
   Future<ApiResponse<MenuGridResponse>> getActiveMenuGrid() async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/menu_grid/active');
-      var response = await http.get(uri, headers: _headers);
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/menu_grid/active');
+      var response = await http.get(uri, headers: await _headers);
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
@@ -611,8 +614,8 @@ class ApiService {
   /// Get user profile from API
   Future<ApiResponse<Map<String, dynamic>>> getUserProfile() async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/profile');
-      var response = await http.get(uri, headers: _headers);
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/profile');
+      var response = await http.get(uri, headers: await _headers);
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
@@ -636,9 +639,11 @@ class ApiService {
   /// Validate NIK to check if already registered
   Future<ApiResponse<Map<String, dynamic>>> validateNIK(String nik) async {
     try {
+      var url = '${await ApiConfig.getBaseUrl()}/masyarakat/validate-nik?nik=$nik';
+      print('Url: $url');
       var uri =
-          Uri.parse('${ApiConfig.baseUrl}/masyarakat/validate-nik?nik=$nik');
-      var response = await http.get(uri, headers: _headers);
+          Uri.parse(url);
+      var response = await http.get(uri, headers: await _headers);
 
       if (response.statusCode == 200) {
         var responseData = json.decode(response.body);
@@ -665,10 +670,10 @@ class ApiService {
   }) async {
     try {
       var uri = Uri.parse(
-          '${ApiConfig.baseUrl}/pengumuman?status=1&limit=$limit&page=$page&onread=$onread');
+          '${await ApiConfig.getBaseUrl()}/pengumuman?status=1&limit=$limit&page=$page&onread=$onread');
       print('Pengumuman API URL: $uri');
       
-      var response = await http.get(uri, headers: _headers);
+      var response = await http.get(uri, headers: await _headers);
       print('Pengumuman API Status Code: ${response.statusCode}');
       print('Pengumuman API Response Body: ${response.body}');
 
@@ -702,10 +707,10 @@ class ApiService {
   /// Get pengumuman detail from API
   Future<ApiResponse<Pengumuman>> getPengumumanDetail(String id) async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/pengumuman/$id');
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/pengumuman/$id');
       print('Pengumuman Detail API URL: $uri');
 
-      var response = await http.post(uri, headers: _headers);
+      var response = await http.post(uri, headers: await _headers);
       print('Pengumuman Detail API Status Code: ${response.statusCode}');
       print('Pengumuman Detail API Response Body: ${response.body}');
 
@@ -743,11 +748,11 @@ class ApiService {
   Future<ApiResponse<Map<String, dynamic>>> updatePengumumanStatus(
       String id) async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/pengumuman/$id/update_status');
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/pengumuman/$id/update_status');
       print('Update Pengumuman Status API URL: $uri');
 
       var request = http.Request('POST', uri);
-      request.headers.addAll(_headers);
+      request.headers.addAll(await _headers);
       request.headers['Content-Type'] = 'application/json';
       request.body = json.encode({'onread': 1});
 
@@ -780,13 +785,16 @@ class ApiService {
   Future<ApiResponse<Map<String, dynamic>>> uploadProfilePhoto({
     required String nik,
     required File fotoProfil,
+    required String token,
   }) async {
     try {
-      var uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/upload-foto-profil');
+      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/upload-foto-profil');
       var request = http.MultipartRequest('POST', uri);
 
       // Add headers
-      request.headers.addAll(_headers);
+      request.headers.addAll(await _headers);
+      request.headers['X-Token'] = token;
+      request.headers['Authorization'] = token;
 
       // Add form fields
       request.fields['nik'] = nik;
@@ -824,7 +832,7 @@ class ApiService {
   }
 
   /// Get API settings from remote endpoint
-  Future<ApiResponse<Map<String, dynamic>>> getApiSettings() async {
+  Future<ApiResponse<Map<String, dynamic>>> getApiSettings() async { 
     try {
       // Use the hardcoded endpoint for fetching settings
       const settingsUrl = 'https://config.lubuklinggaukota.go.id/api_settings/row';
@@ -866,6 +874,7 @@ class ApiService {
         final sessionService = SessionService.instance;
 
         if (apiResponse.data!['base_url'] != null) {
+          final apiKey = apiResponse.data!['api_key'].toString();
           final baseUrl = apiResponse.data!['base_url'].toString();
           
           // Validate the URL before saving
@@ -873,6 +882,7 @@ class ApiService {
               (baseUrl.startsWith('http://') ||
                   baseUrl.startsWith('https://'))) {
             await sessionService.saveBaseUrl(baseUrl);
+            await sessionService.setApiKey(apiKey);
             debugPrint('Base URL saved to session: $baseUrl');
           } else {
             debugPrint('Invalid base URL format: $baseUrl');

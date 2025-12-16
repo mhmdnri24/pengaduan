@@ -145,11 +145,11 @@ class LandingController extends ChangeNotifier {
       // ignore: avoid_print
       print('Sending OTP to $nik');
 
-      final uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/login');
+      final uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/login');
       final resp = await http.post(
         uri,
         headers: {
-          'X-API-Key': ApiConfig.apiKey,
+          'X-API-Key': await ApiConfig.getApiKey(),
           'Origin': 'https://dashboard.nusakoding.com',
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -194,11 +194,11 @@ class LandingController extends ChangeNotifier {
     setSending(true);
 
     try {
-      final uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/verify-otp');
+      final uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/verify-otp');
 
       final req = http.MultipartRequest('POST', uri);
       req.headers.addAll({
-        'X-API-Key': ApiConfig.apiKey,
+        'X-API-Key':await ApiConfig.getApiKey(),
         'Origin': 'https://dashboard.nusakoding.com',
       });
       // Add form fields

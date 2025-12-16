@@ -82,9 +82,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     setState(() => isLoadingKelurahan = true);
     try {
       final uri =
-          Uri.parse('${ApiConfig.baseUrl}/masyarakat/kelurahan/$kecamatanId');
+          Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/kelurahan/$kecamatanId');
       final resp = await http.get(uri, headers: {
-        'X-API-Key': ApiConfig.apiKey,
+        'X-API-Key': await ApiConfig.getApiKey(),
         'Origin': 'https://dashboard.nusakoding.com',
       });
 
@@ -126,9 +126,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Future<void> _fetchKecamatan() async {
     setState(() => isLoadingKecamatan = true);
     try {
-      final uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/kecamatan');
+      final uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/kecamatan');
       final resp = await http.get(uri, headers: {
-        'X-API-Key': ApiConfig.apiKey,
+        'X-API-Key': await ApiConfig.getApiKey(),
         'Origin': 'https://dashboard.nusakoding.com',
       });
 
@@ -181,10 +181,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
 
     try {
-      final uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/$userNik');
+      final uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/$userNik');
       final resp = await http.get(uri, headers: {
         'Authorization': token,
-        'X-API-Key': ApiConfig.apiKey,
+        'X-Token': token,
+        'X-API-Key': await ApiConfig.getApiKey(),
         'Origin': 'https://dashboard.nusakoding.com',
       });
 
@@ -283,6 +284,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
 
     final token = await _getAuthToken();
+
+    print('tokenizer: $token');
     if (token == null || token.isEmpty) {
       if (!mounted) return;
       await QuickAlert.show(
@@ -294,9 +297,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       return;
     }
 
+    
+
     setState(() => isSaving = true);
     try {
-      final uri = Uri.parse('${ApiConfig.baseUrl}/masyarakat/profile');
+      final uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/profile');
       final body = {
         'nama_lengkap': nama,
         'no_telpon': noTelp,
@@ -311,12 +316,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
         uri,
         headers: {
           'Authorization': token,
-          'X-API-Key': ApiConfig.apiKey,
+          'X-Token': token,
+          'X-API-Key': await ApiConfig.getApiKey(),
           'Origin': 'https://dashboard.nusakoding.com',
           'Content-Type': 'application/json',
         },
         body: jsonEncode(body),
       );
+
+      print(resp.body);
 
       if (resp.statusCode == 200 || resp.statusCode == 201) {
         // try parse response and update prefs
@@ -416,9 +424,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     try {
       final File imageFile = File(image.path);
+      
+      // Get auth token
+      final token = await _getAuthToken();
+      if (token == null || token.isEmpty) {
+        // Close loading
+        if (!mounted) return;
+        Navigator.pop(context);
+        
+        if (!mounted) return;
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Error",
+          text: 'Token tidak ditemukan. Silakan login ulang',
+        );
+        return;
+      }
+      
       final response = await ApiService.instance.uploadProfilePhoto(
         nik: userNik!,
         fotoProfil: imageFile,
+        token: token,
       );
 
       // Close loading
