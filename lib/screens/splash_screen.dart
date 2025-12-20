@@ -53,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> {
             'No pengaturan data in session, splash image will be available on next app start');
       }
     }
-
+    print('_splashImageUrl $_splashImageUrl');
     // Preache network image after state is updated with proper error handling
     if (_splashImageUrl != null && _splashImageUrl!.isNotEmpty) {
       // Try to precache but don't block if it fails
@@ -161,7 +161,7 @@ class _SplashScreenState extends State<SplashScreen> {
             height: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
+                colors: [Color(0xFF2258DA), Color(0xFF2258DA)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -179,29 +179,16 @@ class _SplashScreenState extends State<SplashScreen> {
                           print('Error loading network image: $error');
                           print('Stack trace: $stackTrace');
                           // Fallback to asset on error
-                          return Image.asset(
-                            'assets/images/splash.webp',
+                          return Container(
                             width: double.infinity,
                             height: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              print('Error loading fallback asset: $error');
-                              // Return gradient background if asset not found
-                              return Container(
-                                width: double.infinity,
-                                height: double.infinity,
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color(0xFF2258DA),
-                                      Color(0xFF2F80ED)
-                                    ],
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                  ),
-                                ),
-                              );
-                            },
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF2258DA), Color(0xFF2258DA)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
                           );
                         },
                         loadingBuilder: (context, child, loadingProgress) {
@@ -214,7 +201,7 @@ class _SplashScreenState extends State<SplashScreen> {
                             height: double.infinity,
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
+                                colors: [Color(0xFF2258DA), Color(0xFF2258DA)],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                               ),
@@ -240,37 +227,16 @@ class _SplashScreenState extends State<SplashScreen> {
                       // ),
                     ],
                   )
-                : Image.asset(
-                    'assets/images/splash.webp',
+                : Container(
                     width: double.infinity,
                     height: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      print(
-                          'Error loading default splash.webp: $error, trying splash.jpg');
-                      // Try splash.jpg as fallback
-                      return Image.asset(
-                        'assets/images/splash.jpg',
-                        width: double.infinity,
-                        height: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          print('Error loading default splash.jpg: $error');
-                          // Return gradient background if asset not found
-                          return Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Color(0xFF2258DA), Color(0xFF2F80ED)],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF2258DA), Color(0xFF2258DA)],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
                   ),
           ),
           // Semi-transparent overlay and content
