@@ -11,7 +11,7 @@ class Navbar extends StatefulWidget implements PreferredSizeWidget {
   const Navbar({
     super.key,
     this.notificationCount = 0,
-    this.title = "Lapor Pak Wali",
+    this.title = "Lapor Sang Juara",
     this.iconic = Icons.account_balance,
   });
 
@@ -65,94 +65,93 @@ class _NavbarState extends State<Navbar> {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return Container(
-    decoration: const BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0xFF1C3FAA),
-          Color(0xFF3558D7),
-        ],
-      ),
-    ),
-    child: SafeArea(
-      bottom: false,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Row(
-          children: [
-            Icon(widget.iconic, color: Colors.white, size: 26),
-
-            const SizedBox(width: 10),
-
-            // title
-            Expanded(
-              child: Text(
-                _title ?? widget.title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
-
-            // notif
-            Stack(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_none, color: Colors.white),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const NotificationsPage(),
-                      ),
-                    );
-                  },
-                ),
-                if (widget.notificationCount > 0)
-                  Positioned(
-                    right: 6,
-                    top: 6,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade600,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        "${widget.notificationCount}",
-                        style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-
-            const SizedBox(width: 8),
-
-            // avatar
-            CircleAvatar(
-              radius: 18,
-              backgroundImage: _avatarUrl.startsWith('http')
-                  ? NetworkImage(_avatarUrl)
-                  : AssetImage(_avatarUrl) as ImageProvider,
-            )
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF1C3FAA),
+            Color(0xFF3558D7),
           ],
         ),
       ),
-    ),
-  );
-}
+      child: SafeArea(
+        bottom: false,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              Icon(widget.iconic, color: Colors.white, size: 26),
 
+              const SizedBox(width: 10),
 
+              // title
+              Expanded(
+                child: Text(
+                  _title ?? widget.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+
+              // notif
+              Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_none,
+                        color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationsPage(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (widget.notificationCount > 0)
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade600,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          "${widget.notificationCount}",
+                          style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+
+              const SizedBox(width: 8),
+
+              // avatar
+              CircleAvatar(
+                radius: 18,
+                backgroundImage: _avatarUrl.startsWith('http')
+                    ? NetworkImage(_avatarUrl)
+                    : AssetImage(_avatarUrl) as ImageProvider,
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

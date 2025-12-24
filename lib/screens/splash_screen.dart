@@ -26,48 +26,54 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _loadSplashImage() async {
-    print('Loading splash image from session...');
-    final sessionService = SessionService.instance;
-    final splashImageUrl =
-        await sessionService.getFromSession('splashscreen_image');
+    try {
+      print('Loading splash image from session...');
+      final sessionService = SessionService.instance;
+      final splashImageUrl =
+          await sessionService.getFromSession('splashscreen_image');
 
-    print('Splash image URL from session: $splashImageUrl');
+      print('Splash image URL from session: $splashImageUrl');
 
-    // Always update state to ensure UI refreshes
-    setState(() {
       if (splashImageUrl != null && splashImageUrl.toString().isNotEmpty) {
-        _splashImageUrl = splashImageUrl.toString();
-        print('Splash image loaded successfully: $_splashImageUrl');
-      } else {
-        _splashImageUrl = null;
-        print('No splash image found in session, using default asset');
-      }
-    });
+        // Tambah delay untuk mengurangi beban
+        await Future.delayed(const Duration(milliseconds: 500));
 
-    // Check if we need to trigger a fetch of pengaturan data
-    if (_splashImageUrl == null) {
-      final pengaturanData =
-          await sessionService.getFromSession('pengaturan_data');
-      if (pengaturanData == null) {
-        print(
-            'No pengaturan data in session, splash image will be available on next app start');
+        setState(() {
+          _splashImageUrl = splashImageUrl.toString();
+          print('Splash image loaded successfully: $_splashImageUrl');
+        });
+
+        // Hanya precache jika device memiliki memory cukup
+        if (_splashImageUrl != null && _splashImageUrl!.isNotEmpty) {
+          precacheImage(
+            NetworkImage(_splashImageUrl!),
+            context,
+          ).catchError((e) {
+            print('Error precaching network image (this is OK): $e');
+          });
+        }
+      } else {
+        setState(() {
+          _splashImageUrl = null;
+          print('No splash image found in session, using default asset');
+        });
       }
-    }
-    print('_splashImageUrl $_splashImageUrl');
-    // Preache network image after state is updated with proper error handling
-    if (_splashImageUrl != null && _splashImageUrl!.isNotEmpty) {
-      // Try to precache but don't block if it fails
-      precacheImage(
-              NetworkImage(
-                _splashImageUrl!,
-                headers: {
-                  'User-Agent': 'Mozilla/5.0 (compatible; Flutter)',
-                },
-              ),
-              context)
-          .catchError((e) {
-        print('Error precaching network image (this is OK): $e');
-        // Don't treat this as critical error
+
+      // Check if we need to trigger a fetch of pengaturan data
+      if (_splashImageUrl == null) {
+        final pengaturanData =
+            await sessionService.getFromSession('pengaturan_data');
+        if (pengaturanData == null) {
+          print(
+              'No pengaturan data in session, splash image will be available on next app start');
+        }
+      }
+      print('_splashImageUrl $_splashImageUrl');
+    } catch (e) {
+      print('Error loading splash image: $e');
+      // Gunakan default jika terjadi error
+      setState(() {
+        _splashImageUrl = null;
       });
     }
   }
@@ -76,14 +82,10 @@ class _SplashScreenState extends State<SplashScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_isImageCached) {
-      // Try to precache both splash images
+      // Hanya precache satu gambar untuk mengurangi beban memory
       precacheImage(const AssetImage('assets/images/splash.jpg'), context)
           .catchError((e) {
         print('Error precaching splash.jpg: $e');
-      });
-      precacheImage(const AssetImage('assets/images/splash.webp'), context)
-          .catchError((e) {
-        print('Error precaching splash.webp: $e');
       });
 
       _isImageCached = true;

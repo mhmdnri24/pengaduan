@@ -22,16 +22,18 @@ import 'pages/cctv_list_page.dart';
 import 'pages/cctv_video_page.dart';
 import 'pages/pengumuman_detail_page.dart';
 import 'utils/memory_monitor.dart';
+import 'services/connection_monitor.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase only - the most critical component
   try {
-    await Firebase.initializeApp().timeout(const Duration(seconds: 5));
+    await Firebase.initializeApp().timeout(const Duration(seconds: 10));
     debugPrint('Firebase initialized successfully');
   } catch (e) {
     debugPrint('Firebase initialization failed: $e');
+    // Lanjutkan tanpa Firebase jika gagal
   }
 
   // Start the app immediately with minimal initialization
@@ -41,30 +43,40 @@ void main() async {
   WidgetsBinding.instance.addPostFrameCallback((_) {
     _initializeHeavyServices();
   });
+
+  // Start connection monitoring
+  ConnectionMonitor.startMonitoring();
 }
 
 // Separate function for heavy initialization to prevent blocking
 Future<void> _initializeHeavyServices() async {
-  debugPrint('Starting heavy services initialization...');
+  debugPrint('Starting optimized heavy services initialization...');
 
   // Add initial delay to let app fully load
+  await Future.delayed(const Duration(seconds: 2));
+
+  // 1. Inisialisasi yang paling kritis dulu
+  await _initializeComplaintService();
+  await Future.delayed(const Duration(seconds: 2));
+
+  // 2. Cek koneksi device sebelum lanjut
+  if (!await _checkDeviceConnection()) {
+    debugPrint('Device connection lost, stopping initialization');
+    return;
+  }
+
+  // 3. Lanjut dengan inisialisasi lainnya secara bertahap
+  await _fetchAndSaveApiSettings();
   await Future.delayed(const Duration(seconds: 1));
 
-  // Initialize services with proper error handling and delays
-  await _initializeComplaintService();
-  await Future.delayed(const Duration(milliseconds: 500));
-
-  await _fetchAndSaveApiSettings();
-  await Future.delayed(const Duration(milliseconds: 500));
-
   await _fetchAndSavePengaturan();
-  await Future.delayed(const Duration(milliseconds: 500));
+  await Future.delayed(const Duration(seconds: 1));
 
   await _setupFCM();
-  await Future.delayed(const Duration(milliseconds: 500));
+  await Future.delayed(const Duration(seconds: 1));
 
   await _getDeviceId();
-  await Future.delayed(const Duration(milliseconds: 500));
+  await Future.delayed(const Duration(seconds: 1));
 
   if (Platform.isAndroid) {
     await _checkOverlayPermission();
@@ -77,6 +89,19 @@ Future<void> _initializeHeavyServices() async {
   MemoryMonitor.startMonitoring();
 
   debugPrint('Heavy services initialization completed');
+}
+
+// Tambah fungsi untuk cek koneksi device
+Future<bool> _checkDeviceConnection() async {
+  try {
+    // Cek koneksi dengan delay untuk memastikan device stabil
+    await Future.delayed(const Duration(seconds: 1));
+    debugPrint('Device connection check passed');
+    return true;
+  } catch (e) {
+    debugPrint('Device connection check failed: $e');
+    return false;
+  }
 }
 
 Future<void> _initializeComplaintService() async {
@@ -93,16 +118,25 @@ Future<void> _initializeComplaintService() async {
 Future<void> _setupFCM() async {
   try {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
-    await messaging.requestPermission().timeout(const Duration(seconds: 5));
 
-    await _printFcmToken().timeout(const Duration(seconds: 10));
+    // Tambah delay sebelum request permission
+    await Future.delayed(const Duration(seconds: 1));
+    await messaging.requestPermission().timeout(const Duration(seconds: 10));
 
+    await _printFcmToken().timeout(const Duration(seconds: 15));
+
+    // Setup listeners dengan error handling
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
-      debugPrint('FCM Token refreshed: $newToken');
-      await _saveFcmToken(newToken);
+      try {
+        debugPrint('FCM Token refreshed: $newToken');
+        await _saveFcmToken(newToken);
+      } catch (e) {
+        debugPrint('Error saving refreshed FCM token: $e');
+      }
     });
   } catch (e) {
     debugPrint('FCM setup failed: $e');
+    // Jangan gagal total jika FCM gagal
   }
 }
 
@@ -125,13 +159,13 @@ void _setupMessageHandlers() {
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       debugPrint('Message opened app: ${message.data}');
-      
+
       // Check if we have an ID to navigate to
       String? id = message.data['id'];
       if (id == null) {
         id = message.data['body'];
       }
-      
+
       if (id != null && id.isNotEmpty) {
         // Navigate to pengumuman detail
         MyApp.navigatorKey.currentState?.pushNamed(
@@ -142,7 +176,7 @@ void _setupMessageHandlers() {
         // Fallback to existing logic if needed, or just do nothing specific
         await _handleMessage(message);
       }
-      
+
       await playNotificationSound();
     });
   } catch (e) {

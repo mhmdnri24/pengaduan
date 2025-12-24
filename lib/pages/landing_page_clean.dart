@@ -409,7 +409,7 @@ class _LandingPageState extends State<LandingPage> {
 
               // Judul
               const Text(
-                'Lapor Pak Wali',
+                'Lapor Sang Juara',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 26,

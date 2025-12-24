@@ -81,8 +81,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (kecamatanId.isEmpty) return;
     setState(() => isLoadingKelurahan = true);
     try {
-      final uri =
-          Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/kelurahan/$kecamatanId');
+      final uri = Uri.parse(
+          '${await ApiConfig.getBaseUrl()}/masyarakat/kelurahan/$kecamatanId');
       final resp = await http.get(uri, headers: {
         'X-API-Key': await ApiConfig.getApiKey(),
         'Origin': 'https://dashboard.nusakoding.com',
@@ -126,7 +126,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Future<void> _fetchKecamatan() async {
     setState(() => isLoadingKecamatan = true);
     try {
-      final uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/kecamatan');
+      final uri =
+          Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/kecamatan');
       final resp = await http.get(uri, headers: {
         'X-API-Key': await ApiConfig.getApiKey(),
         'Origin': 'https://dashboard.nusakoding.com',
@@ -181,7 +182,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
 
     try {
-      final uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/$userNik');
+      final uri =
+          Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/$userNik');
       final resp = await http.get(uri, headers: {
         'Authorization': token,
         'X-Token': token,
@@ -203,7 +205,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             alamatController.text = data['alamat']?.toString() ?? '';
 
             if (data['foto_profil_url'] != null) {
-               profilePhotoUrl = data['foto_profil_url'].toString();
+              profilePhotoUrl = data['foto_profil_url'].toString();
             }
 
             // kecamatan/kelurahan
@@ -297,11 +299,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
       return;
     }
 
-    
-
     setState(() => isSaving = true);
     try {
-      final uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/profile');
+      final uri =
+          Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/profile');
       final body = {
         'nama_lengkap': nama,
         'no_telpon': noTelp,
@@ -424,14 +425,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     try {
       final File imageFile = File(image.path);
-      
+
       // Get auth token
       final token = await _getAuthToken();
       if (token == null || token.isEmpty) {
         // Close loading
         if (!mounted) return;
         Navigator.pop(context);
-        
+
         if (!mounted) return;
         QuickAlert.show(
           context: context,
@@ -441,7 +442,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         );
         return;
       }
-      
+
       final response = await ApiService.instance.uploadProfilePhoto(
         nik: userNik!,
         fotoProfil: imageFile,
@@ -469,7 +470,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           title: "Sukses",
           text: 'Foto profil berhasil diperbarui',
         );
-        
+
         // Refresh profile to show new image
         _fetchProfile();
       } else {
@@ -484,7 +485,111 @@ class _EditProfilePageState extends State<EditProfilePage> {
     } catch (e) {
       // Close loading if open
       if (mounted) Navigator.pop(context);
-      
+
+      if (!mounted) return;
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Error",
+        text: 'Terjadi kesalahan: $e',
+      );
+    }
+  }
+
+  Future<void> _pickAndUploadImageKTP() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 85,
+    );
+
+    if (image == null) return;
+
+    if (userNik == null || userNik!.isEmpty) {
+      if (!mounted) return;
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: "Error",
+        text: 'NIK tidak ditemukan. Silakan login ulang.',
+      );
+      return;
+    }
+
+    // Show loading
+    if (!mounted) return;
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.loading,
+      title: "Loading",
+      text: "Mengupload foto profil...",
+    );
+
+    try {
+      final File imageFile = File(image.path);
+
+      // Get auth token
+      final token = await _getAuthToken();
+      if (token == null || token.isEmpty) {
+        // Close loading
+        if (!mounted) return;
+        Navigator.pop(context);
+
+        if (!mounted) return;
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Error",
+          text: 'Token tidak ditemukan. Silakan login ulang',
+        );
+        return;
+      }
+
+      final response = await ApiService.instance.uploadKtpPhoto(
+        nik: userNik!,
+        fotoKtp: imageFile,
+        token: token,
+      );
+
+      // Close loading
+      if (!mounted) return;
+      Navigator.pop(context);
+
+      if (response.success) {
+        // Update session with new photo URL if available
+        if (response.data != null &&
+            response.data!['data'] != null &&
+            response.data!['data']['foto_ktp_url'] != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('user_photo_url',
+              response.data!['data']['foto_ktp_url'].toString());
+        }
+
+        if (!mounted) return;
+        await QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: "Sukses",
+          text: 'Foto profil berhasil diperbarui',
+        );
+
+        // Refresh profile to show new image
+        _fetchProfile();
+      } else {
+        if (!mounted) return;
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: "Gagal",
+          text: response.error ?? 'Gagal mengupload foto',
+        );
+      }
+    } catch (e) {
+      // Close loading if open
+      if (mounted) Navigator.pop(context);
+
       if (!mounted) return;
       QuickAlert.show(
         context: context,
@@ -855,14 +960,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 color: Colors.grey.shade300,
                                 width: 2,
                                 style: BorderStyle.solid),
-                            image: profilePhotoUrl != null && profilePhotoUrl!.isNotEmpty
+                            image: profilePhotoUrl != null &&
+                                    profilePhotoUrl!.isNotEmpty
                                 ? DecorationImage(
                                     image: NetworkImage(profilePhotoUrl!),
                                     fit: BoxFit.cover,
                                   )
                                 : null,
                           ),
-                          child: profilePhotoUrl != null && profilePhotoUrl!.isNotEmpty
+                          child: profilePhotoUrl != null &&
+                                  profilePhotoUrl!.isNotEmpty
                               ? null
                               : const Center(
                                   child: Icon(Icons.camera_alt_outlined,
@@ -892,6 +999,96 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ),
                           ),
                           onPressed: _pickAndUploadImage,
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Foto akan digunakan untuk profil akun Anda\nFormat: JPG, PNG | Maksimal: 2MB',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 30),
+          // === Card Foto KTP ===
+          Card(
+            color: Colors.white,
+            elevation: 0.3,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.credit_card, color: Colors.blue),
+                      SizedBox(width: 6),
+                      Text(
+                        'Foto KTP',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 120,
+                          width: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: Colors.grey.shade300,
+                                width: 2,
+                                style: BorderStyle.solid),
+                            image: profilePhotoUrl != null &&
+                                    profilePhotoUrl!.isNotEmpty
+                                ? DecorationImage(
+                                    image: NetworkImage(profilePhotoUrl!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: profilePhotoUrl != null &&
+                                  profilePhotoUrl!.isNotEmpty
+                              ? null
+                              : const Center(
+                                  child: Icon(Icons.camera_alt_outlined,
+                                      color: Colors.grey, size: 40),
+                                ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text('Tambah Foto',
+                            style: TextStyle(color: Colors.grey)),
+                        const SizedBox(height: 12),
+                        ElevatedButton.icon(
+                          icon: const Icon(
+                            Icons.upload,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            'Upload Foto',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: _pickAndUploadImageKTP,
                         ),
                         const SizedBox(height: 8),
                         const Text(

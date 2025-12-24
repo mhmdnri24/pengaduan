@@ -44,7 +44,8 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> with WidgetsBindingObserver {
+class _DashboardPageState extends State<DashboardPage>
+    with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
   String? _userName;
@@ -56,10 +57,10 @@ class _DashboardPageState extends State<DashboardPage> with WidgetsBindingObserv
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadUserNameFromSession();
-    
+
     // Initialize with current value
     _notificationCount = FCMHandler.notificationCount.value;
-    
+
     // Listen to notification count changes
     FCMHandler.notificationCount.addListener(_updateNotificationCount);
     // Initial fetch
@@ -187,7 +188,7 @@ class _DashboardPageState extends State<DashboardPage> with WidgetsBindingObserv
   String _getTitle() {
     switch (_selectedIndex) {
       case 0:
-        return "Lapor Pak Wali";
+        return "Lapor Sang Juara";
       case 1:
         return "Histori";
       case 2:
@@ -197,7 +198,7 @@ class _DashboardPageState extends State<DashboardPage> with WidgetsBindingObserv
       case 4:
         return "Pengaduan";
       default:
-        return "Lapor Pak Wali";
+        return "Lapor Sang Juara";
     }
   }
 
@@ -368,18 +369,18 @@ class _DashboardPageState extends State<DashboardPage> with WidgetsBindingObserv
                   ),
                 ),
                 child: Stack(
-                  children: [ 
-                  ],
+                  children: [],
                 ),
               ),
               // Banner Card Overlapping
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-                child: BannerCard(name: _userName ?? DashboardConstants.userName),
+                child:
+                    BannerCard(name: _userName ?? DashboardConstants.userName),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 24),
 
           // Purple info card replaced by reusable PurpleSlider component
@@ -401,7 +402,7 @@ class _DashboardPageState extends State<DashboardPage> with WidgetsBindingObserv
               ),
             ),
           ),
-          
+
           // Grid icons (extracted to IconGrid)
           IconGrid(isDesktop: isDesktop),
 

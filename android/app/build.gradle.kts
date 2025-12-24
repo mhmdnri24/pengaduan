@@ -54,6 +54,9 @@ android {
         
         // Tambahkan konfigurasi untuk mengurangi memory usage
         multiDexEnabled = true
+        
+        // Konfigurasi heap size
+        manifestPlaceholders["appName"] = "Lapor Pak Wali"
     }
 
     buildTypes {
@@ -64,13 +67,28 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            
+            // Tambah proguard untuk mengurangi size
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            
+            // Disable NDK debug symbols to avoid AAB build issues
+            ndk {
+                debugSymbolLevel = "NONE"
+            }
         }
+    }
+    
+    // Tambah konfigurasi dex options
+    dexOptions {
+        javaMaxHeapSize = "2g"
     }
 
     packagingOptions {
         jniLibs {
             useLegacyPackaging = false
-            keepDebugSymbols += setOf("*/armeabi-v7a/*.so", "*/arm64-v8a/*.so", "*/x86/*.so", "*/x86_64/*.so")
+            // Completely disable debug symbol processing
+            pickFirsts += setOf("**/libjsc.so")
         }
     }
 }
@@ -88,4 +106,7 @@ dependencies {
     
     // Google Maps
     implementation("com.google.android.gms:play-services-maps:18.2.0")
+    
+    // Play Core library for split compatibility and deferred components
+    implementation("com.google.android.play:core:1.10.3")
 }

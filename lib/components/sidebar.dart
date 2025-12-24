@@ -17,7 +17,11 @@ class Sidebar extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text('Lapor Pak Wali', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white)),
+                child: Text('Lapor Sang Juara',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(color: Colors.white)),
               ),
               _buildItem(context, Icons.dashboard, 'Dashboard', 0),
               _buildItem(context, Icons.report, 'Pengaduan', 1),
@@ -34,11 +38,13 @@ class Sidebar extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(BuildContext context, IconData icon, String label, int index) {
+  Widget _buildItem(
+      BuildContext context, IconData icon, String label, int index) {
     final selected = index == selectedIndex;
     return ListTile(
       leading: Icon(icon, color: selected ? Colors.white : Colors.white70),
-      title: Text(label, style: TextStyle(color: selected ? Colors.white : Colors.white70)),
+      title: Text(label,
+          style: TextStyle(color: selected ? Colors.white : Colors.white70)),
       selected: selected,
       onTap: () => onItemSelected?.call(index),
     );

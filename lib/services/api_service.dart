@@ -153,7 +153,8 @@ class ApiService {
     required File fotoKtp,
   }) async {
     try {
-      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/register');
+      var uri =
+          Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/register');
       var request = http.MultipartRequest('POST', uri);
 
       // Add headers
@@ -299,7 +300,8 @@ class ApiService {
     required String deviceId,
   }) async {
     try {
-      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/device/insert_or_update');
+      var uri =
+          Uri.parse('${await ApiConfig.getBaseUrl()}/device/insert_or_update');
 
       var request = http.MultipartRequest('POST', uri);
 
@@ -639,10 +641,10 @@ class ApiService {
   /// Validate NIK to check if already registered
   Future<ApiResponse<Map<String, dynamic>>> validateNIK(String nik) async {
     try {
-      var url = '${await ApiConfig.getBaseUrl()}/masyarakat/validate-nik?nik=$nik';
+      var url =
+          '${await ApiConfig.getBaseUrl()}/masyarakat/validate-nik?nik=$nik';
       print('Url: $url');
-      var uri =
-          Uri.parse(url);
+      var uri = Uri.parse(url);
       var response = await http.get(uri, headers: await _headers);
 
       if (response.statusCode == 200) {
@@ -672,7 +674,7 @@ class ApiService {
       var uri = Uri.parse(
           '${await ApiConfig.getBaseUrl()}/pengumuman?status=1&limit=$limit&page=$page&onread=$onread');
       print('Pengumuman API URL: $uri');
-      
+
       var response = await http.get(uri, headers: await _headers);
       print('Pengumuman API Status Code: ${response.statusCode}');
       print('Pengumuman API Response Body: ${response.body}');
@@ -685,7 +687,8 @@ class ApiService {
             responseData['status'] == 'success') {
           print('Response status is success, parsing PengumumanResponse...');
           final pengumumanResponse = PengumumanResponse.fromJson(responseData);
-          print('Parsed ${pengumumanResponse.pengumuman.length} pengumuman items');
+          print(
+              'Parsed ${pengumumanResponse.pengumuman.length} pengumuman items');
           return ApiResponse(success: true, data: pengumumanResponse);
         } else {
           print('Invalid response format or status not success');
@@ -722,14 +725,14 @@ class ApiService {
           final data = responseData['data'] as Map<String, dynamic>;
           // Ensure gambar_url is present or derived from gambar
           if (data['gambar_url'] == null && data['gambar'] != null) {
-             // If backend doesn't provide gambar_url in detail, we might need to construct it
-             // But usually the model handles it or we expect it.
-             // Let's check the model again. The model expects 'gambar_url' in fromJson.
-             // If it's missing, it defaults to empty string.
-             // Let's try to be smart, if gambar is there but gambar_url is not, maybe we can use gambar?
-             // But for now let's just pass it to fromJson.
+            // If backend doesn't provide gambar_url in detail, we might need to construct it
+            // But usually the model handles it or we expect it.
+            // Let's check the model again. The model expects 'gambar_url' in fromJson.
+            // If it's missing, it defaults to empty string.
+            // Let's try to be smart, if gambar is there but gambar_url is not, maybe we can use gambar?
+            // But for now let's just pass it to fromJson.
           }
-          
+
           final pengumuman = Pengumuman.fromJson(data);
           return ApiResponse(success: true, data: pengumuman);
         } else {
@@ -744,11 +747,13 @@ class ApiService {
       return ApiResponse(success: false, error: 'Network error: $e');
     }
   }
+
   /// Update pengumuman status (mark as read)
   Future<ApiResponse<Map<String, dynamic>>> updatePengumumanStatus(
       String id) async {
     try {
-      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/pengumuman/$id/update_status');
+      var uri = Uri.parse(
+          '${await ApiConfig.getBaseUrl()}/pengumuman/$id/update_status');
       print('Update Pengumuman Status API URL: $uri');
 
       var request = http.Request('POST', uri);
@@ -788,7 +793,8 @@ class ApiService {
     required String token,
   }) async {
     try {
-      var uri = Uri.parse('${await ApiConfig.getBaseUrl()}/masyarakat/upload-foto-profil');
+      var uri = Uri.parse(
+          '${await ApiConfig.getBaseUrl()}/masyarakat/upload-foto-profil');
       var request = http.MultipartRequest('POST', uri);
 
       // Add headers
@@ -831,16 +837,69 @@ class ApiService {
     }
   }
 
+  /// Upload ktp photo
+  Future<ApiResponse<Map<String, dynamic>>> uploadKtpPhoto({
+    required String nik,
+    required File fotoKtp,
+    required String token,
+  }) async {
+    try {
+      var uri = Uri.parse(
+          '${await ApiConfig.getBaseUrl()}/masyarakat/upload-foto-ktp');
+      var request = http.MultipartRequest('POST', uri);
+
+      // Add headers
+      request.headers.addAll(await _headers);
+      request.headers['X-Token'] = token;
+      request.headers['Authorization'] = token;
+
+      // Add form fields
+      request.fields['nik'] = nik;
+
+      // Add profile photo
+      if (await fotoKtp.exists()) {
+        var multipartFile = await http.MultipartFile.fromPath(
+          'foto_ktp',
+          fotoKtp.path,
+          filename: 'ktp_photo.jpg',
+        );
+        request.files.add(multipartFile);
+      } else {
+        return ApiResponse(
+            success: false, error: 'Profile photo file not found');
+      }
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print('Upload Profile Photo Status Code: ${response.statusCode}');
+      print('Upload Profile Photo Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var responseData = json.decode(response.body);
+        return ApiResponse(success: true, data: responseData);
+      } else {
+        return ApiResponse(
+            success: false,
+            error: 'HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Network error: $e');
+    }
+  }
+
   /// Get API settings from remote endpoint
-  Future<ApiResponse<Map<String, dynamic>>> getApiSettings() async { 
+  Future<ApiResponse<Map<String, dynamic>>> getApiSettings() async {
     try {
       // Use the hardcoded endpoint for fetching settings
-      const settingsUrl = 'https://config.lubuklinggaukota.go.id/api_settings/row';
+      const settingsUrl =
+          'https://config.lubuklinggaukota.go.id/api_settings/row';
       var uri = Uri.parse(settingsUrl);
-      
+
       var response = await http.get(uri, headers: {
         'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36',
       });
 
       if (response.statusCode == 200) {
@@ -876,7 +935,7 @@ class ApiService {
         if (apiResponse.data!['base_url'] != null) {
           final apiKey = apiResponse.data!['api_key'].toString();
           final baseUrl = apiResponse.data!['base_url'].toString();
-          
+
           // Validate the URL before saving
           if (baseUrl.isNotEmpty &&
               (baseUrl.startsWith('http://') ||
@@ -910,4 +969,3 @@ class ApiService {
     }
   }
 }
-

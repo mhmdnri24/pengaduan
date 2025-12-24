@@ -10,6 +10,7 @@ import '../config/api_config.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 import '../components/selfie_camera.dart';
+import '../services/session_service.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -23,12 +24,31 @@ class _LandingPageState extends State<LandingPage> {
   static const blue = Color(0xFF2D62F2);
   String? logoUrl;
   String? backgroundImage;
+  String? _title;
 
   @override
   void initState() {
     super.initState();
     _checkSession();
     _loadPengaturan();
+    _loadTitle();
+  }
+
+  Future<void> _loadTitle() async {
+    try {
+      final sessionService = SessionService.instance;
+      final namaSitus = await sessionService.getFromSession('nama_situs');
+      print('Nama situs: $namaSitus');
+      if (namaSitus != null && namaSitus is String && namaSitus.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _title = namaSitus;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading title from session: $e');
+    }
   }
 
   Future<void> _loadPengaturan() async {
@@ -476,49 +496,49 @@ class _LandingPageState extends State<LandingPage> {
                     const SizedBox(height: 1),
 
                     // Logo di tengah
-                    ClipOval(
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        padding: const EdgeInsets.all(8),
-                        child: logoUrl != null
-                            ? Image.network(
-                                logoUrl!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.account_balance,
-                                      size: 64,
-                                      color: Colors.blue,
-                                    ),
-                                  );
-                                },
-                              )
-                            : Container(
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.account_balance,
-                                  size: 64,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                      ),
-                    ),
+                    // ClipOval(
+                    //   child: Container(
+                    //     width: 80,
+                    //     height: 80,
+                    //     padding: const EdgeInsets.all(8),
+                    //     child: logoUrl != null
+                    //         ? Image.network(
+                    //             logoUrl!,
+                    //             fit: BoxFit.cover,
+                    //             errorBuilder: (context, error, stackTrace) {
+                    //               return Container(
+                    //                 decoration: const BoxDecoration(
+                    //                   color: Colors.white,
+                    //                   shape: BoxShape.circle,
+                    //                 ),
+                    //                 child: const Icon(
+                    //                   Icons.account_balance,
+                    //                   size: 64,
+                    //                   color: Colors.blue,
+                    //                 ),
+                    //               );
+                    //             },
+                    //           )
+                    //         : Container(
+                    //             decoration: const BoxDecoration(
+                    //               color: Colors.white,
+                    //               shape: BoxShape.circle,
+                    //             ),
+                    //             child: const Icon(
+                    //               Icons.account_balance,
+                    //               size: 64,
+                    //               color: Colors.blue,
+                    //             ),
+                    //           ),
+                    //   ),
+                    // ),
 
                     const SizedBox(height: 30),
 
                     // Judul
-                    const Text(
-                      'Lapor Pak Wali',
-                      style: TextStyle(
+                    Text(
+                      _title ?? 'Lapor Sang Juara',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -920,7 +940,7 @@ class _RegisterStepperModalState extends State<RegisterStepperModal> {
                     children: [
                       _buildSectionTitle('1. Penerimaan Syarat'),
                       _buildSectionContent(
-                          'Dengan menggunakan aplikasi "Lapor Pak Wali", Anda setuju untuk terikat oleh syarat dan ketentuan ini. Jika Anda tidak setuju dengan syarat dan ketentuan ini, jangan gunakan aplikasi ini.'),
+                          'Dengan menggunakan aplikasi "Lapor Sang Juara", Anda setuju untuk terikat oleh syarat dan ketentuan ini. Jika Anda tidak setuju dengan syarat dan ketentuan ini, jangan gunakan aplikasi ini.'),
                       const SizedBox(height: 16),
                       _buildSectionTitle('2. Penggunaan Aplikasi'),
                       _buildSectionContent(
