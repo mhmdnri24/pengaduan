@@ -34,6 +34,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   bool isSaving = false;
   bool isLoadingProfile = false;
   String? profilePhotoUrl;
+  String? ktpPhotoUrl;
 
   // store kecamatan as list of maps with id + name to preserve API ids
   List<Map<String, String>> kecamatanList = [
@@ -57,6 +58,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     setState(() {
       userNik = prefs.getString('user_nik');
       profilePhotoUrl = prefs.getString('user_photo_url');
+      ktpPhotoUrl = prefs.getString('foto_ktp_url');
     });
   }
 
@@ -206,6 +208,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
             if (data['foto_profil_url'] != null) {
               profilePhotoUrl = data['foto_profil_url'].toString();
+            }
+            if (data['foto_ktp_url'] != null) {
+              ktpPhotoUrl = data['foto_ktp_url'].toString();
             }
 
             // kecamatan/kelurahan
@@ -1050,16 +1055,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 color: Colors.grey.shade300,
                                 width: 2,
                                 style: BorderStyle.solid),
-                            image: profilePhotoUrl != null &&
-                                    profilePhotoUrl!.isNotEmpty
-                                ? DecorationImage(
-                                    image: NetworkImage(profilePhotoUrl!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
+                            image:
+                                ktpPhotoUrl != null && ktpPhotoUrl!.isNotEmpty
+                                    ? DecorationImage(
+                                        image: NetworkImage(ktpPhotoUrl!),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
                           ),
-                          child: profilePhotoUrl != null &&
-                                  profilePhotoUrl!.isNotEmpty
+                          child: ktpPhotoUrl != null && ktpPhotoUrl!.isNotEmpty
                               ? null
                               : const Center(
                                   child: Icon(Icons.camera_alt_outlined,
