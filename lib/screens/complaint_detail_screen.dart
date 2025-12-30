@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 import '../models/complaint.dart';
 
 class ComplaintDetailScreen extends StatelessWidget {
@@ -23,6 +24,7 @@ class ComplaintDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Card(
+              color: Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -57,25 +59,24 @@ class ComplaintDetailScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        if (complaint.priority != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _getPriorityColor(complaint.priority!),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              complaint.priority!.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _getPriorityColor(complaint.prioritas),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            complaint.prioritas.toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
+                        ),
                       ],
                     ),
                   ],
@@ -84,6 +85,7 @@ class ComplaintDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Card(
+              color: Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -107,6 +109,7 @@ class ComplaintDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Card(
+              color: Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -121,8 +124,9 @@ class ComplaintDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     _buildDetailRow('ID', complaint.id),
-                    _buildDetailRow('Category', complaint.category ?? 'Not specified'),
-                    _buildDetailRow('Created', _formatDate(complaint.createdAt)),
+                    _buildDetailRow('Category', complaint.namaKategori),
+                    _buildDetailRow(
+                        'Created', _formatDate(complaint.createdAt)),
                   ],
                 ),
               ),
@@ -133,10 +137,13 @@ class ComplaintDetailScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   // Handle complaint action
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Complaint action performed'),
-                    ),
+                  QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.info,
+                    title: "Info",
+                    text: 'Complaint action performed',
+                    autoCloseDuration: const Duration(seconds: 2),
+                    showConfirmBtn: false,
                   );
                 },
                 style: ElevatedButton.styleFrom(

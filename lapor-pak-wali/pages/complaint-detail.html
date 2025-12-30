@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Detail Pengaduan - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Detail Pengaduan - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Page Loader Styles -->
+    <link rel="stylesheet" href="../css/page-loader.css">
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-primary-blue text-white relative">
+        <div class="px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button onclick="goBack()" class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-arrow-left text-white text-sm"></i>
+                    </button>
+                    <h1 class="text-lg font-bold">Detail Pengaduan</h1>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-share text-white text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Detail Card -->
+    <div class="px-4 py-6">
+        <!-- Status Badge -->
+        <div class="mb-4">
+            <span id="statusBadge" class="bg-orange-100 text-orange-600 text-sm font-medium px-3 py-1 rounded-full">
+                DALAM PROSES
+            </span>
+        </div>
+
+        <!-- Main Image and Title -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+            <img 
+                id="complaintImage"
+                src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
+                alt="Pengaduan"
+                class="w-full h-48 object-cover"
+            >
+            <div class="p-4">
+                <h2 id="complaintTitle" class="text-xl font-bold text-gray-900 mb-2">Lampu Jalan Mati</h2>
+                <p id="complaintDescription" class="text-gray-600 text-sm leading-relaxed">
+                    Lampu penerangan jalan di depan Jalan Sudirman No. 45 sudah mati selama 3 hari. 
+                    Kondisi ini membahayakan pengendara terutama pada malam hari karena jalan menjadi gelap gulita.
+                </p>
+                
+                <!-- Complaint Info -->
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-500">Tanggal Laporan:</span>
+                            <p id="reportDate" class="font-medium">22 Agustus 2024</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Lokasi:</span>
+                            <p id="location" class="font-medium">Jl. Sudirman No. 45</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">ID Pengaduan:</span>
+                            <p id="complaintId" class="font-medium text-blue-600">#LPW-2024-001</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Kategori:</span>
+                            <p id="category" class="font-medium">Infrastruktur</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Timeline -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-clock-rotate-left mr-2 text-blue-600"></i>
+                Progress Penanganan
+            </h3>
+            
+            <div class="relative" id="progressTimeline">
+                <!-- Timeline Item 1 - Completed -->
+                <div class="flex items-start mb-6">
+                    <div class="flex-shrink-0 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-check text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-900">Laporan Diterima</h4>
+                        <p class="text-sm text-gray-600 mt-1">Pengaduan Anda telah diterima dan dicatat dalam sistem</p>
+                        <span class="text-xs text-gray-500">22 Agustus 2024, 14:30</span>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 2 - Completed -->
+                <div class="flex items-start mb-6">
+                    <div class="flex-shrink-0 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-eye text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-900">Verifikasi Laporan</h4>
+                        <p class="text-sm text-gray-600 mt-1">Tim verifikasi telah mengonfirmasi kebenaran laporan</p>
+                        <span class="text-xs text-gray-500">22 Agustus 2024, 16:45</span>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 3 - Current -->
+                <div class="flex items-start mb-6">
+                    <div class="flex-shrink-0 w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-4 animate-pulse">
+                        <i class="fas fa-tools text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-900">Dalam Perbaikan</h4>
+                        <p class="text-sm text-gray-600 mt-1">Tim teknis sedang melakukan perbaikan lampu jalan</p>
+                        <span class="text-xs text-gray-500">23 Agustus 2024, 09:00</span>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 4 - Pending -->
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-flag-checkered text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-400">Selesai</h4>
+                        <p class="text-sm text-gray-400 mt-1">Pengaduan akan ditandai selesai setelah perbaikan</p>
+                        <span class="text-xs text-gray-400">Menunggu</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Officer Response -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-user-tie mr-2 text-blue-600"></i>
+                Tanggapan Petugas
+            </h3>
+            
+            <div class="space-y-4" id="officerResponses">
+                <div class="border-l-4 border-blue-500 bg-blue-50 p-3 rounded-r-lg">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-medium text-gray-900">Petugas Teknis - Ahmad Wijaya</h4>
+                        <span class="text-xs text-gray-500">23 Agt 2024, 10:30</span>
+                    </div>
+                    <p class="text-sm text-gray-700">
+                        Tim teknis telah tiba di lokasi dan sedang melakukan penggantian lampu yang rusak. 
+                        Estimasi selesai hari ini sebelum maghrib. Terima kasih atas laporannya.
+                    </p>
+                </div>
+                
+                <div class="border-l-4 border-green-500 bg-green-50 p-3 rounded-r-lg">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-medium text-gray-900">Koordinator Lapangan - Budi Santoso</h4>
+                        <span class="text-xs text-gray-500">22 Agt 2024, 17:00</span>
+                    </div>
+                    <p class="text-sm text-gray-700">
+                        Laporan telah diverifikasi. Tim teknis akan ditugaskan untuk perbaikan besok pagi. 
+                        Mohon maaf atas ketidaknyamanan yang terjadi.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rating Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6" id="ratingSection">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-star mr-2 text-yellow-500"></i>
+                Berikan Rating
+            </h3>
+            
+            <p class="text-sm text-gray-600 mb-4">
+                Bagaimana penilaian Anda terhadap penanganan pengaduan ini?
+            </p>
+            
+            <!-- Star Rating -->
+            <div class="flex items-center space-x-2 mb-4">
+                <span class="text-sm text-gray-600 mr-2">Rating:</span>
+                <div class="flex space-x-1" id="starRating">
+                    <button class="star-btn text-2xl text-gray-300 hover:text-yellow-500 transition-colors" data-rating="1">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="star-btn text-2xl text-gray-300 hover:text-yellow-500 transition-colors" data-rating="2">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="star-btn text-2xl text-gray-300 hover:text-yellow-500 transition-colors" data-rating="3">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="star-btn text-2xl text-gray-300 hover:text-yellow-500 transition-colors" data-rating="4">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button class="star-btn text-2xl text-gray-300 hover:text-yellow-500 transition-colors" data-rating="5">
+                        <i class="fas fa-star"></i>
+                    </button>
+                </div>
+                <span id="ratingText" class="text-sm text-gray-600 ml-2"></span>
+            </div>
+
+            <!-- Comment Input -->
+            <div class="mb-4">
+                <label for="feedback" class="block text-sm font-medium text-gray-700 mb-2">
+                    Komentar (Opsional)
+                </label>
+                <textarea 
+                    id="feedback" 
+                    rows="3" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    placeholder="Berikan komentar atau saran untuk perbaikan pelayanan..."
+                ></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+                id="submitRating" 
+                class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled
+            >
+                <i class="fas fa-paper-plane mr-2"></i>
+                Kirim Rating
+            </button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-2 gap-4">
+            <button 
+                onclick="shareComplaint()" 
+                class="bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            >
+                <i class="fas fa-share mr-2"></i>
+                Bagikan
+            </button>
+            <button 
+                onclick="downloadReport()" 
+                class="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-colors"
+            >
+                <i class="fas fa-download mr-2"></i>
+                Unduh Laporan
+            </button>
+        </div>
+    </div>
+
+    <!-- Custom Styles -->
+    <style>
+        .star-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .star-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .star-btn.active {
+            color: #eab308 !important;
+        }
+        
+        /* Progress timeline line */
+        #progressTimeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: 40px;
+            width: 2px;
+            background: linear-gradient(to bottom, #10b981 0%, #10b981 60%, #d1d5db 60%, #d1d5db 100%);
+        }
+    </style>
+
+    <!-- Page Loader Script -->
+    <script src="../js/page-loader.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        let selectedRating = 0;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadComplaintData();
+            setupRatingSystem();
+            setupSubmitButton();
+        });
+
+        function loadComplaintData() {
+            // Get complaint ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const complaintId = urlParams.get('id');
+            
+            // Simulate loading complaint data based on ID
+            const complaintData = getComplaintData(complaintId);
+            
+            if (complaintData) {
+                document.getElementById('complaintTitle').textContent = complaintData.title;
+                document.getElementById('complaintDescription').textContent = complaintData.description;
+                document.getElementById('complaintImage').src = complaintData.image;
+                document.getElementById('reportDate').textContent = complaintData.date;
+                document.getElementById('location').textContent = complaintData.location;
+                document.getElementById('complaintId').textContent = complaintData.id;
+                document.getElementById('category').textContent = complaintData.category;
+                
+                // Update status badge
+                const statusBadge = document.getElementById('statusBadge');
+                statusBadge.textContent = complaintData.status;
+                statusBadge.className = `text-sm font-medium px-3 py-1 rounded-full ${getStatusColor(complaintData.status)}`;
+            }
+        }
+
+        function getComplaintData(id) {
+            // Sample data - in real app, this would come from API
+            const complaints = {
+                '1': {
+                    title: 'Jalan Rusak di Depan Sekolah',
+                    description: 'Jalan berlubang besar yang membahayakan pengendara motor dan mobil. Lubang tersebut semakin dalam ketika hujan dan dapat menyebabkan kecelakaan.',
+                    image: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                    date: '21 Agustus 2024',
+                    location: 'Jl. Pendidikan Raya No. 123',
+                    id: '#LPW-2024-002',
+                    category: 'Infrastruktur',
+                    status: 'BARU'
+                },
+                '2': {
+                    title: 'Lampu Jalan Mati',
+                    description: 'Lampu penerangan jalan di depan Jalan Sudirman No. 45 sudah mati selama 3 hari. Kondisi ini membahayakan pengendara terutama pada malam hari.',
+                    image: 'https://images.unsplash.com/photo-1587293852726-70cdb56c2866?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                    date: '22 Agustus 2024',
+                    location: 'Jl. Sudirman No. 45',
+                    id: '#LPW-2024-001',
+                    category: 'Infrastruktur',
+                    status: 'DALAM PROSES'
+                },
+                '3': {
+                    title: 'Saluran Air Tersumbat',
+                    description: 'Saluran pembuangan air hujan tersumbat sampah dan menyebabkan banjir ketika hujan deras.',
+                    image: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+                    date: '20 Agustus 2024',
+                    location: 'Jl. Mawar No. 67',
+                    id: '#LPW-2024-003',
+                    category: 'Kebersihan',
+                    status: 'SELESAI'
+                }
+            };
+            
+            return complaints[id] || complaints['2']; // Default to complaint 2
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'BARU': 'bg-red-100 text-red-600',
+                'DALAM PROSES': 'bg-orange-100 text-orange-600',
+                'DITINJAU': 'bg-blue-100 text-blue-600',
+                'SELESAI': 'bg-green-100 text-green-600',
+                'PENDING': 'bg-yellow-100 text-yellow-600'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-600';
+        }
+
+        function setupRatingSystem() {
+            const starBtns = document.querySelectorAll('.star-btn');
+            const ratingText = document.getElementById('ratingText');
+            
+            const ratingLabels = {
+                1: 'Sangat Buruk',
+                2: 'Buruk',
+                3: 'Biasa',
+                4: 'Baik',
+                5: 'Sangat Baik'
+            };
+            
+            starBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    selectedRating = parseInt(this.dataset.rating);
+                    
+                    // Update star colors
+                    starBtns.forEach((star, index) => {
+                        if (index < selectedRating) {
+                            star.classList.add('active');
+                        } else {
+                            star.classList.remove('active');
+                        }
+                    });
+                    
+                    // Update rating text
+                    ratingText.textContent = ratingLabels[selectedRating];
+                    
+                    // Enable submit button
+                    document.getElementById('submitRating').disabled = false;
+                });
+                
+                btn.addEventListener('mouseenter', function() {
+                    const hoverRating = parseInt(this.dataset.rating);
+                    starBtns.forEach((star, index) => {
+                        if (index < hoverRating) {
+                            star.style.color = '#eab308';
+                        } else {
+                            star.style.color = selectedRating > index ? '#eab308' : '#d1d5db';
+                        }
+                    });
+                });
+            });
+            
+            // Reset hover effect
+            document.getElementById('starRating').addEventListener('mouseleave', function() {
+                starBtns.forEach((star, index) => {
+                    star.style.color = selectedRating > index ? '#eab308' : '#d1d5db';
+                });
+            });
+        }
+
+        function setupSubmitButton() {
+            document.getElementById('submitRating').addEventListener('click', function() {
+                if (selectedRating === 0) return;
+                
+                const feedback = document.getElementById('feedback').value;
+                
+                // Simulate submission
+                this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengirim...';
+                this.disabled = true;
+                
+                setTimeout(() => {
+                    alert(`Rating berhasil dikirim!\\n\\nRating: ${selectedRating} bintang\\nKomentar: ${feedback || 'Tidak ada komentar'}`);
+                    
+                    // Hide rating section after submission
+                    document.getElementById('ratingSection').style.display = 'none';
+                }, 1500);
+            });
+        }
+
+        function goBack() {
+            if (document.referrer) {
+                window.history.back();
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        function shareComplaint() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Pengaduan - Lapor Pak Wali',
+                    text: document.getElementById('complaintTitle').textContent,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const url = window.location.href;
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Link pengaduan telah disalin ke clipboard!');
+                });
+            }
+        }
+
+        function downloadReport() {
+            alert('Fitur unduh laporan akan segera tersedia!');
+        }
+    </script>
+</body>
+</html>

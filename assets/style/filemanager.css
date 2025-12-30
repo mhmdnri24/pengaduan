@@ -1,0 +1,186 @@
+/* General Body Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7fc;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* File Manager Container */
+.file-manager-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 240px;
+    background-color: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #0d6efd;
+}
+
+.menu-items {
+    list-style: none;
+    padding: 20px 0;
+    margin: 0;
+}
+
+.menu-item a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #555;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.menu-item a i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+}
+
+.menu-item.active a,
+.menu-item a:hover {
+    background-color: #e9f2ff;
+    color: #0d6efd;
+    border-right: 3px solid #0d6efd;
+}
+
+/* Content Area Styles */
+.content-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+/* Toolbar Styles */
+.content-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn i {
+    margin-right: 8px;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    margin-left: 10px;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.btn-icon {
+    background: none;
+    border: 1px solid #ccc;
+    color: #555;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background-color: #f0f0f0;
+}
+
+.btn-icon i {
+    margin: 0;
+}
+
+/* File List Area */
+.file-list-area {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.file-card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.file-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.file-icon {
+    font-size: 3rem;
+    color: #0d6efd;
+    margin-bottom: 15px;
+}
+
+.file-icon .fa-folder {
+    color: #ffc107;
+}
+.file-icon .fa-file-pdf {
+    color: #dc3545;
+}
+.file-icon .fa-file-word {
+    color: #0d6efd;
+}
+.file-icon .fa-file-image {
+    color: #198754;
+}
+
+
+.file-name {
+    font-size: 14px;
+    word-wrap: break-word;
+}

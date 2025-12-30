@@ -1,0 +1,129 @@
+import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
+
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final _formKey = GlobalKey<FormState>();
+  String _name = '';
+  String _email = '';
+  String _password = '';
+
+  void _submit() {
+    if (_formKey.currentState?.validate() ?? false) {
+      _formKey.currentState?.save();
+      final masked = '*' * (_password.length.clamp(0, 6));
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.success,
+        title: "Terima Kasih",
+        text: '$_name ($_email, pwd: $masked)',
+        autoCloseDuration: const Duration(seconds: 2),
+        showConfirmBtn: false,
+      );
+      Navigator.of(context).pushReplacementNamed('/dashboard');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Daftar',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: const Color(0xFF1C3FAA),
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Nama',
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD0D0D0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD0D0D0)),
+                      ),
+                    ),
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Masukkan nama' : null,
+                    onSaved: (v) => _name = v ?? '',
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD0D0D0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD0D0D0)),
+                      ),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Masukkan email' : null,
+                    onSaved: (v) => _email = v ?? '',
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD0D0D0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFD0D0D0)),
+                      ),
+                    ),
+                    obscureText: true,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Masukkan password' : null,
+                    onSaved: (v) => _password = v ?? '',
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _submit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2258DA),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text('Daftar'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pushNamed('/login'),
+                    child: const Text('Sudah punya akun? Masuk'),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}

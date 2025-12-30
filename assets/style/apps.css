@@ -1,0 +1,183 @@
+body,
+.login-page, .register-page,
+/*
+.ce-background {
+    background: url('../img/background.png') repeat;
+}
+*/
+.info-box-small {
+    min-height: 60px;
+}
+.info-box-small .info-box-content {
+    margin-left: 60px;
+}
+.info-box-small .info-box-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 35px;
+    line-height: 60px;
+}
+.dataTables_wrapper .dataTable {width: 100% !important;}
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    padding:10px;
+}
+.ce-progress {margin-bottom:0;}
+.icheckbox_minimal-blue {margin-right: 5px !important;}
+.callout .icon {margin-right:10px;}
+@media (min-width: 768px){
+.form-horizontal .control-label { text-align: left;}
+}
+.floating-button {
+    position: fixed;
+    bottom: 70px;
+    right: 30px;
+    z-index: 9999999999;
+    border-radius: 3px;
+    -webkit-box-shadow: 2px 2px 30px -7px rgba(0, 0, 0, 0.75) !important;
+    -moz-box-shadow: 2px 2px 30px -7px rgba(0, 0, 0, 0.75) !important;
+    box-shadow: 2px 2px 30px -7px rgba(0, 0, 0, 0.75) !important;
+}
+textarea.no-resize {resize:none;}
+.callout.callout-info,
+.callout.callout-danger,
+.callout.callout-warning,
+.callout.callout-success {
+  background-color: #fff !important;
+  color: #525252 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+.callout.callout-info > h4,
+.callout.callout-danger > h4,
+.callout.callout-warning > h4,
+.callout.callout-success > h4 {
+  margin-bottom: 5px;
+}
+.callout.callout-info a,
+.callout.callout-danger a,
+.callout.callout-warning a,
+.callout.callout-success a {
+  color: #3c8dbc;
+  text-decoration: none;
+}
+.callout.callout-info a:hover,
+.callout.callout-danger a:hover,
+.callout.callout-warning a:hover,
+.callout.callout-success a:hover {
+  color: #000000;
+}
+.callout.callout-warning > h4 {
+  color: #c87f0a;
+}
+.callout.callout-info > h4 {
+  color: #0097bc;
+}
+.callout.callout-danger > h4 {
+  color: #c23321;
+}
+.affiliate h3 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+.affiliate img {
+  border-radius: 4px;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+.affiliate .heading {
+  background: #f7f7f7;
+  color: #999;
+  font-size: 18px;
+  font-weight: 400;
+  padding: 7px 15px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  text-align: center;
+}
+.affiliate .caption p {
+  margin-bottom: 15px;
+}
+.affiliate .caption p:last-of-type {
+  margin-bottom: 0;
+}
+.modal-body > .overlay,
+.modal-body > .overlay-wrapper > .overlay,
+.modal-body > .loading-img,
+.modal-body > .overlay-wrapper > .loading-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.modal-body > .overlay,
+.modal-body > .overlay-wrapper .overlay {
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 3px;
+}
+.modal-body > .overlay > .fa,
+.modal-body > .overlay-wrapper .overlay > .fa {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -15px;
+  margin-top: -15px;
+  color: #000;
+  font-size: 30px;
+}
+.modal-body > .overlay.dark,
+.modal-body > .overlay-wrapper .overlay.dark {
+  background: rgba(0, 0, 0, 0.5);
+}
+.produk-list {
+  list-style: none;
+  float:left;
+  padding: 0;
+  margin: 10px auto;
+}
+.produk-list li {
+  display: block;
+  float: left;
+  margin: 5px;
+  width: 200px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-top: 10px solid #222d32;
+  border-radius: 4px;
+}
+.produk-list .produk-img {
+  overflow: hidden;
+  height: 150px;
+}
+.produk-list .produk-img img {
+  width: 100%;
+}
+.produk-list .produk-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 5px 10px;
+}
+.box.box-solid>.box-header>.box-tools .btn {border: solid 1px;}
+/*
+.box-header .select2-container {
+  display: inline-block;
+  font-size: 18px;
+  margin: 0;
+  padding: 0;
+  margin-bottom: -10px;
+  line-height: 1;
+}
+.box-header .select2-container--default .select2-selection--single .select2-selection__rendered {
+  font-weight: bold;
+  color: #3c8dbc;
+}
+.box-header .select2-container--default .select2-selection--single,
+.box-header .select2-selection .select2-selection--single {
+  border: none;
+  padding: 0;
+}
+.box-header .select2-container--default .select2-selection--single .select2-selection__arrow { display: none; }
+*/

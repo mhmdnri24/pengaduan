@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Buat Laporan - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Buat Laporan - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary-blue to-secondary-blue text-white shadow-lg">
+        <div class="px-4 py-4">
+            <div class="flex items-center justify-between">
+                <button onclick="history.back()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 active:scale-95">
+                    <i class="fas fa-arrow-left text-white"></i>
+                </button>
+                <h1 class="text-lg font-bold">Buat Laporan</h1>
+                <button onclick="showHelp()" class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 active:scale-95">
+                    <i class="fas fa-question-circle text-white"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="px-4 py-6">
+        <form id="reportForm" class="space-y-6">
+            <!-- Kategori Laporan -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                    <i class="fas fa-tags text-primary-blue mr-2"></i>
+                    Kategori Laporan
+                </label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" class="category-btn flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl hover:border-primary-blue hover:shadow-md transition-all duration-200 active:scale-95 group" data-category="infrastruktur">
+                        <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-road text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-center">Infrastruktur</span>
+                    </button>
+                    
+                    <button type="button" class="category-btn flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl hover:border-primary-blue hover:shadow-md transition-all duration-200 active:scale-95 group" data-category="lingkungan">
+                        <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-leaf text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-center">Lingkungan</span>
+                    </button>
+                    
+                    <button type="button" class="category-btn flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl hover:border-primary-blue hover:shadow-md transition-all duration-200 active:scale-95 group" data-category="keamanan">
+                        <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-shield-alt text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-center">Keamanan</span>
+                    </button>
+                    
+                    <button type="button" class="category-btn flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl hover:border-primary-blue hover:shadow-md transition-all duration-200 active:scale-95 group" data-category="layanan">
+                        <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-users text-white"></i>
+                        </div>
+                        <span class="text-sm font-medium text-center">Layanan</span>
+                    </button>
+                </div>
+                <input type="hidden" id="selectedCategory" name="category" required>
+            </div>
+
+            <!-- Judul Laporan -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <label for="title" class="block text-sm font-semibold text-gray-700 mb-3">
+                    <i class="fas fa-heading text-primary-blue mr-2"></i>
+                    Judul Laporan
+                </label>
+                <input 
+                    type="text" 
+                    id="title" 
+                    name="title"
+                    placeholder="Masukkan judul laporan yang jelas"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                    required
+                >
+            </div>
+
+            <!-- Deskripsi -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <label for="description" class="block text-sm font-semibold text-gray-700 mb-3">
+                    <i class="fas fa-align-left text-primary-blue mr-2"></i>
+                    Deskripsi Lengkap
+                </label>
+                <textarea 
+                    id="description" 
+                    name="description"
+                    rows="4"
+                    placeholder="Jelaskan detail masalah yang ingin dilaporkan..."
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue focus:border-transparent resize-none"
+                    required
+                ></textarea>
+                <div class="text-xs text-gray-500 mt-2">
+                    <span id="charCount">0</span>/500 karakter
+                </div>
+            </div>
+
+            <!-- Lokasi -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                    <i class="fas fa-map-marker-alt text-primary-blue mr-2"></i>
+                    Lokasi Kejadian
+                </label>
+                <div class="space-y-3">
+                    <input 
+                        type="text" 
+                        id="location" 
+                        name="location"
+                        placeholder="Masukkan alamat lengkap"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                        required
+                    >
+                    <button type="button" id="getCurrentLocation" class="w-full flex items-center justify-center space-x-2 py-3 border-2 border-dashed border-primary-blue text-primary-blue rounded-xl hover:bg-light-blue hover:border-solid transition-all duration-200 active:scale-98">
+                        <i class="fas fa-crosshairs"></i>
+                        <span>Gunakan Lokasi Saat Ini</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upload Foto -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                    <i class="fas fa-camera text-primary-blue mr-2"></i>
+                    Foto Pendukung
+                </label>
+                <div class="grid grid-cols-3 gap-3">
+                    <!-- Upload Slot 1 -->
+                    <div class="upload-slot aspect-square border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary-blue transition-colors">
+                        <i class="fas fa-plus text-2xl text-gray-400 mb-1"></i>
+                        <span class="text-xs text-gray-500">Tambah Foto</span>
+                        <input type="file" class="hidden" accept="image/*" capture="environment">
+                    </div>
+                    
+                    <!-- Upload Slot 2 -->
+                    <div class="upload-slot aspect-square border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary-blue transition-colors">
+                        <i class="fas fa-plus text-2xl text-gray-400 mb-1"></i>
+                        <span class="text-xs text-gray-500">Tambah Foto</span>
+                        <input type="file" class="hidden" accept="image/*" capture="environment">
+                    </div>
+                    
+                    <!-- Upload Slot 3 -->
+                    <div class="upload-slot aspect-square border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary-blue transition-colors">
+                        <i class="fas fa-plus text-2xl text-gray-400 mb-1"></i>
+                        <span class="text-xs text-gray-500">Tambah Foto</span>
+                        <input type="file" class="hidden" accept="image/*" capture="environment">
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Maksimal 3 foto, ukuran maksimal 5MB per foto
+                </p>
+            </div>
+
+            <!-- Tingkat Urgensi -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                    <i class="fas fa-exclamation-triangle text-primary-blue mr-2"></i>
+                    Tingkat Urgensi
+                </label>
+                <div class="grid grid-cols-3 gap-3">
+                    <button type="button" class="urgency-btn flex flex-col items-center p-3 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:shadow-md transition-all duration-200 active:scale-95 group" data-urgency="rendah">
+                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mb-1 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-circle text-white text-xs"></i>
+                        </div>
+                        <span class="text-xs font-medium">Rendah</span>
+                    </button>
+                    
+                    <button type="button" class="urgency-btn flex flex-col items-center p-3 border-2 border-gray-200 rounded-xl hover:border-yellow-500 hover:shadow-md transition-all duration-200 active:scale-95 group" data-urgency="sedang">
+                        <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mb-1 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-circle text-white text-xs"></i>
+                        </div>
+                        <span class="text-xs font-medium">Sedang</span>
+                    </button>
+                    
+                    <button type="button" class="urgency-btn flex flex-col items-center p-3 border-2 border-gray-200 rounded-xl hover:border-red-500 hover:shadow-md transition-all duration-200 active:scale-95 group" data-urgency="tinggi">
+                        <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center mb-1 group-hover:scale-110 transition-transform duration-200">
+                            <i class="fas fa-circle text-white text-xs"></i>
+                        </div>
+                        <span class="text-xs font-medium">Tinggi</span>
+                    </button>
+                </div>
+                <input type="hidden" id="selectedUrgency" name="urgency" required>
+            </div>
+
+            <!-- Anonymous Option -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="anonymous" name="anonymous" class="w-5 h-5 text-primary-blue focus:ring-primary-blue border-gray-300 rounded">
+                    <div>
+                        <span class="text-sm font-semibold text-gray-700">Laporan Anonim</span>
+                        <p class="text-xs text-gray-500">Identitas Anda akan disembunyikan dari publik</p>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="space-y-3 pt-4">
+                <button type="submit" class="w-full bg-gradient-to-r from-primary-blue to-secondary-blue text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl active:scale-98">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Kirim Laporan</span>
+                </button>
+                
+                <button type="button" id="saveDraft" class="w-full bg-gray-200 text-gray-700 font-semibold py-4 rounded-xl hover:bg-gray-300 transition-all duration-200 flex items-center justify-center space-x-2 active:scale-98">
+                    <i class="fas fa-save"></i>
+                    <span>Simpan Sebagai Draft</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Laporan Berhasil Dikirim!</h3>
+            <p class="text-gray-600 mb-6">
+                Laporan Anda telah diterima dan akan segera ditindaklanjuti oleh petugas yang berwenang.
+            </p>
+            <div class="space-y-3">
+                <button onclick="window.location.href='dashboard.html'" class="w-full bg-primary-blue text-white font-semibold py-3 rounded-xl">
+                    Kembali ke Dashboard
+                </button>
+                <button onclick="location.reload()" class="w-full bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl">
+                    Buat Laporan Lagi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Help function for question button
+        function showHelp() {
+            alert('Bantuan:\n\n1. Pilih kategori laporan yang sesuai\n2. Isi judul dan deskripsi dengan jelas\n3. Tentukan lokasi kejadian\n4. Upload foto pendukung (opsional)\n5. Pilih tingkat urgensi\n6. Kirim laporan Anda');
+        }
+
+        // Category selection
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active state from all categories
+                document.querySelectorAll('.category-btn').forEach(b => {
+                    b.classList.remove('border-primary-blue', 'bg-light-blue', 'shadow-md');
+                    b.classList.add('border-gray-200');
+                });
+                
+                // Add active state to clicked category
+                this.classList.remove('border-gray-200');
+                this.classList.add('border-primary-blue', 'bg-light-blue', 'shadow-md');
+                
+                // Set hidden input value
+                document.getElementById('selectedCategory').value = this.dataset.category;
+                
+                // Vibrate feedback (if supported)
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            });
+        });
+
+        // Urgency selection
+        document.querySelectorAll('.urgency-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active state from all urgency buttons
+                document.querySelectorAll('.urgency-btn').forEach(b => {
+                    b.classList.remove('border-primary-blue', 'bg-light-blue', 'shadow-md');
+                    b.classList.add('border-gray-200');
+                });
+                
+                // Add active state to clicked urgency
+                this.classList.remove('border-gray-200');
+                this.classList.add('border-primary-blue', 'bg-light-blue', 'shadow-md');
+                
+                // Set hidden input value
+                document.getElementById('selectedUrgency').value = this.dataset.urgency;
+                
+                // Vibrate feedback (if supported)
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            });
+        });
+
+        // Character count for description
+        document.getElementById('description').addEventListener('input', function() {
+            const charCount = this.value.length;
+            document.getElementById('charCount').textContent = charCount;
+            
+            if (charCount > 500) {
+                this.value = this.value.substring(0, 500);
+                document.getElementById('charCount').textContent = 500;
+            }
+        });
+
+        // Get current location
+        document.getElementById('getCurrentLocation').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Mendapatkan Lokasi...</span>';
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        // In a real app, you would reverse geocode these coordinates
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        document.getElementById('location').value = `Koordinat: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        this.innerHTML = '<i class="fas fa-check"></i><span>Lokasi Didapat</span>';
+                        this.classList.add('bg-green-100', 'text-green-700', 'border-green-300');
+                    },
+                    (error) => {
+                        alert('Tidak dapat mengakses lokasi. Pastikan izin lokasi telah diberikan.');
+                        this.innerHTML = '<i class="fas fa-crosshairs"></i><span>Gunakan Lokasi Saat Ini</span>';
+                    }
+                );
+            } else {
+                alert('Geolocation tidak didukung oleh browser ini.');
+            }
+        });
+
+        // Photo upload handling
+        function initializeUploadSlot(slot) {
+            const fileInput = slot.querySelector('input[type="file"]');
+            
+            // Click handler for slot
+            slot.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                fileInput.click();
+            });
+            
+            // File change handler
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    
+                    // Check file size (5MB limit)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Ukuran file terlalu besar. Maksimal 5MB.');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        slot.innerHTML = `
+                            <img src="${e.target.result}" class="w-full h-full object-cover rounded-xl">
+                            <button type="button" onclick="removePhoto(this)" class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        slot.classList.add('relative');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Initialize all upload slots
+        document.querySelectorAll('.upload-slot').forEach(slot => {
+            initializeUploadSlot(slot);
+        });
+
+        // Remove photo function
+        function removePhoto(btn) {
+            const slot = btn.closest('.upload-slot');
+            slot.innerHTML = `
+                <i class="fas fa-plus text-2xl text-gray-400 mb-1"></i>
+                <span class="text-xs text-gray-500">Tambah Foto</span>
+                <input type="file" class="hidden" accept="image/*" capture="environment">
+            `;
+            slot.classList.remove('relative');
+            
+            // Re-initialize the upload slot
+            initializeUploadSlot(slot);
+        }
+
+        // Form submission
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate required fields
+            const category = document.getElementById('selectedCategory').value;
+            const urgency = document.getElementById('selectedUrgency').value;
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const location = document.getElementById('location').value;
+            
+            if (!category || !urgency || !title || !description || !location) {
+                alert('Mohon lengkapi semua field yang wajib diisi.');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Mengirim...</span>';
+            submitBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                document.getElementById('successModal').classList.remove('hidden');
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span>Kirim Laporan</span>';
+                submitBtn.disabled = false;
+            }, 2000);
+        });
+
+        // Save draft
+        document.getElementById('saveDraft').addEventListener('click', function() {
+            const formData = new FormData(document.getElementById('reportForm'));
+            localStorage.setItem('reportDraft', JSON.stringify(Object.fromEntries(formData)));
+            
+            this.innerHTML = '<i class="fas fa-check"></i><span>Draft Tersimpan</span>';
+            this.classList.add('bg-green-200', 'text-green-700');
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-save"></i><span>Simpan Sebagai Draft</span>';
+                this.classList.remove('bg-green-200', 'text-green-700');
+            }, 2000);
+        });
+
+        // Load draft on page load
+        window.addEventListener('load', function() {
+            const draft = localStorage.getItem('reportDraft');
+            if (draft) {
+                const draftData = JSON.parse(draft);
+                Object.keys(draftData).forEach(key => {
+                    const element = document.querySelector(`[name="${key}"]`);
+                    if (element) {
+                        element.value = draftData[key];
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

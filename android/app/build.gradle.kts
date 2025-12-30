@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -6,9 +9,15 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    namespace = "com.example.statefulclickcounter"
-    compileSdk = flutter.compileSdkVersion
+    namespace = "com.example.pengaduan"
+    compileSdk = 36  // Required by Flutter plugins (image_picker, geolocator, etc.)
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -20,23 +29,66 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["keyAlias"] as String?
+            keyPassword = keystoreProperties["keyPassword"] as String?
+            storeFile = if (keystoreProperties["storeFile"] != null) {
+                rootProject.file(keystoreProperties["storeFile"] as String)
+            } else null
+            storePassword = keystoreProperties["storePassword"] as String?
+        }
+    }
+
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
     // Use the applicationId that matches android/app/google-services.json
-    applicationId = "com.example.statefulclickcounter"
+    applicationId = "com.example.pengaduan"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = flutter.minSdkVersion  // Minimum Android 5.0
+        targetSdk = 34  // Target Android 14 for compatibility
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Tambahkan konfigurasi untuk mengurangi memory usage
+        multiDexEnabled = true
+        
+        // Konfigurasi heap size
+        manifestPlaceholders["appName"] = "Lapor Pak Wali"
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Use the release signing config if key.properties exists, otherwise use debug
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+            
+            // Tambah proguard untuk mengurangi size
+            isMinifyEnabled = true
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            
+            // Disable NDK debug symbols to avoid AAB build issues
+            ndk {
+                debugSymbolLevel = "NONE"
+            }
+        }
+    }
+    
+    // Tambah konfigurasi dex options
+    dexOptions {
+        javaMaxHeapSize = "2g"
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+            // Completely disable debug symbol processing
+            pickFirsts += setOf("**/libjsc.so")
         }
     }
 }
@@ -51,4 +103,10 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging")
     // Include analytics to satisfy FirebaseMessaging's optional analytics calls
     implementation("com.google.firebase:firebase-analytics")
+    
+    // Google Maps
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    
+    // Play Core library for split compatibility and deferred components
+    implementation("com.google.android.play:core:1.10.3")
 }

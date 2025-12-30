@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "43690937490",
-    "project_id": "statefulclickcounter-fd0d8",
-    "storage_bucket": "statefulclickcounter-fd0d8.firebasestorage.app"
+    "project_number": "912656610350",
+    "project_id": "pengaduan-139fc",
+    "storage_bucket": "pengaduan-139fc.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:43690937490:android:51499583487932bf7e2a4b",
+        "mobilesdk_app_id": "1:912656610350:android:7802ffbb5a1d6472ae5bbf",
         "android_client_info": {
-          "package_name": "com.example.statefulclickcounter"
+          "package_name": "com.example.pengaduan"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDIlzA5GA7Chnz1eX4lh8C_aLJocN0poO8"
+          "current_key": "AIzaSyAVSFq7qTFWnmAzrv-LK3E4sa7y-Mk2O80"
         }
       ],
       "services": {

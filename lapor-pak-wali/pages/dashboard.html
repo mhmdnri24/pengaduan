@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard Lapor Pak Wali - Platform Laporan Masyarakat">
+    <meta name="theme-color" content="#1e40af">
+    <title>Dashboard - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Page Loader Styles -->
+    <link rel="stylesheet" href="../css/page-loader.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="../manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/icon-32x32.png">
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+    <!-- Status Bar -->
+    
+
+    <!-- Header dengan Glass Effect -->
+    <div class="bg-primary-blue text-white relative overflow-hidden">
+        <!-- Enhanced Background Pattern -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-4 right-4 w-32 h-32 border border-white rounded-full"></div>
+            <div class="absolute -top-8 -right-8 w-24 h-24 border border-white rounded-full"></div>
+            <!-- Additional geometric shapes -->
+            <div class="absolute top-1/2 left-4 w-16 h-16 border-2 border-white/40 rounded-lg rotate-45"></div>
+            <div class="absolute bottom-4 left-1/3 w-20 h-20 border border-white/30 rounded-full"></div>
+            <div class="absolute top-8 left-1/2 w-6 h-6 bg-white/20 rounded-full"></div>
+            <div class="absolute bottom-8 right-1/3 w-8 h-8 bg-white/15 rounded-full"></div>
+            <div class="absolute top-16 right-16 w-4 h-4 bg-white/25 rounded-full"></div>
+        </div>
+        
+        <!-- Additional Background Shapes Layer -->
+        <div class="absolute inset-0 opacity-5">
+            <div class="absolute top-0 left-0 w-full h-full">
+                <svg viewBox="0 0 400 400" class="w-full h-full">
+                    <defs>
+                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" />
+                </svg>
+            </div>
+        </div>
+        
+        <div class="relative z-10 px-4 pt-4 pb-6">
+            <!-- Top Bar -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-landmark text-white text-sm"></i>
+                    </div>
+                    <span class="font-bold">Lapor Pak Wali</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button id="notificationBtn" class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center relative">
+                        <i class="fas fa-bell text-white text-sm"></i>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs flex items-center justify-center">3</span>
+                    </button>
+                    <button id="profileBtn" class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                             alt="Profile" class="w-full h-full object-cover">
+                    </button>
+                </div>
+            </div>
+
+            <!-- Greeting dengan Background Gradient -->
+            <div class="mb-4">
+                <div class="bg-gradient-to-r from-blue-800/80 via-blue-700/70 to-blue-600/80 backdrop-blur-sm rounded-xl p-4 border border-white/30 shadow-lg relative overflow-hidden">
+                    <!-- Background Pattern for Greeting -->
+                    <div class="absolute inset-0 opacity-20">
+                        <div class="absolute top-2 right-2 w-16 h-16 border border-white/40 rounded-full"></div>
+                        <div class="absolute bottom-2 left-2 w-12 h-12 border border-white/30 rounded-full"></div>
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 border border-white/20 rounded-full"></div>
+                    </div>
+                    <div class="relative z-10">
+                        <h1 class="text-lg font-bold mb-1">Selamat datang,</h1>
+                        <h2 class="text-xl font-bold" id="userName">Edy Tama Kusumajaya</h2>
+                        <p class="text-sm text-white/90 mt-1">Semoga hari Anda menyenangkan!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="relative">
+                <input 
+                    type="text" 
+                    placeholder="Cari layanan atau informasi..." 
+                    class="w-full bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-3 rounded-xl pl-10 focus:outline-none focus:ring-2 focus:ring-white/50"
+                >
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Banner Slider -->
+    <div class="px-4 -mt-3 relative z-20 mb-6">
+        <div class="relative overflow-hidden rounded-xl shadow-lg">
+            <div class="banner-slider" id="bannerSlider">
+                <!-- Banner 1 - Layanan Online -->
+                <div class="banner-slide active bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 min-h-32 flex items-center justify-between">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg mb-2">Layanan Online 24/7</h3>
+                        <p class="text-sm opacity-90">Akses semua layanan kapan saja, dimana saja</p>
+                        <div class="flex items-center mt-2">
+                            <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse mr-2"></div>
+                            <span class="text-sm font-medium">ONLINE</span>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0 ml-4">
+                        <i class="fas fa-laptop text-4xl opacity-80"></i>
+                    </div>
+                </div>
+
+                <!-- Banner 2 - Pengaduan Cepat -->
+                <div class="banner-slide bg-gradient-to-r from-green-600 to-green-800 text-white p-6 min-h-32 flex items-center justify-between">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg mb-2">Pengaduan Cepat</h3>
+                        <p class="text-sm opacity-90">Laporkan masalah Anda dengan mudah dan cepat</p>
+                        <div class="flex items-center mt-2">
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full animate-pulse mr-2"></div>
+                            <span class="text-sm font-medium">SIAP MELAYANI</span>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0 ml-4">
+                        <i class="fas fa-comment-dots text-4xl opacity-80"></i>
+                    </div>
+                </div>
+
+                <!-- Banner 3 - Informasi Terkini -->
+                <div class="banner-slide bg-gradient-to-r from-purple-600 to-purple-800 text-white p-6 min-h-32 flex items-center justify-between">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg mb-2">Informasi Terkini</h3>
+                        <p class="text-sm opacity-90">Dapatkan berita dan update terbaru dari pemerintah</p>
+                        <div class="flex items-center mt-2">
+                            <div class="w-3 h-3 bg-blue-400 rounded-full animate-pulse mr-2"></div>
+                            <span class="text-sm font-medium">UPDATE</span>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0 ml-4">
+                        <i class="fas fa-newspaper text-4xl opacity-80"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slider Indicators -->
+            <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                <div class="slider-dot active w-2 h-2 bg-white rounded-full cursor-pointer" data-slide="0"></div>
+                <div class="slider-dot w-2 h-2 bg-white/50 rounded-full cursor-pointer" data-slide="1"></div>
+                <div class="slider-dot w-2 h-2 bg-white/50 rounded-full cursor-pointer" data-slide="2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Main Services Grid -->
+    <div class="px-4 mt-6">
+        <div class="grid grid-cols-4 gap-4">
+            <!-- Darurat -->
+            <div class="service-card text-center" data-service="emergency">
+                <div class="service-icon w-16 h-16 bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-2xl flex items-center justify-center mb-3 mx-auto shadow-lg transform transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:rotate-3 relative">
+                    <i class="fas fa-exclamation-triangle text-white text-xl drop-shadow-lg"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl"></div>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Darurat</span>
+                <div class="w-6 h-0.5 bg-gradient-to-r from-red-400 to-red-600 mx-auto mt-1 rounded-full"></div>
+            </div>
+
+            <!-- Pengaduan -->
+            <div class="service-card text-center" data-service="complaint">
+                <div class="service-icon w-16 h-16 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-2xl flex items-center justify-center mb-3 mx-auto shadow-lg transform transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:rotate-3 relative">
+                    <i class="fas fa-paper-plane text-white text-xl drop-shadow-lg"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl"></div>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Pengaduan</span>
+                <div class="w-6 h-0.5 bg-gradient-to-r from-blue-400 to-blue-600 mx-auto mt-1 rounded-full"></div>
+            </div>
+
+            <!-- Berita -->
+            <div class="service-card text-center" data-service="news">
+                <div class="service-icon w-16 h-16 bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700 rounded-2xl flex items-center justify-center mb-3 mx-auto shadow-lg transform transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:rotate-3 relative">
+                    <i class="fas fa-newspaper text-white text-xl drop-shadow-lg"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl"></div>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Berita</span>
+                <div class="w-6 h-0.5 bg-gradient-to-r from-cyan-400 to-cyan-600 mx-auto mt-1 rounded-full"></div>
+            </div>
+
+            <!-- Scan JSS -->
+            <div class="service-card text-center" data-service="scan">
+                <div class="service-icon w-16 h-16 bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 rounded-2xl flex items-center justify-center mb-3 mx-auto shadow-lg transform transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:rotate-3 relative">
+                    <i class="fas fa-qrcode text-white text-xl drop-shadow-lg"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl"></div>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Scan JSS</span>
+                <div class="w-6 h-0.5 bg-gradient-to-r from-orange-400 to-orange-600 mx-auto mt-1 rounded-full"></div>
+            </div>
+
+            <!-- Umum -->
+            <div class="service-card text-center" data-service="public">
+                <div class="service-icon w-16 h-16 bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 rounded-2xl flex items-center justify-center mb-3 mx-auto shadow-lg transform transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:rotate-3 relative">
+                    <i class="fas fa-users text-white text-xl drop-shadow-lg"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl"></div>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Umum</span>
+                <div class="w-6 h-0.5 bg-gradient-to-r from-emerald-400 to-emerald-600 mx-auto mt-1 rounded-full"></div>
+            </div>
+
+            <!-- Dukcapil -->
+            <div class="service-card text-center" data-service="dukcapil">
+                <div class="service-icon w-16 h-16 bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700 rounded-2xl flex items-center justify-center mb-3 mx-auto shadow-lg transform transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:rotate-3 relative">
+                    <i class="fas fa-id-card text-white text-xl drop-shadow-lg"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl"></div>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Dukcapil</span>
+                <div class="w-6 h-0.5 bg-gradient-to-r from-teal-400 to-teal-600 mx-auto mt-1 rounded-full"></div>
+            </div>
+
+            <!-- Kependudukan -->
+            <div class="service-card text-center" data-service="population">
+                <div class="service-icon w-16 h-16 bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-2xl flex items-center justify-center mb-3 mx-auto shadow-lg transform transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:rotate-3 relative">
+                    <i class="fas fa-user-friends text-white text-xl drop-shadow-lg"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl"></div>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Kependudukan</span>
+                <div class="w-6 h-0.5 bg-gradient-to-r from-purple-400 to-purple-600 mx-auto mt-1 rounded-full"></div>
+            </div>
+
+            <!-- Lainnya -->
+            <div class="service-card text-center" data-service="others">
+                <div class="service-icon w-16 h-16 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 rounded-2xl flex items-center justify-center mb-3 mx-auto shadow-lg transform transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:rotate-3 relative">
+                    <i class="fas fa-th text-white text-xl drop-shadow-lg"></i>
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl"></div>
+                </div>
+                <span class="text-xs font-medium text-gray-700">Lainnya</span>
+                <div class="w-6 h-0.5 bg-gradient-to-r from-indigo-400 to-indigo-600 mx-auto mt-1 rounded-full"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pengaduan Section -->
+    <div class="px-4 mt-8">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900">Pengaduan Terbaru</h3>
+            <button id="viewAllComplaints" class="gradient-badge">
+                <i class="fas fa-eye mr-1"></i>
+                Lihat semua
+            </button>
+        </div>
+        <p class="text-sm text-gray-600 mb-4">Pantau aduan masyarakat terbaru</p>
+
+        <!-- Pengaduan Cards -->
+        <div class="space-y-3" id="complaintsContainer">
+            <!-- Card 1 -->
+            <div class="complaint-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-id="1">
+                <div class="flex">
+                    <img 
+                        src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                        alt="Pengaduan"
+                        class="w-20 h-20 object-cover"
+                    >
+                    <div class="flex-1 p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="bg-red-100 text-red-600 text-xs font-medium px-2 py-1 rounded-full">BARU</span>
+                            <span class="text-xs text-gray-500">2 jam lalu</span>
+                        </div>
+                        <h4 class="font-medium text-gray-900 text-sm mb-1">Jalan Rusak di Depan Sekolah</h4>
+                        <p class="text-xs text-gray-600 line-clamp-2">Jalan berlubang besar yang membahayakan pengendara...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="complaint-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-id="2">
+                <div class="flex">
+                    <img 
+                        src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                        alt="Pengaduan"
+                        class="w-20 h-20 object-cover"
+                    >
+                    <div class="flex-1 p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="bg-orange-100 text-orange-600 text-xs font-medium px-2 py-1 rounded-full">PROSES</span>
+                            <span class="text-xs text-gray-500">1 hari lalu</span>
+                        </div>
+                        <h4 class="font-medium text-gray-900 text-sm mb-1">Lampu Jalan Mati</h4>
+                        <p class="text-xs text-gray-600 line-clamp-2">Lampu penerangan jalan sudah mati selama 3 hari...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="complaint-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-id="3">
+                <div class="flex">
+                    <img 
+                        src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                        alt="Pengaduan"
+                        class="w-20 h-20 object-cover"
+                    >
+                    <div class="flex-1 p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="bg-green-100 text-green-600 text-xs font-medium px-2 py-1 rounded-full">SELESAI</span>
+                            <span class="text-xs text-gray-500">2 hari lalu</span>
+                        </div>
+                        <h4 class="font-medium text-gray-900 text-sm mb-1">Saluran Air Tersumbat</h4>
+                        <p class="text-xs text-gray-600 line-clamp-2">Saluran pembuangan air hujan tersumbat sampah...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="complaint-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-id="4">
+                <div class="flex">
+                    <img 
+                        src="https://images.unsplash.com/photo-1566228015668-4c45dbc4e2f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                        alt="Pengaduan"
+                        class="w-20 h-20 object-cover"
+                    >
+                    <div class="flex-1 p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-medium px-2 py-1 rounded-full">DITINJAU</span>
+                            <span class="text-xs text-gray-500">3 hari lalu</span>
+                        </div>
+                        <h4 class="font-medium text-gray-900 text-sm mb-1">Pohon Tumbang Menutupi Jalan</h4>
+                        <p class="text-xs text-gray-600 line-clamp-2">Pohon besar tumbang akibat angin kencang...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="complaint-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-id="5">
+                <div class="flex">
+                    <img 
+                        src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                        alt="Pengaduan"
+                        class="w-20 h-20 object-cover"
+                    >
+                    <div class="flex-1 p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="bg-yellow-100 text-yellow-600 text-xs font-medium px-2 py-1 rounded-full">PENDING</span>
+                            <span class="text-xs text-gray-500">4 hari lalu</span>
+                        </div>
+                        <h4 class="font-medium text-gray-900 text-sm mb-1">Kerusakan Fasilitas Taman</h4>
+                        <p class="text-xs text-gray-600 line-clamp-2">Beberapa fasilitas di taman kota rusak dan perlu diperbaiki...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Berita Section -->
+    <div class="px-4 mt-8">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900">Berita Terbaru</h3>
+            <button id="viewAllNews" class="gradient-badge">
+                <i class="fas fa-newspaper mr-1"></i>
+                Lihat semua
+            </button>
+        </div>
+        <p class="text-sm text-gray-600 mb-4">Informasi dan berita terkini dari pemerintah</p>
+
+        <!-- Berita Cards -->
+        <div class="space-y-3" id="newsContainer">
+            <!-- News Card 1 -->
+            <div class="news-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-id="1">
+                <div class="flex">
+                    <img 
+                        src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                        alt="Berita"
+                        class="w-20 h-20 object-cover"
+                    >
+                    <div class="flex-1 p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-medium px-2 py-1 rounded-full">BERITA</span>
+                            <span class="text-xs text-gray-500">1 jam lalu</span>
+                        </div>
+                        <h4 class="font-medium text-gray-900 text-sm mb-1">Pembangunan Jalan Tol Baru Dimulai</h4>
+                        <p class="text-xs text-gray-600 line-clamp-2">Pemerintah memulai pembangunan jalan tol yang menghubungkan...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Card 2 -->
+            <div class="news-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-id="2">
+                <div class="flex">
+                    <img 
+                        src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                        alt="Berita"
+                        class="w-20 h-20 object-cover"
+                    >
+                    <div class="flex-1 p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="bg-green-100 text-green-600 text-xs font-medium px-2 py-1 rounded-full">PROGRAM</span>
+                            <span class="text-xs text-gray-500">3 jam lalu</span>
+                        </div>
+                        <h4 class="font-medium text-gray-900 text-sm mb-1">Program Bantuan Sosial Diperluas</h4>
+                        <p class="text-xs text-gray-600 line-clamp-2">Pemerintah memperluas jangkauan program bantuan sosial...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Card 3 -->
+            <div class="news-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-id="3">
+                <div class="flex">
+                    <img 
+                        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                        alt="Berita"
+                        class="w-20 h-20 object-cover"
+                    >
+                    <div class="flex-1 p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="bg-purple-100 text-purple-600 text-xs font-medium px-2 py-1 rounded-full">PENGUMUMAN</span>
+                            <span class="text-xs text-gray-500">5 jam lalu</span>
+                        </div>
+                        <h4 class="font-medium text-gray-900 text-sm mb-1">Jadwal Pelayanan Administrasi Terbaru</h4>
+                        <p class="text-xs text-gray-600 line-clamp-2">Perubahan jadwal pelayanan administrasi kependudukan...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Card 4 -->
+            <div class="news-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-id="4">
+                <div class="flex">
+                    <img 
+                        src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                        alt="Berita"
+                        class="w-20 h-20 object-cover"
+                    >
+                    <div class="flex-1 p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="bg-orange-100 text-orange-600 text-xs font-medium px-2 py-1 rounded-full">EVENT</span>
+                            <span class="text-xs text-gray-500">1 hari lalu</span>
+                        </div>
+                        <h4 class="font-medium text-gray-900 text-sm mb-1">Festival Budaya Daerah 2024</h4>
+                        <p class="text-xs text-gray-600 line-clamp-2">Perayaan festival budaya daerah akan diselenggarakan...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Card 5 -->
+            <div class="news-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-id="5">
+                <div class="flex">
+                    <img 
+                        src="https://images.unsplash.com/photo-1566228015668-4c45dbc4e2f5?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" 
+                        alt="Berita"
+                        class="w-20 h-20 object-cover"
+                    >
+                    <div class="flex-1 p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="bg-red-100 text-red-600 text-xs font-medium px-2 py-1 rounded-full">PENTING</span>
+                            <span class="text-xs text-gray-500">2 hari lalu</span>
+                        </div>
+                        <h4 class="font-medium text-gray-900 text-sm mb-1">Peringatan Cuaca Ekstrem</h4>
+                        <p class="text-xs text-gray-600 line-clamp-2">BMKG mengeluarkan peringatan cuaca ekstrem untuk wilayah...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 shadow-lg">
+        <div class="flex justify-around items-center">
+            <button id="homeBtn" class="nav-item flex flex-col items-center space-y-1 text-primary-blue" data-page="dashboard">
+                <i class="fas fa-home text-lg"></i>
+                <span class="text-xs font-medium">Home</span>
+            </button>
+            <button id="historyBtn" class="nav-item flex flex-col items-center space-y-1 text-gray-400" data-page="my-reports">
+                <i class="fas fa-history text-lg"></i>
+                <span class="text-xs">Histori</span>
+            </button>
+            <button id="createReportBtn" class="nav-item flex flex-col items-center space-y-1 text-gray-400 relative" data-page="create-report">
+                <div class="w-12 h-12 bg-primary-blue rounded-full flex items-center justify-center -mt-2 shadow-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-plus text-white text-lg"></i>
+                </div>
+                <span class="text-xs">Buat Laporan</span>
+            </button>
+            <button id="servicesBtn" class="nav-item flex flex-col items-center space-y-1 text-gray-400" data-page="services">
+                <i class="fas fa-th-large text-lg"></i>
+                <span class="text-xs">Layanan</span>
+            </button>
+            <button id="profileNavBtn" class="nav-item flex flex-col items-center space-y-1 text-gray-400" data-page="profile">
+                <i class="fas fa-user text-lg"></i>
+                <span class="text-xs">Profile</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button id="emergencyFloatingBtn" class="fixed bottom-20 right-4 w-14 h-14 bg-red-500 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-red-600 transition-colors z-30">
+        <i class="fas fa-exclamation-triangle text-lg"></i>
+    </button>
+
+    <!-- Custom Styles -->
+    <style>
+        .line-clamp-2 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-height: 1.4;
+            max-height: calc(1.4em * 2);
+            word-wrap: break-word;
+        }
+        
+        body {
+            padding-bottom: 90px;
+        }
+        
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .banner-slider {
+            position: relative;
+            width: 100%;
+        }
+
+        .banner-slide {
+            display: none;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        .banner-slide.active {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slider-dot {
+            transition: all 0.3s ease;
+        }
+
+        .slider-dot.active {
+            background-color: white;
+            transform: scale(1.2);
+        }
+
+        .gradient-badge {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
+            display: flex;
+            align-items: center;
+        }
+
+        .gradient-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
+        }
+
+        .service-card {
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .service-card:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+        
+        .service-icon {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .service-icon::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+            opacity: 0;
+        }
+        
+        .service-card:hover .service-icon::before {
+            opacity: 1;
+            top: -100%;
+            left: -100%;
+        }
+
+        .complaint-card:hover,
+        .news-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: #1e40af !important;
+        }
+    </style>
+
+    <!-- Page Loader Script -->
+    <script src="../js/page-loader.js"></script>
+    
+    <!-- JavaScript for Enhanced Interactivity -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeBannerSlider();
+            setupBottomNavigation();
+            loadUserData();
+            setupServiceCards();
+            setupComplaintCards();
+            setupNewsCards();
+            setupViewAllButtons();
+            setupNotifications();
+            setupProfileActions();
+            setupEmergencyButton();
+        });
+
+        function initializeBannerSlider() {
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.banner-slide');
+            const dots = document.querySelectorAll('.slider-dot');
+            
+            function showSlide(index) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
+                
+                slides[index].classList.add('active');
+                dots[index].classList.add('active');
+            }
+            
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }, 4000);
+            
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    currentSlide = index;
+                    showSlide(currentSlide);
+                });
+            });
+        }
+
+        function setupBottomNavigation() {
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    navItems.forEach(nav => {
+                        nav.classList.remove('text-primary-blue');
+                        nav.classList.add('text-gray-400');
+                    });
+                    
+                    this.classList.remove('text-gray-400');
+                    this.classList.add('text-primary-blue');
+                    
+                    const page = this.dataset.page;
+                    handleNavigation(page);
+                });
+            });
+        }
+
+        function handleNavigation(page) {
+            switch(page) {
+                case 'dashboard':
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    break;
+                case 'my-reports':
+                    window.location.href = 'my-reports.html';
+                    break;
+                case 'create-report':
+                    window.location.href = 'create-report.html';
+                    break;
+                case 'services':
+                    alert('Menu Layanan');
+                    break;
+                case 'profile':
+                    window.location.href = 'profile-completion.html';
+                    break;
+            }
+        }
+
+        function loadUserData() {
+            const userData = JSON.parse(localStorage.getItem('laporPakWali_userData') || '{}');
+            
+            if (userData.nama) {
+                const userNameElement = document.getElementById('userName');
+                if (userNameElement) {
+                    userNameElement.textContent = userData.nama;
+                }
+            }
+        }
+
+        function setupServiceCards() {
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const serviceName = this.dataset.service;
+                    
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                    
+                    handleServiceClick(serviceName);
+                });
+            });
+        }
+
+        function handleServiceClick(serviceName) {
+            switch(serviceName) {
+                case 'emergency':
+                    window.location.href = 'emergency.html';
+                    break;
+                case 'complaint':
+                    window.location.href = 'create-report.html';
+                    break;
+                default:
+                    alert(`Layanan ${serviceName} dalam pengembangan`);
+                    break;
+            }
+        }
+
+        function setupComplaintCards() {
+            document.querySelectorAll('.complaint-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const complaintId = this.dataset.id;
+                    window.location.href = `complaint-detail.html?id=${complaintId}`;
+                });
+            });
+        }
+
+        function setupNewsCards() {
+            document.querySelectorAll('.news-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const newsId = this.dataset.id;
+                    alert(`Membuka detail berita ID: ${newsId}`);
+                });
+            });
+        }
+
+        function setupViewAllButtons() {
+            document.getElementById('viewAllComplaints').addEventListener('click', function() {
+                window.location.href = 'my-reports.html';
+            });
+
+            document.getElementById('viewAllNews').addEventListener('click', function() {
+                alert('Halaman Semua Berita akan segera tersedia');
+            });
+        }
+
+        function setupNotifications() {
+            const notificationBtn = document.getElementById('notificationBtn');
+            if (notificationBtn) {
+                notificationBtn.addEventListener('click', function() {
+                    window.location.href = 'notifications.html';
+                });
+            }
+        }
+
+        function setupProfileActions() {
+            const profileBtn = document.getElementById('profileBtn');
+            if (profileBtn) {
+                profileBtn.addEventListener('click', function() {
+                    alert('Menu Profile');
+                });
+            }
+        }
+
+        function setupEmergencyButton() {
+            const emergencyBtn = document.getElementById('emergencyFloatingBtn');
+            if (emergencyBtn) {
+                emergencyBtn.addEventListener('click', function() {
+                    if (confirm('FITUR DARURAT\n\nAnda akan membuka halaman darurat. Lanjutkan?')) {
+                        window.location.href = 'emergency.html';
+                    }
+                });
+            }
+        }
+
+        document.querySelector('input[type="text"]').addEventListener('focus', function() {
+            this.style.transform = 'scale(1.02)';
+        });
+        
+        document.querySelector('input[type="text"]').addEventListener('blur', function() {
+            this.style.transform = 'scale(1)';
+        });
+    </script>
+</body>
+</html>

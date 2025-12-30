@@ -73,4 +73,43 @@ d:\nodejs\fmc\service-account.json
 # Optional: ignore generated plugin registrant (if you prefer)
 .flutter-plugins-dependencies
 
+# CodeIgniter 3 specific
+application/cache/*
+!application/cache/index.html
+!application/cache/.htaccess
+
+application/logs/*
+!application/logs/index.html
+!application/logs/.htaccess
+
+application/sessions/*
+!application/sessions/index.html
+
+# CodeIgniter Config files (may contain sensitive information)
+application/config/development/
+application/config/testing/
+application/config/production/
+application/config/database.php
+application/config/config.php
+application/config/email.php
+
+# Composer
+vendor/*
+!vendor/index.html
+composer.lock
+
+# User uploaded content
+uploads/*
+!uploads/index.html
+
+# PHP specific
+system/cache/
+system/logs/
+error_log
+.user.ini
+
+# Keep these files
+!application/index.html
+!system/index.html
+
 # End of .gitignore

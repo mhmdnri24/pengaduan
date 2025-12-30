@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Layanan Darurat - Lapor Pak Wali">
+    <meta name="theme-color" content="#1e40af">
+    <title>Layanan Darurat - Lapor Pak Wali</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#1e40af',
+                        'secondary-blue': '#3b82f6',
+                        'accent-blue': '#60a5fa',
+                        'light-blue': '#dbeafe',
+                        'dark-blue': '#1e3a8a',
+                        'emergency-red': '#dc2626',
+                        'emergency-orange': '#ea580c'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Page Loader Styles -->
+    <link rel="stylesheet" href="../css/page-loader.css">
+</head>
+<body class="font-inter bg-blue-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-primary-blue text-white relative">
+        <div class="px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <button onclick="goBack()" class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-arrow-left text-white text-sm"></i>
+                    </button>
+                    <h1 class="text-lg font-bold">Layanan Darurat</h1>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-blue-300 rounded-full animate-pulse"></div>
+                    <span class="text-sm font-medium">SIAGA</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Status -->
+    <div class="px-4 py-6">
+        <!-- Current Status -->
+        <div class="bg-white rounded-xl shadow-lg border-l-4 border-blue-500 p-4 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-shield-alt mr-2 text-blue-500"></i>
+                        Status Keamanan
+                    </h3>
+                    <p class="text-sm text-gray-600 mt-1">Sistem darurat aktif dan siap melayani</p>
+                </div>
+                <div class="text-right">
+                    <div class="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-xs text-green-600 font-medium">NORMAL</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Types -->
+        <div class="mb-8">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Jenis Keadaan Darurat</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <!-- Medical Emergency -->
+                <div class="emergency-type bg-white rounded-xl p-4 border border-red-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow" data-type="medical">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fas fa-heartbeat text-red-500 text-lg"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-900 text-sm">Medis</h4>
+                    <p class="text-xs text-gray-600">Kecelakaan, serangan jantung, stroke</p>
+                </div>
+
+                <!-- Fire Emergency -->
+                <div class="emergency-type bg-white rounded-xl p-4 border border-orange-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow" data-type="fire">
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fas fa-fire text-orange-500 text-lg"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-900 text-sm">Kebakaran</h4>
+                    <p class="text-xs text-gray-600">Kebakaran rumah, gedung, hutan</p>
+                </div>
+
+                <!-- Crime Emergency -->
+                <div class="emergency-type bg-white rounded-xl p-4 border border-blue-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow" data-type="crime">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fas fa-user-shield text-blue-500 text-lg"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-900 text-sm">Keamanan</h4>
+                    <p class="text-xs text-gray-600">Pencurian, perampokan, kekerasan</p>
+                </div>
+
+                <!-- Natural Disaster -->
+                <div class="emergency-type bg-white rounded-xl p-4 border border-green-200 shadow-sm cursor-pointer hover:shadow-md transition-shadow" data-type="disaster">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fas fa-mountain text-green-500 text-lg"></i>
+                    </div>
+                    <h4 class="font-bold text-gray-900 text-sm">Bencana Alam</h4>
+                    <p class="text-xs text-gray-600">Banjir, gempa, tanah longsor</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Location -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>
+                Lokasi Darurat
+            </h3>
+            
+            <!-- Location Input -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Alamat/Lokasi</label>
+                <textarea 
+                    id="emergencyLocation" 
+                    rows="2" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+                    placeholder="Jelaskan lokasi kejadian dengan detail..."
+                ></textarea>
+            </div>
+
+            <!-- GPS Button -->
+            <button 
+                onclick="getCurrentLocation()" 
+                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors mb-4"
+            >
+                <i class="fas fa-crosshairs mr-2"></i>
+                Gunakan Lokasi Saat Ini
+            </button>
+            
+            <!-- Current Location Display -->
+            <div id="currentLocationDisplay" class="hidden">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div class="flex items-center">
+                        <i class="fas fa-map-pin text-blue-600 mr-2"></i>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-blue-900">Lokasi Terdeteksi:</p>
+                            <p id="detectedLocation" class="text-xs text-blue-700"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panic Button -->
+        <div class="text-center mb-6">
+            <div class="bg-white rounded-xl shadow-lg p-6 border-2 border-blue-200">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Tombol Darurat</h3>
+                <p class="text-sm text-gray-600 mb-6">
+                    Tekan tombol ini dalam keadaan darurat. 
+                    Lokasi Anda akan terdeteksi otomatis dan sinyal darurat akan dikirim ke petugas terdekat.
+                </p>
+                
+                <button 
+                    id="panicButton" 
+                    class="panic-btn w-32 h-32 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 mx-auto"
+                    onclick="activatePanicButton()"
+                >
+                    <i class="fas fa-exclamation text-white text-4xl"></i>
+                </button>
+                
+                <p class="text-xs text-red-600 mt-4 font-medium">
+                    TEKAN UNTUK DARURAT
+                </p>
+            </div>
+        </div>
+
+        <!-- Emergency Contacts -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-phone mr-2 text-green-500"></i>
+                Kontak Darurat
+            </h3>
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-ambulance text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-900">Ambulans</h4>
+                            <p class="text-sm text-gray-600">119</p>
+                        </div>
+                    </div>
+                    <button onclick="callEmergency('119')" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors">
+                        <i class="fas fa-phone mr-1"></i>
+                        Panggil
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-fire-extinguisher text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-900">Pemadam Kebakaran</h4>
+                            <p class="text-sm text-gray-600">113</p>
+                        </div>
+                    </div>
+                    <button onclick="callEmergency('113')" class="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors">
+                        <i class="fas fa-phone mr-1"></i>
+                        Panggil
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-shield-alt text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-900">Kepolisian</h4>
+                            <p class="text-sm text-gray-600">110</p>
+                        </div>
+                    </div>
+                    <button onclick="callEmergency('110')" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-phone mr-1"></i>
+                        Panggil
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Styles -->
+    <style>
+        .panic-btn {
+            animation: pulse 2s infinite;
+        }
+        
+        .panic-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .panic-btn:active {
+            transform: scale(0.95);
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+            }
+        }
+        
+        .emergency-type:hover {
+            transform: translateY(-2px);
+        }
+        
+        .emergency-type.selected {
+            border-color: #dc2626;
+            background-color: #fef2f2;
+        }
+        
+        .emergency-type.selected .w-12 {
+            background-color: #dc2626;
+        }
+        
+        .emergency-type.selected .w-12 i {
+            color: white;
+        }
+    </style>
+
+    <!-- Page Loader Script -->
+    <script src="../js/page-loader.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        let selectedEmergencyType = '';
+        let userLocation = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEmergencyTypes();
+            // Auto-detect GPS on page load
+            getCurrentLocation();
+        });
+
+        function setupEmergencyTypes() {
+            const emergencyTypes = document.querySelectorAll('.emergency-type');
+            
+            emergencyTypes.forEach(type => {
+                type.addEventListener('click', function() {
+                    // Remove selection from all types
+                    emergencyTypes.forEach(t => t.classList.remove('selected'));
+                    
+                    // Add selection to clicked type
+                    this.classList.add('selected');
+                    selectedEmergencyType = this.dataset.type;
+                });
+            });
+        }
+
+        function getCurrentLocation() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        userLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        };
+                        
+                        // Simulate reverse geocoding (in real app, use a geocoding service)
+                        const locationText = `${userLocation.latitude.toFixed(6)}, ${userLocation.longitude.toFixed(6)}`;
+                        
+                        document.getElementById('detectedLocation').textContent = locationText;
+                        document.getElementById('currentLocationDisplay').classList.remove('hidden');
+                        
+                        // Auto-fill location input
+                        document.getElementById('emergencyLocation').value = `GPS: ${locationText}`;
+                    },
+                    function(error) {
+                        console.error('Error getting location:', error);
+                        // Try to get location again after 3 seconds
+                        setTimeout(getCurrentLocation, 3000);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 60000
+                    }
+                );
+            } else {
+                console.log('Geolocation is not supported by this browser.');
+            }
+        }
+
+        function activatePanicButton() {
+            // Simplified validation - only require emergency type
+            if (!selectedEmergencyType) {
+                alert('Silakan pilih jenis keadaan darurat terlebih dahulu!');
+                return;
+            }
+            
+            // Use GPS location if available, otherwise require manual input
+            const location = document.getElementById('emergencyLocation').value;
+            if (!location && !userLocation) {
+                alert('Lokasi tidak dapat terdeteksi. Mohon aktifkan GPS atau isi lokasi manual!');
+                return;
+            }
+
+            // Confirmation dialog
+            if (!confirm('PERINGATAN!\n\nAnda akan mengaktifkan sinyal darurat. Sinyal ini akan dikirim ke petugas darurat terdekat. Pastikan ini adalah keadaan darurat yang nyata.\n\nLanjutkan?')) {
+                return;
+            }
+
+            // Activate panic mode
+            activatePanicMode(selectedEmergencyType, location || 'GPS Auto-detected');
+        }
+
+        function activatePanicMode(type, location) {
+            const panicButton = document.getElementById('panicButton');
+            panicButton.innerHTML = '<i class="fas fa-spinner fa-spin text-white text-4xl"></i>';
+            panicButton.disabled = true;
+            
+            // Change page to emergency mode
+            document.body.style.background = 'linear-gradient(45deg, #dc2626, #b91c1c)';
+            
+            // Simulate sending emergency signal
+            setTimeout(() => {
+                sendEmergencySignal(type, location);
+                showEmergencyActivated();
+            }, 2000);
+        }
+
+        function sendEmergencySignal(type, location) {
+            // Enhanced emergency data with GPS
+            const emergencyData = {
+                type: type,
+                location: location,
+                gpsLocation: userLocation,
+                timestamp: new Date().toISOString(),
+                userId: 'user123' // Get from auth
+            };
+
+            // Store in localStorage to simulate notification system
+            const notifications = JSON.parse(localStorage.getItem('emergencyNotifications') || '[]');
+            notifications.unshift({
+                id: Date.now(),
+                title: 'SINYAL DARURAT AKTIF!',
+                message: `Keadaan darurat: ${getEmergencyTypeLabel(type)} di ${location}`,
+                type: 'emergency',
+                timestamp: new Date().toISOString(),
+                read: false,
+                gpsData: userLocation
+            });
+            localStorage.setItem('emergencyNotifications', JSON.stringify(notifications));
+
+            // Simulate broadcasting to nearby users and emergency services
+            broadcastEmergencySignal(emergencyData);
+
+            console.log('Emergency signal sent:', emergencyData);
+        }
+
+        function broadcastEmergencySignal(emergencyData) {
+            // Simulate sending to emergency services
+            const emergencyServices = [
+                { name: 'Kepolisian', contact: '110' },
+                { name: 'Pemadam Kebakaran', contact: '113' },
+                { name: 'Ambulans', contact: '119' },
+                { name: 'Kantor Kecamatan', contact: 'Local Office' }
+            ];
+
+            // Simulate broadcasting to nearby users within 5km radius
+            const nearbyUsers = [
+                'user001', 'user002', 'user003', 'user004', 'user005'
+            ];
+
+            console.log('Broadcasting emergency signal to:');
+            console.log('- Emergency Services:', emergencyServices);
+            console.log('- Nearby Users:', nearbyUsers);
+            console.log('- Emergency Data:', emergencyData);
+        }
+
+        function getEmergencyTypeLabel(type) {
+            const labels = {
+                'medical': 'Medis',
+                'fire': 'Kebakaran',
+                'crime': 'Keamanan',
+                'disaster': 'Bencana Alam'
+            };
+            return labels[type] || 'Darurat';
+        }
+
+        function showEmergencyActivated() {
+            // Replace page content with emergency activated message
+            document.body.innerHTML = `
+                <div class="min-h-screen bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center px-4">
+                    <div class="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md w-full">
+                        <div class="w-24 h-24 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                            <i class="fas fa-exclamation-triangle text-white text-3xl"></i>
+                        </div>
+                        
+                        <h1 class="text-2xl font-bold text-gray-900 mb-4">SINYAL DARURAT AKTIF!</h1>
+                        
+                        <p class="text-gray-600 mb-6">
+                            Sinyal darurat telah dikirim ke semua pengguna dan petugas terdekat. 
+                            Tim darurat akan segera menuju lokasi Anda.
+                        </p>
+                        
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                            <p class="text-sm text-yellow-800">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Tetap tenang dan ikuti instruksi petugas yang akan datang
+                            </p>
+                        </div>
+                        
+                        <button 
+                            onclick="window.location.href='dashboard.html'" 
+                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                        >
+                            <i class="fas fa-home mr-2"></i>
+                            Kembali ke Dashboard
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function callEmergency(number) {
+            if (confirm(`Menghubungi layanan darurat ${number}?`)) {
+                // In mobile app, this would actually make a call
+                window.location.href = `tel:${number}`;
+            }
+        }
+
+        function goBack() {
+            if (document.referrer) {
+                window.history.back();
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        }
+    </script>
+</body>
+</html>

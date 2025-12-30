@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Your rule content
+gunakan icon wave hand ketika kamu menjawab pertanyaan saya pada agent mode
+sebelum memulai analisa modules dan pahami struktur kodingnya
+selalu gunakan bahasa indonesia untuk menjawab
+selalu gunakan akses database di config/database.php untuk melihat daftar tabel beserta kolomnya agar tidak salah membuat variabel
+selalu mengikuti struktur koding saya
+model,helper,library di autoload di config/autoload.php dan tidak usah di load di controller lagi
+Tidak Menghapus: Saya tidak boleh menghapus kode atau file kecuali diperintahkan.
+Mengerjakan Task yang Diminta: Saya hanya boleh mengerjakan task yang Anda minta.
+boleh melakukan edit file secara langsung namun fokus pada pertanyaan dan yang diminta tanpa mengubah yang lain
