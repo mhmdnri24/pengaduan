@@ -16,9 +16,9 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.pengaduan"
+    namespace = "id.pengaduan"
     compileSdk = 36  // Required by Flutter plugins (image_picker, geolocator, etc.)
-    ndkVersion = "27.0.12077973"
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -44,7 +44,7 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
     // Use the applicationId that matches android/app/google-services.json
-    applicationId = "com.example.pengaduan"
+    applicationId = "id.pengaduan"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion  // Minimum Android 5.0
@@ -68,14 +68,15 @@ android {
                 signingConfigs.getByName("debug")
             }
             
+            // Fix for AAB build stripping error
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
+            
             // Tambah proguard untuk mengurangi size
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
             
-            // Disable NDK debug symbols to avoid AAB build issues
-            ndk {
-                debugSymbolLevel = "NONE"
-            }
         }
     }
     
@@ -84,11 +85,12 @@ android {
         javaMaxHeapSize = "2g"
     }
 
-    packagingOptions {
+    packaging {
         jniLibs {
             useLegacyPackaging = false
             // Completely disable debug symbol processing
             pickFirsts += setOf("**/libjsc.so")
+            keepDebugSymbols += setOf("**/*.so")
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.pengaduan
+package id.pengaduan
 
 import android.content.Context
 import android.content.Intent
