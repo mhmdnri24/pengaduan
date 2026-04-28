@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "462259990404",
-    "project_id": "smart-city-2e0e4",
-    "storage_bucket": "smart-city-2e0e4.firebasestorage.app"
+    "project_number": "861406805375",
+    "project_id": "lapor-para-juara",
+    "storage_bucket": "lapor-para-juara.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:462259990404:android:7213f5eaaac8942fd1f7d1",
+        "mobilesdk_app_id": "1:861406805375:android:cf9a6da20c0849cc412e4a",
         "android_client_info": {
-          "package_name": "id.pengaduan"
+          "package_name": "com.parajuara.app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBhvF7F8co01pSy6yDKTZDQsjyqea4zKvQ"
+          "current_key": "AIzaSyAesREEOkElkTnkGysFmpHyTTw-G7r7fOg"
         }
       ],
       "services": {

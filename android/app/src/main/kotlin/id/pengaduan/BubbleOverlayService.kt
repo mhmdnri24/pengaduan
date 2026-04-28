@@ -1,4 +1,4 @@
-package id.pengaduan
+package com.parajuara.app
 
 import android.app.*
 import android.content.Context

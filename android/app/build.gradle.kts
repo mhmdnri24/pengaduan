@@ -16,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "id.pengaduan"
+    namespace = "com.parajuara.app"
     compileSdk = 36  // Required by Flutter plugins (image_picker, geolocator, etc.)
 
 
@@ -44,7 +44,7 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
     // Use the applicationId that matches android/app/google-services.json
-    applicationId = "id.pengaduan"
+    applicationId = "com.parajuara.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion  // Minimum Android 5.0
